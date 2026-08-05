@@ -1,6 +1,64 @@
 {
   "tasks": [
     {
+      "id": "keystone01",
+      "title": "Prep for Project Keystone kickoff call with HPS",
+      "project": "Project Keystone",
+      "priority": "high",
+      "deadline": "2026-08-06",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You + David",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "David tapped you as the FEP lead working with him on Project Keystone, a GP liquidity-solutions sourcing effort with HPS and BlackRock ($400m+ tickets, FEP ~$150m per deal). A 30-minute kickoff call with the HPS team is set for Thursday 8/6 at 10am ET, and David circulated call notes plus a framing deck to review beforehand.",
+      "steps": [
+        "Read David's summary notes and framing PDF",
+        "Note questions on process, fees, target GPs",
+        "Join Teams call Thu 10am ET"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "GP project- Keystone",
+      "src": "email",
+      "rank": 1785974206696,
+      "createdAt": "2026-08-05T23:56:46.695Z"
+    },
+    {
+      "id": "aiusecase1",
+      "title": "Send Brandon your top AI use-case picks",
+      "project": "AI Projects",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Brandon Emmerich",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Brandon is still waiting on your response to his July AI use-case survey and just nudged you directly asking which use case interests you most. He wants the spreadsheet back with your top 4 picks checked plus one idea not on the list, so he can form a working group.",
+      "steps": [
+        "Open Brandon's use-case spreadsheet",
+        "Check your top 4 and add one new idea",
+        "Reply to Brandon with the marked sheet"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "brandon.emmerich@fep-us.com",
+      "subject": "AI Use Case Brainstorm + Survey",
+      "src": "email",
+      "rank": 1785974206697,
+      "createdAt": "2026-08-05T23:56:46.695Z"
+    },
+    {
       "id": "fundcap01a",
       "title": "Reply to David on fund-project capacity by EoD",
       "project": "FEP Fund",
@@ -413,5 +471,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-05T20:52:00.000Z"
+  "lastSync": "2026-08-05T23:56:46.695Z"
 }
