@@ -1,13 +1,14 @@
 ---
-name: deal-sync
-description: Triage new Outlook email into Morning Deal Desk tasks. Searches the inbox via the Microsoft 365 MCP connection, applies the deal-desk triage rules, merges deduped tasks into data/tasks.json, and commits. Optional argument = time window (e.g. "past 7 days"); default is since the last sync.
+name: command-center-sync
+description: Triage new Outlook email into Project Command Center tasks. Searches the inbox via the Microsoft 365 MCP connection, applies the triage rules, merges deduped tasks into data/tasks.json, and commits. Optional argument = time window (e.g. "past 7 days"); default is since the last sync.
 ---
 
-# Deal Sync
+# Command Center Sync
 
 You are triaging Outlook email for a private equity deal professional (the user).
-The task file is `data/tasks.json` in the deal-desk repo (repo root:
-`C:\Users\AlexChang\deal-desk` — use relative paths if the cwd is inside it).
+The task file is `data/tasks.json` in the Project Command Center repo (repo root:
+`C:\Users\AlexChang\project-command-center` — use relative paths if the cwd is
+inside it).
 
 ## Procedure
 
@@ -64,6 +65,7 @@ The task file is `data/tasks.json` in the deal-desk repo (repo root:
    `git add data/tasks.json` and commit with message
    `sync: <N> new task(s) (<window>)`. If zero new tasks, still update
    `lastSync` and commit with `sync: nothing actionable (<window>)`.
+   If an `origin` remote exists, also `git push`.
 
 8. **Report.** Tell the user: how many emails scanned, how many tasks created
    (with one-line titles), and remind them to hit Refresh in the dashboard.

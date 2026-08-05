@@ -76,7 +76,7 @@ function migrate(t) {
 }
 
 // ---------- component ----------
-export default function MorningDealDesk() {
+export default function CommandCenter() {
   const [tasks, setTasks] = useState([]);
   const [lastSync, setLastSync] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -189,7 +189,7 @@ export default function MorningDealDesk() {
       if (res.ok) payload = await res.json(); // export what's on disk, not just in-memory state
     } catch (e) { /* fall back to live state */ }
     const backup = {
-      backupOf: "deal-desk-v1",
+      backupOf: "command-center-v1",
       exportedAt: new Date().toISOString(),
       taskCount: (payload.tasks || []).length,
       tasks: payload.tasks || [],
@@ -218,7 +218,7 @@ export default function MorningDealDesk() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `deal-desk-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `command-center-backup-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) {
@@ -432,7 +432,7 @@ export default function MorningDealDesk() {
                   Paste a backup below. You'll see a preview and confirm before anything is overwritten.
                 </div>
                 <textarea value={restoreText} onChange={(e) => previewRestore(e.target.value)} rows={8}
-                  placeholder='{ "backupOf": "deal-desk-v1", "tasks": [ … ] }'
+                  placeholder='{ "backupOf": "command-center-v1", "tasks": [ … ] }'
                   style={{ width: "100%", boxSizing: "border-box", fontFamily: MONO, fontSize: 11, border: `1px solid ${restoreErr ? "#E3C4BE" : LINE}`, borderRadius: 4, padding: 10, color: INK, resize: "vertical" }} />
 
                 {restoreErr && (
@@ -482,7 +482,7 @@ export default function MorningDealDesk() {
         {/* masthead */}
         <div style={{ borderBottom: `2px solid ${INK}`, paddingBottom: 14, marginBottom: 6 }}>
           <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: 2, color: SOFT }}>
-            MORNING DEAL DESK · {new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
+            PROJECT COMMAND CENTER · {new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginTop: 8 }}>
             <div>
@@ -490,7 +490,7 @@ export default function MorningDealDesk() {
                 {openCount} on you · {delegatedCount} delegated · {dueSoon} due ≤3d
               </div>
               <div style={{ fontSize: 12, color: FAINT, fontFamily: MONO, marginTop: 4 }}>
-                last inbox sync: {fmtTime(lastSync)} · run <b>/deal-sync</b> in Claude Code, then refresh
+                last inbox sync: {fmtTime(lastSync)} · run <b>/command-center-sync</b> in Claude Code, then refresh
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -576,7 +576,7 @@ export default function MorningDealDesk() {
         {/* empty state */}
         {tasks.length === 0 && (
           <div style={{ textAlign: "center", padding: "60px 20px", color: FAINT, fontSize: 14, border: `1px dashed ${LINE}`, borderRadius: 8, background: CARD }}>
-            An empty desk. Run <b style={{ color: INK }}>/deal-sync</b> in Claude Code to triage your inbox, or add a task manually.
+            An empty desk. Run <b style={{ color: INK }}>/command-center-sync</b> in Claude Code to triage your inbox, or add a task manually.
           </div>
         )}
         {tasks.length > 0 && visible.length === 0 && (
@@ -752,7 +752,7 @@ export default function MorningDealDesk() {
         ))}
 
         <div style={{ marginTop: 28, fontSize: 11, color: FAINT, fontFamily: MONO, borderTop: `1px solid ${LINE}`, paddingTop: 10 }}>
-          Inbox sync + per-task research run in Claude Code (/deal-sync, /deal-research) · deadlines marked ·E (stated in email) or ·I (inferred) · indigo = delegated, tracked by follow-up date · saved to data/tasks.json, history in git.
+          Inbox sync + per-task research run in Claude Code (/command-center-sync, /command-center-research) · deadlines marked ·E (stated in email) or ·I (inferred) · indigo = delegated, tracked by follow-up date · saved to data/tasks.json, history in git.
         </div>
       </div>
     </div>

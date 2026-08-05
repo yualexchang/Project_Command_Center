@@ -1,13 +1,13 @@
 ---
-name: deal-research
-description: Deep-dive one Morning Deal Desk task - find the email thread and related project history in Outlook, then rewrite the task's blurb, context, and game plan in data/tasks.json. Argument = task title (or enough of it to identify the task).
+name: command-center-research
+description: Deep-dive one Project Command Center task - find the email thread and related project history in Outlook, then rewrite the task's blurb, context, and game plan in data/tasks.json. Argument = task title (or enough of it to identify the task).
 ---
 
-# Deal Research
+# Command Center Research
 
 You are helping a private equity deal professional (the user) tackle ONE task
-from `data/tasks.json` in the deal-desk repo (repo root:
-`C:\Users\AlexChang\deal-desk`).
+from `data/tasks.json` in the Project Command Center repo (repo root:
+`C:\Users\AlexChang\project-command-center`).
 
 ## Procedure
 
@@ -35,7 +35,8 @@ from `data/tasks.json` in the deal-desk repo (repo root:
 
 4. **Write and commit.** Write `data/tasks.json` pretty-printed (2-space
    indent, trailing newline). Commit with message
-   `research: <task title, abbreviated>`.
+   `research: <task title, abbreviated>`. If an `origin` remote exists, also
+   `git push`.
 
 5. **Report.** Summarize what you learned and the game plan in chat, and
    remind the user to hit Refresh in the dashboard.
