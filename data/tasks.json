@@ -7,7 +7,7 @@
       "priority": "high",
       "deadline": "2026-08-05",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "done",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Riad + John",
       "askType": "internal",
@@ -77,9 +77,15 @@
         "Reply to Dan and Jake"
       ],
       "context": "",
-      "reassignedTo": null,
-      "followUpDate": null,
-      "notes": [],
+      "reassignedTo": "preston",
+      "followUpDate": "2026-08-08",
+      "notes": [
+        {
+          "id": "wyt7c240msgq53c0",
+          "date": "2026-08-05",
+          "text": "Reassigned to preston"
+        }
+      ],
       "links": [],
       "sender": "dan.afrasiabi@bravofitgroup.com",
       "subject": "Stamp Duty holdback / Escrow Amounts",

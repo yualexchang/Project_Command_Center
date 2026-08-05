@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from "react";
 
 // ---------- constants ----------
 const PRI = { high: 0, medium: 1, low: 2 };
-const PRI_COLOR = { high: "#B3382C", medium: "#9A6B00", low: "#3D6B4F" };
-const DELEGATED = "#4A4E9E"; // delegated tasks switch to the indigo theme
+const PRI_COLOR = { high: "#8B1A1A", medium: "#C63D2F", low: "#D9822B" }; // dark red / red / orange
+const DONE_COLOR = "#2E7D52"; // green = completed
+const DELEGATED = "#6B4FA1"; // purple = delegated
 const STATUS_NEXT = { todo: "progress", progress: "done", done: "todo" };
 
 const INK = "#16202B";
@@ -76,34 +77,50 @@ function migrate(t) {
 }
 
 // ---------- logo ----------
-function Logo({ size = 56 }) {
+function Logo({ size = 92 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-label="Project Command Center" style={{ flexShrink: 0 }}>
       <circle cx="32" cy="32" r="30" fill={INK} />
-      <path d="M32 32 L32 5 A27 27 0 0 1 55.4 18.5 Z" fill={DELEGATED} opacity="0.5" />
-      <line x1="32" y1="32" x2="55.4" y2="18.5" stroke="#C9CAE8" strokeWidth="1.6" />
       <circle cx="32" cy="32" r="23" fill="none" stroke={DELEGATED} strokeWidth="1.4" opacity="0.85" />
       <circle cx="32" cy="32" r="15.5" fill="none" stroke="#8B98A5" strokeWidth="1" opacity="0.55" />
       <circle cx="32" cy="32" r="8" fill="none" stroke="#8B98A5" strokeWidth="1" opacity="0.35" />
       <line x1="5" y1="32" x2="59" y2="32" stroke="#5C6B7A" strokeWidth="1" opacity="0.45" />
       <line x1="32" y1="5" x2="32" y2="59" stroke="#5C6B7A" strokeWidth="1" opacity="0.45" />
-      <circle cx="41.5" cy="21.5" r="2.4" fill="#EEF4EE" />
-      <circle cx="21.5" cy="40.5" r="2" fill="#D9A441" />
-      <circle cx="43.5" cy="42" r="2" fill="#C96A5B" />
+      {/* rotating sweep — the "always scanning" beam */}
+      <g>
+        <path d="M32 32 L32 5 A27 27 0 0 1 55.4 18.5 Z" fill="#8F7BC4" opacity="0.5" />
+        <line x1="32" y1="32" x2="55.4" y2="18.5" stroke="#D5CCEC" strokeWidth="1.6" />
+        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="4s" repeatCount="indefinite" />
+      </g>
+      <circle cx="41.5" cy="21.5" r="2.4" fill="#EEF4EE">
+        <animate attributeName="opacity" values="1;0.15;1" dur="4s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="21.5" cy="40.5" r="2" fill="#D9A441">
+        <animate attributeName="opacity" values="0.2;1;0.2" dur="4s" begin="1.3s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="43.5" cy="42" r="2" fill="#C96A5B">
+        <animate attributeName="opacity" values="0.6;1;0.15;0.6" dur="4s" begin="2.2s" repeatCount="indefinite" />
+      </circle>
       <circle cx="32" cy="32" r="2.6" fill={BG} />
     </svg>
   );
 }
 
-// ---------- speed dials ----------
-const DIAL = { done: "#2E7D52", delegated: "#4A4E9E", track: "#C7D0D9" }; // validated: CVD-safe on white
-const PORTCO_DIALS = [
-  { key: "BravoFit", match: /bravo|project fit/i },
-  { key: "IMO", match: /\bimo\b|sea lion/i },
-  { key: "KEP", match: /kep|kindling|caryl|primrose/i },
-  { key: "Penske", match: /penske/i },
+// ---------- buckets & speed dials ----------
+const DIAL = { done: DONE_COLOR, delegated: DELEGATED, track: "#C7D0D9" }; // validated: CVD-safe on white
+// Categorical bucket palette — validated (one WARN pair covered by direct labels).
+const BUCKETS = [
+  { key: "BravoFit", color: "#2B6CC4", match: /bravo|project fit/i },
+  { key: "IMO", color: "#B8860B", match: /\bimo\b|sea lion/i },
+  { key: "KEP", color: "#00939F", match: /kep|kindling|caryl|primrose/i },
+  { key: "Penske", color: "#D34F8A", match: /penske/i },
+  { key: "AI Projects", color: "#6E7FD1", match: /command center|deal desk|claude|deepseek|\bai\b/i },
+  { key: "Other Projects", color: "#A34E2A", match: /admin|fep fund|general/i },
+  { key: "Live Deals", color: "#7E8F1F", match: null }, // fallback: any project not matched above
 ];
-const OTHER_PROJECTS = /admin|command center|fep fund|general/i;
+function bucketFor(project) {
+  return BUCKETS.find((b) => b.match && b.match.test(project)) || BUCKETS[BUCKETS.length - 1];
+}
 
 function dialArc(cx, cy, r, a0, a1) {
   // 0deg = left end of the semicircle, 180deg = right end, sweeping over the top
@@ -116,7 +133,7 @@ function dialArc(cx, cy, r, a0, a1) {
   return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;
 }
 
-function Gauge({ label, done, delegated, open, hero = false }) {
+function Gauge({ label, done, delegated, open, hero = false, dot = null }) {
   const size = hero ? 200 : 136;
   const strokeW = hero ? 15 : 11;
   const cx = size / 2;
@@ -165,7 +182,8 @@ function Gauge({ label, done, delegated, open, hero = false }) {
       <div style={{ fontSize: hero ? 26 : 18, fontWeight: 700, color: INK, marginTop: 2, lineHeight: 1.1 }}>
         {pct === null ? "—" : `${pct}%`}
       </div>
-      <div style={{ fontFamily: MONO, fontSize: hero ? 12 : 10, letterSpacing: 1.2, color: SOFT, marginTop: 3 }}>
+      <div style={{ fontFamily: MONO, fontSize: hero ? 12 : 10, letterSpacing: 1.2, color: SOFT, marginTop: 3, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+        {dot && <span style={{ width: 8, height: 8, borderRadius: 2, background: dot, display: "inline-block", flexShrink: 0 }} />}
         {label.toUpperCase()}
       </div>
       <div style={{ fontSize: hero ? 12 : 11, color: FAINT, marginTop: 2 }}>
@@ -183,15 +201,13 @@ function DialRow({ tasks }) {
     return c;
   };
 
-  const claimed = new Set();
-  const portcos = PORTCO_DIALS.map((p) => {
-    const list = tasks.filter((t) => p.match.test(t.project));
-    list.forEach((t) => claimed.add(t.id));
-    return { label: p.key, ...tally(list) };
-  });
-  const rest = tasks.filter((t) => !claimed.has(t.id));
-  const other = tally(rest.filter((t) => OTHER_PROJECTS.test(t.project)));
-  const liveDeals = tally(rest.filter((t) => !OTHER_PROJECTS.test(t.project)));
+  const byBucket = {};
+  BUCKETS.forEach((b) => (byBucket[b.key] = []));
+  tasks.forEach((t) => byBucket[bucketFor(t.project).key].push(t));
+  const dial = (key) => {
+    const b = BUCKETS.find((x) => x.key === key);
+    return <Gauge key={key} label={key} dot={b.color} {...tally(byBucket[key])} />;
+  };
 
   const chip = (color, text) => (
     <span key={text} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: SOFT }}>
@@ -200,23 +216,29 @@ function DialRow({ tasks }) {
     </span>
   );
 
+  const row = (children) => (
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "4px 22px" }}>
+      {children}
+    </div>
+  );
+
   return (
-    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "14px 16px 10px", marginTop: 14 }}>
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "14px 16px 12px", marginTop: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: FAINT }}>MISSION DIALS</div>
         <div style={{ display: "flex", gap: 14 }}>
-          {chip(DIAL.done, "Done")}
-          {chip(DIAL.delegated, "Delegated")}
           {chip(DIAL.track, "Open")}
+          {chip(DIAL.delegated, "Delegated")}
+          {chip(DIAL.done, "Complete")}
         </div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "4px 18px", marginTop: 6 }}>
-        <Gauge label="All Tasks" hero {...tally(tasks)} />
-        {portcos.map((p) => (
-          <Gauge key={p.label} label={p.label} done={p.done} delegated={p.delegated} open={p.open} />
-        ))}
-        <Gauge label="Live Deals" {...liveDeals} />
-        <Gauge label="Other" {...other} />
+      {/* row 1: all projects */}
+      {row(<Gauge label="All Projects" hero {...tally(tasks)} />)}
+      {/* row 2: portcos */}
+      {row(["BravoFit", "IMO", "KEP", "Penske"].map(dial))}
+      {/* row 3: everything else */}
+      <div style={{ marginTop: 10 }}>
+        {row(["Live Deals", "AI Projects", "Other Projects"].map(dial))}
       </div>
     </div>
   );
@@ -701,7 +723,7 @@ export default function CommandCenter() {
         {/* filter bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, margin: "18px 0 10px" }}>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-            {[["open", "On me"], ["delegated", "Delegated"], ["done", "Done"], ["all", "All"]].map(([k, l]) => (
+            {[["open", "On Alex / Open"], ["delegated", "Delegated"], ["done", "Complete"], ["all", "All"]].map(([k, l]) => (
               <button key={k} onClick={() => setFStatus(k)}
                 style={{ ...btn(false), padding: "5px 12px", fontSize: 12, background: fStatus === k ? INK : CARD, color: fStatus === k ? "#fff" : SOFT, border: `1px solid ${fStatus === k ? INK : LINE}` }}>
                 {l}
@@ -745,14 +767,16 @@ export default function CommandCenter() {
         {groups.map((g) => (
           <div key={g.name || "flat"}>
             {g.name && (
-              <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: 1.5, color: SOFT, margin: "22px 0 8px", borderBottom: `1px solid ${LINE}`, paddingBottom: 4 }}>
-                ▸ {g.name.toUpperCase()} <span style={{ color: FAINT }}>({g.items.length})</span>
+              <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: 1.5, color: SOFT, margin: "22px 0 8px", borderBottom: `1px solid ${LINE}`, paddingBottom: 4, display: "flex", alignItems: "center", gap: 7 }}>
+                <span style={{ width: 9, height: 9, borderRadius: 2, background: bucketFor(g.name).color, display: "inline-block" }} />
+                {g.name.toUpperCase()} <span style={{ color: FAINT }}>({g.items.length})</span>
               </div>
             )}
             {g.items.map((t) => {
               const isOpen = expanded.has(t.id);
               const done = t.status === "done";
-              const railColor = done ? LINE : t.reassignedTo ? DELEGATED : PRI_COLOR[t.priority];
+              const railColor = done ? DONE_COLOR : t.reassignedTo ? DELEGATED : PRI_COLOR[t.priority];
+              const bucket = bucketFor(t.project);
               const dChip = t.reassignedTo
                 ? chipFor(t.followUpDate, "FOLLOW UP")
                 : chipFor(t.deadline, "DUE");
@@ -769,8 +793,8 @@ export default function CommandCenter() {
                       title={t.status === "todo" ? "Mark in progress" : t.status === "progress" ? "Mark done" : "Reopen"}
                       style={{
                         width: 22, height: 22, borderRadius: "50%", marginTop: 2, flexShrink: 0, cursor: "pointer",
-                        border: `2px solid ${done ? "#3D6B4F" : t.status === "progress" ? "#9A6B00" : FAINT}`,
-                        background: done ? "#3D6B4F" : t.status === "progress" ? "linear-gradient(90deg,#9A6B00 50%,transparent 50%)" : "transparent",
+                        border: `2px solid ${done ? DONE_COLOR : t.status === "progress" ? "#9A6B00" : FAINT}`,
+                        background: done ? DONE_COLOR : t.status === "progress" ? "linear-gradient(90deg,#9A6B00 50%,transparent 50%)" : "transparent",
                         color: "#fff", fontSize: 13, lineHeight: "18px", padding: 0,
                       }}>
                       {done ? "✓" : ""}
@@ -787,7 +811,8 @@ export default function CommandCenter() {
                           </span>
                         )}
                         {!grouped && (
-                          <span style={{ fontFamily: MONO, fontSize: 10, color: SOFT, background: BG, border: `1px solid ${LINE}`, borderRadius: 3, padding: "1px 6px" }}>
+                          <span style={{ fontFamily: MONO, fontSize: 10, color: SOFT, background: BG, border: `1px solid ${bucket.color}`, borderRadius: 3, padding: "1px 6px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                            <span style={{ width: 7, height: 7, borderRadius: 2, background: bucket.color, display: "inline-block" }} />
                             {t.project}
                           </span>
                         )}
