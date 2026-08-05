@@ -4,8 +4,10 @@ import { useState, useEffect, useRef } from "react";
 const PRI = { high: 0, medium: 1, low: 2 };
 const PRI_COLOR = { high: "#8B1A1A", medium: "#C63D2F", low: "#D9822B" }; // dark red / red / orange
 const DONE_COLOR = "#2E7D52"; // green = completed
+const PROGRESS_COLOR = "#B58200"; // amber = in progress
 const DELEGATED = "#6B4FA1"; // purple = delegated
-const STATUS_NEXT = { todo: "progress", progress: "done", done: "todo" };
+// left-click cycles todo <-> in progress; completing is right-click (see status button)
+const STATUS_NEXT = { todo: "progress", progress: "todo", done: "todo" };
 
 const INK = "#16202B";
 const SOFT = "#5C6B7A";
@@ -107,7 +109,7 @@ function Logo({ size = 92 }) {
 }
 
 // ---------- buckets & speed dials ----------
-const DIAL = { done: DONE_COLOR, delegated: DELEGATED, track: "#C7D0D9" }; // validated: CVD-safe on white
+const DIAL = { done: DONE_COLOR, progress: PROGRESS_COLOR, delegated: DELEGATED, track: "#C7D0D9" }; // validated: CVD-safe on white
 // Categorical bucket palette — validated (one WARN pair covered by direct labels).
 const BUCKETS = [
   { key: "BravoFit", color: "#2B6CC4", match: /bravo|project fit/i },
@@ -133,6 +135,17 @@ function dialArc(cx, cy, r, a0, a1) {
   return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;
 }
 
+// filled pie-wedge — parliament / congress-seating style
+function dialWedge(cx, cy, r, a0, a1) {
+  const pt = (a) => {
+    const rad = ((180 - a) * Math.PI) / 180;
+    return [cx + r * Math.cos(rad), cy - r * Math.sin(rad)];
+  };
+  const [x0, y0] = pt(a0);
+  const [x1, y1] = pt(a1);
+  return `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1} Z`;
+}
+
 function Spinner({ size = 14, color = "#fff" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }}>
@@ -144,18 +157,21 @@ function Spinner({ size = 14, color = "#fff" }) {
   );
 }
 
-function Gauge({ label, done, delegated, open, hero = false, dot = null }) {
+function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot = null }) {
   const size = hero ? 150 : 104;
   const strokeW = hero ? 12 : 9;
+  const fan = !hero; // small dials render as filled congress-seating fans
   const cx = size / 2;
-  const r = size / 2 - strokeW / 2 - 2;
+  const r = fan ? size / 2 - 4 : size / 2 - strokeW / 2 - 2;
   const cy = size / 2 + 4;
-  const total = done + delegated + open;
+  const total = done + inProgress + delegated + open;
   const pct = total ? Math.round((done / total) * 100) : null;
-  const gapDeg = (2 / (Math.PI * r)) * 180; // ~2px surface gap between segments
+  const gapDeg = (2 / (Math.PI * r)) * 180; // ~2px surface gap between ring segments
 
+  // segment order, left to right: complete, in progress, delegated, open
   const parts = [
     { v: done, color: DIAL.done },
+    { v: inProgress, color: DIAL.progress },
     { v: delegated, color: DIAL.delegated },
     { v: open, color: DIAL.track },
   ].filter((p) => p.v > 0);
@@ -164,25 +180,38 @@ function Gauge({ label, done, delegated, open, hero = false, dot = null }) {
   let acc = 0;
   parts.forEach((p, i) => {
     const span = (p.v / total) * 180;
-    const a0 = acc + (i > 0 ? gapDeg / 2 : 0);
-    const a1 = acc + span - (i < parts.length - 1 ? gapDeg / 2 : 0);
-    if (a1 > a0) segs.push({ d: dialArc(cx, cy, r, a0, a1), color: p.color });
+    if (fan) {
+      segs.push({ d: dialWedge(cx, cy, r, acc, acc + span), color: p.color });
+    } else {
+      const a0 = acc + (i > 0 ? gapDeg / 2 : 0);
+      const a1 = acc + span - (i < parts.length - 1 ? gapDeg / 2 : 0);
+      if (a1 > a0) segs.push({ d: dialArc(cx, cy, r, a0, a1), color: p.color });
+    }
     acc += span;
   });
 
   const needleAngle = total ? (done / total) * 180 : 0;
   const nRad = ((180 - needleAngle) * Math.PI) / 180;
-  const nLen = r - strokeW / 2 - 5;
+  const nLen = fan ? r - 3 : r - strokeW / 2 - 5;
   const nx = cx + nLen * Math.cos(nRad);
   const ny = cy - nLen * Math.sin(nRad);
 
   return (
-    <div style={{ textAlign: "center", padding: "4px 6px" }}>
+    <div style={{ textAlign: "center", padding: "4px 6px", maxWidth: size + 70 }}>
       <svg width={size} height={cy + 8} style={{ display: "block", margin: "0 auto" }}>
-        {segs.length === 0 && <path d={dialArc(cx, cy, r, 0, 180)} fill="none" stroke={DIAL.track} strokeWidth={strokeW} strokeLinecap="round" />}
-        {segs.map((s, i) => (
-          <path key={i} d={s.d} fill="none" stroke={s.color} strokeWidth={strokeW} strokeLinecap="butt" />
-        ))}
+        {segs.length === 0 &&
+          (fan ? (
+            <path d={dialWedge(cx, cy, r, 0, 180)} fill={DIAL.track} opacity="0.45" stroke={CARD} strokeWidth="2" />
+          ) : (
+            <path d={dialArc(cx, cy, r, 0, 180)} fill="none" stroke={DIAL.track} strokeWidth={strokeW} strokeLinecap="round" />
+          ))}
+        {segs.map((s, i) =>
+          fan ? (
+            <path key={i} d={s.d} fill={s.color} stroke={CARD} strokeWidth="2" strokeLinejoin="round" />
+          ) : (
+            <path key={i} d={s.d} fill="none" stroke={s.color} strokeWidth={strokeW} strokeLinecap="butt" />
+          )
+        )}
         {total > 0 && (
           <>
             <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={INK} strokeWidth={hero ? 2 : 1.5} />
@@ -198,16 +227,17 @@ function Gauge({ label, done, delegated, open, hero = false, dot = null }) {
         {label.toUpperCase()}
       </div>
       <div style={{ fontSize: 10, color: FAINT, marginTop: 1 }}>
-        {total === 0 ? "no tasks" : `${done} done · ${delegated} delegated · ${open} open`}
+        {total === 0 ? "no tasks" : `${open} open · ${inProgress} in prog · ${delegated} deleg · ${done} done`}
       </div>
     </div>
   );
 }
 
 function DialRow({ tasks }) {
-  const cat = (t) => (t.status === "done" ? "done" : t.reassignedTo ? "delegated" : "open");
+  const cat = (t) =>
+    t.status === "done" ? "done" : t.reassignedTo ? "delegated" : t.status === "progress" ? "inProgress" : "open";
   const tally = (list) => {
-    const c = { done: 0, delegated: 0, open: 0 };
+    const c = { done: 0, inProgress: 0, delegated: 0, open: 0 };
     list.forEach((t) => c[cat(t)]++);
     return c;
   };
@@ -237,8 +267,9 @@ function DialRow({ tasks }) {
     <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "10px 12px 8px", marginTop: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: FAINT }}>MISSION DIALS</div>
-        <div style={{ display: "flex", gap: 14 }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {chip(DIAL.track, "Open")}
+          {chip(DIAL.progress, "In Progress")}
           {chip(DIAL.delegated, "Delegated")}
           {chip(DIAL.done, "Complete")}
         </div>
@@ -852,11 +883,12 @@ export default function CommandCenter() {
                   {/* ---- overview row ---- */}
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px" }}>
                     <button onClick={() => update(t.id, { status: STATUS_NEXT[t.status] })}
-                      title={t.status === "todo" ? "Mark in progress" : t.status === "progress" ? "Mark done" : "Reopen"}
+                      onContextMenu={(e) => { e.preventDefault(); update(t.id, { status: t.status === "done" ? "todo" : "done" }); }}
+                      title={t.status === "todo" ? "Click: start (in progress) · Right-click: complete" : t.status === "progress" ? "Click: back to to-do · Right-click: complete" : "Click or right-click: reopen"}
                       style={{
                         width: 22, height: 22, borderRadius: "50%", marginTop: 2, flexShrink: 0, cursor: "pointer",
-                        border: `2px solid ${done ? DONE_COLOR : t.status === "progress" ? "#9A6B00" : FAINT}`,
-                        background: done ? DONE_COLOR : t.status === "progress" ? "linear-gradient(90deg,#9A6B00 50%,transparent 50%)" : "transparent",
+                        border: `2px solid ${done ? DONE_COLOR : t.status === "progress" ? PROGRESS_COLOR : FAINT}`,
+                        background: done ? DONE_COLOR : t.status === "progress" ? `linear-gradient(90deg,${PROGRESS_COLOR} 50%,transparent 50%)` : "transparent",
                         color: "#fff", fontSize: 13, lineHeight: "18px", padding: 0,
                       }}>
                       {done ? "✓" : ""}
@@ -889,7 +921,7 @@ export default function CommandCenter() {
                         {t.needsCall && !done && <span style={tag("#1F5E7A", false)}>📞 CALL FIRST</span>}
                         {t.reassignedTo && !done && <span style={tag(DELEGATED, true)}>WITH {t.reassignedTo.toUpperCase()}</span>}
                         {t.status === "progress" && !done && (
-                          <span style={{ fontFamily: MONO, fontSize: 10, color: "#9A6B00", fontWeight: 700 }}>IN PROGRESS</span>
+                          <span style={{ fontFamily: MONO, fontSize: 10, color: PROGRESS_COLOR, fontWeight: 700 }}>IN PROGRESS</span>
                         )}
                       </div>
                     </div>
