@@ -133,9 +133,20 @@ function dialArc(cx, cy, r, a0, a1) {
   return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;
 }
 
+function Spinner({ size = 14, color = "#fff" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }}>
+      <circle cx="10" cy="10" r="8" fill="none" stroke={color} strokeOpacity="0.3" strokeWidth="3" />
+      <path d="M10 2 A8 8 0 0 1 18 10" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur="0.9s" repeatCount="indefinite" />
+      </path>
+    </svg>
+  );
+}
+
 function Gauge({ label, done, delegated, open, hero = false, dot = null }) {
-  const size = hero ? 200 : 136;
-  const strokeW = hero ? 15 : 11;
+  const size = hero ? 150 : 104;
+  const strokeW = hero ? 12 : 9;
   const cx = size / 2;
   const r = size / 2 - strokeW / 2 - 2;
   const cy = size / 2 + 4;
@@ -174,19 +185,19 @@ function Gauge({ label, done, delegated, open, hero = false, dot = null }) {
         ))}
         {total > 0 && (
           <>
-            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={INK} strokeWidth={hero ? 2.5 : 2} />
-            <circle cx={cx} cy={cy} r={hero ? 5 : 4} fill={INK} />
+            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={INK} strokeWidth={hero ? 2 : 1.5} />
+            <circle cx={cx} cy={cy} r={hero ? 4 : 3} fill={INK} />
           </>
         )}
       </svg>
-      <div style={{ fontSize: hero ? 26 : 18, fontWeight: 700, color: INK, marginTop: 2, lineHeight: 1.1 }}>
+      <div style={{ fontSize: hero ? 19 : 14, fontWeight: 700, color: INK, marginTop: 1, lineHeight: 1.1 }}>
         {pct === null ? "—" : `${pct}%`}
       </div>
-      <div style={{ fontFamily: MONO, fontSize: hero ? 12 : 10, letterSpacing: 1.2, color: SOFT, marginTop: 3, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-        {dot && <span style={{ width: 8, height: 8, borderRadius: 2, background: dot, display: "inline-block", flexShrink: 0 }} />}
+      <div style={{ fontFamily: MONO, fontSize: hero ? 10 : 9, letterSpacing: 1, color: SOFT, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+        {dot && <span style={{ width: 7, height: 7, borderRadius: 2, background: dot, display: "inline-block", flexShrink: 0 }} />}
         {label.toUpperCase()}
       </div>
-      <div style={{ fontSize: hero ? 12 : 11, color: FAINT, marginTop: 2 }}>
+      <div style={{ fontSize: 10, color: FAINT, marginTop: 1 }}>
         {total === 0 ? "no tasks" : `${done} done · ${delegated} delegated · ${open} open`}
       </div>
     </div>
@@ -217,13 +228,13 @@ function DialRow({ tasks }) {
   );
 
   const row = (children) => (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "4px 22px" }}>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "2px 14px" }}>
       {children}
     </div>
   );
 
   return (
-    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "14px 16px 12px", marginTop: 14 }}>
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "10px 12px 8px", marginTop: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: FAINT }}>MISSION DIALS</div>
         <div style={{ display: "flex", gap: 14 }}>
@@ -237,7 +248,7 @@ function DialRow({ tasks }) {
       {/* row 2: portcos */}
       {row(["BravoFit", "IMO", "KEP", "Penske"].map(dial))}
       {/* row 3: everything else */}
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: 6 }}>
         {row(["Live Deals", "AI Projects", "Other Projects"].map(dial))}
       </div>
     </div>
@@ -257,13 +268,15 @@ export default function CommandCenter() {
   const [fAsk, setFAsk] = useState("all"); // all | external | internal
 
   const [error, setError] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncNote, setSyncNote] = useState("");
+  const [findingPath, setFindingPath] = useState(false);
   const [expanded, setExpanded] = useState(new Set());
 
   const [showAdd, setShowAdd] = useState(false);
   const blankDraft = {
-    title: "", project: "", priority: "medium", deadline: "", deadlineType: "explicit",
-    assignedBy: "", addressedTo: "You", askType: "internal", needsCall: false,
+    title: "", project: "", priority: "high", deadline: new Date().toISOString().slice(0, 10), deadlineType: "explicit",
+    assignedBy: "Me", addressedTo: "You", askType: "internal", needsCall: false,
     emailBlurb: "", link: "",
   };
   const [draft, setDraft] = useState(blankDraft);
@@ -320,11 +333,44 @@ export default function CommandCenter() {
     return () => clearTimeout(saveTimer.current);
   }, [tasks, lastSync, loaded]);
 
-  async function refresh() {
-    setRefreshing(true); setError("");
-    try { await loadFromFile(); }
-    catch (e) { setError("Refresh failed — couldn't read data/tasks.json."); }
-    finally { setRefreshing(false); }
+  // Kick off /command-center-sync headlessly via the dev server, poll until done,
+  // then reload the task file.
+  async function runSync() {
+    setSyncing(true); setError(""); setSyncNote("");
+    const before = tasks.length;
+    try {
+      const r = await fetch("/api/sync", { method: "POST" });
+      if (!r.ok && r.status !== 409) throw new Error(`API ${r.status}`);
+      for (;;) {
+        await new Promise((s) => setTimeout(s, 3000));
+        const st = await (await fetch("/api/sync")).json();
+        if (!st.running) {
+          if (st.exitCode !== 0) throw new Error(`Claude sync exited ${st.exitCode} — ${st.tail ? st.tail.slice(-180) : "no output (is the claude CLI on PATH?)"}`);
+          break;
+        }
+      }
+      await loadFromFile();
+      setSyncNote("Inbox sync complete — dials and list updated.");
+    } catch (e) {
+      setError(`Sync failed: ${e.message}`);
+      try { await loadFromFile(); } catch (_) { /* keep the original error */ }
+    } finally { setSyncing(false); }
+  }
+
+  async function findPath() {
+    setFindingPath(true); setError("");
+    try {
+      const r = await fetch("/api/find-path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: draft.title, project: draft.project, blurb: draft.emailBlurb }),
+      });
+      const d = await r.json();
+      if (d.path) setDraft((p) => ({ ...p, link: d.path }));
+      else setError(`Egnyte lookup: ${d.error || "no path found"}`);
+    } catch (e) {
+      setError(`Egnyte lookup failed: ${e.message}`);
+    } finally { setFindingPath(false); }
   }
 
   const projects = [...new Set(tasks.map((t) => t.project))].sort();
@@ -664,16 +710,9 @@ export default function CommandCenter() {
                   {openCount} on you · {delegatedCount} delegated · {dueSoon} due ≤3d
                 </div>
                 <div style={{ fontSize: 12, color: FAINT, fontFamily: MONO, marginTop: 4 }}>
-                  last inbox sync: {fmtTime(lastSync)} · run <b>/command-center-sync</b> in Claude Code, then refresh
+                  last inbox sync: {fmtTime(lastSync)} · ↻ Refresh runs <b>/command-center-sync</b> via Claude Code
                 </div>
               </div>
-            </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <button style={btn(true)} onClick={refresh} disabled={refreshing}>
-                {refreshing ? "Reloading…" : "↻ Refresh"}
-              </button>
-              <button style={btn(false)} onClick={() => setShowAdd(!showAdd)}>+ Task</button>
-              <button style={btn(false)} onClick={openExport} title="Export / restore a backup of your list">⇄ Backup</button>
             </div>
           </div>
         </div>
@@ -681,7 +720,21 @@ export default function CommandCenter() {
         {/* speed dials */}
         <DialRow tasks={tasks} />
 
+        {/* action bar */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "center", marginTop: 10 }}>
+          <button style={{ ...btn(true), opacity: syncing ? 0.85 : 1 }} onClick={runSync} disabled={syncing}>
+            {syncing ? (<><Spinner /> Syncing inbox via Claude…</>) : "↻ Refresh (sync inbox)"}
+          </button>
+          <button style={btn(false)} onClick={() => setShowAdd(!showAdd)}>+ Task</button>
+          <button style={btn(false)} onClick={openExport} title="Export / restore a backup of your list">⇄ Backup</button>
+        </div>
+
         {/* notices */}
+        {syncNote && !syncing && (
+          <div style={{ background: "#EEF4EE", border: "1px solid #CBDCCB", borderRadius: 4, padding: "10px 14px", fontSize: 13, color: "#2F5233", marginTop: 12 }}>
+            {syncNote}
+          </div>
+        )}
         {error && (
           <div style={{ background: "#F9ECEA", border: "1px solid #E3C4BE", borderRadius: 4, padding: "10px 14px", fontSize: 13, color: "#8C3226", marginTop: 12 }}>
             {error}
@@ -697,7 +750,8 @@ export default function CommandCenter() {
               <datalist id="proj-list">{projects.map((p) => <option key={p} value={p} />)}</datalist>
               <input placeholder="Assigned by (who's asking)" value={draft.assignedBy} onChange={(e) => setDraft({ ...draft, assignedBy: e.target.value })} style={{ ...sel, padding: 8 }} />
               <input placeholder="Addressed to (You / You + team)" value={draft.addressedTo} onChange={(e) => setDraft({ ...draft, addressedTo: e.target.value })} style={{ ...sel, padding: 8 }} />
-              <select value={draft.priority} onChange={(e) => setDraft({ ...draft, priority: e.target.value })} style={sel}>
+              <select value={draft.priority} onChange={(e) => setDraft({ ...draft, priority: e.target.value })}
+                style={{ ...sel, color: PRI_COLOR[draft.priority], fontWeight: 700, borderColor: PRI_COLOR[draft.priority] }}>
                 <option value="high">High priority</option><option value="medium">Medium priority</option><option value="low">Low priority</option>
               </select>
               <select value={draft.askType} onChange={(e) => setDraft({ ...draft, askType: e.target.value })} style={sel}>
@@ -705,6 +759,8 @@ export default function CommandCenter() {
               </select>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 <input type="date" value={draft.deadline} onChange={(e) => setDraft({ ...draft, deadline: e.target.value })} style={{ ...sel, flex: 1 }} />
+                <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Due tomorrow" onClick={() => setDraft({ ...draft, deadline: plusDays(1) })}>+1d</button>
+                <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Due in 3 days" onClick={() => setDraft({ ...draft, deadline: plusDays(3) })}>+3d</button>
                 <select value={draft.deadlineType} onChange={(e) => setDraft({ ...draft, deadlineType: e.target.value })} style={sel}>
                   <option value="explicit">Explicit</option><option value="implicit">Implicit</option>
                 </select>
@@ -713,7 +769,13 @@ export default function CommandCenter() {
                 <input type="checkbox" checked={draft.needsCall} onChange={(e) => setDraft({ ...draft, needsCall: e.target.checked })} />
                 Needs a call first
               </label>
-              <input placeholder="Link / file path (optional)" value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} style={{ ...sel, padding: 8, gridColumn: "1 / -1", fontFamily: MONO, fontSize: 11 }} />
+              <div style={{ display: "flex", gap: 6, gridColumn: "1 / -1", alignItems: "center" }}>
+                <input placeholder="Link / file path (optional)" value={draft.link} onChange={(e) => setDraft({ ...draft, link: e.target.value })} style={{ ...sel, padding: 8, flex: 1, fontFamily: MONO, fontSize: 11 }} />
+                <button type="button" style={{ ...btn(false), fontSize: 12, whiteSpace: "nowrap" }} onClick={findPath} disabled={findingPath}
+                  title="Ask Claude to search Egnyte for the likeliest file path based on title, project, and details">
+                  {findingPath ? (<><Spinner color={INK} /> Searching Egnyte…</>) : "🔎 Find in Egnyte"}
+                </button>
+              </div>
               <textarea placeholder="Details / blurb (optional)" value={draft.emailBlurb} onChange={(e) => setDraft({ ...draft, emailBlurb: e.target.value })} rows={2} style={{ ...sel, padding: 8, gridColumn: "1 / -1", fontFamily: SANS, resize: "vertical" }} />
             </div>
             <button style={{ ...btn(true), marginTop: 10 }} onClick={addManual}>Add task</button>
