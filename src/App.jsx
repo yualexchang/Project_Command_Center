@@ -75,6 +75,153 @@ function migrate(t) {
   return { ...normalizeTask(t, t.src || "manual"), ...t, id: t.id || uid(), notes: t.notes || [], links: t.links || [], steps: t.steps || [] };
 }
 
+// ---------- logo ----------
+function Logo({ size = 56 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-label="Project Command Center" style={{ flexShrink: 0 }}>
+      <circle cx="32" cy="32" r="30" fill={INK} />
+      <path d="M32 32 L32 5 A27 27 0 0 1 55.4 18.5 Z" fill={DELEGATED} opacity="0.5" />
+      <line x1="32" y1="32" x2="55.4" y2="18.5" stroke="#C9CAE8" strokeWidth="1.6" />
+      <circle cx="32" cy="32" r="23" fill="none" stroke={DELEGATED} strokeWidth="1.4" opacity="0.85" />
+      <circle cx="32" cy="32" r="15.5" fill="none" stroke="#8B98A5" strokeWidth="1" opacity="0.55" />
+      <circle cx="32" cy="32" r="8" fill="none" stroke="#8B98A5" strokeWidth="1" opacity="0.35" />
+      <line x1="5" y1="32" x2="59" y2="32" stroke="#5C6B7A" strokeWidth="1" opacity="0.45" />
+      <line x1="32" y1="5" x2="32" y2="59" stroke="#5C6B7A" strokeWidth="1" opacity="0.45" />
+      <circle cx="41.5" cy="21.5" r="2.4" fill="#EEF4EE" />
+      <circle cx="21.5" cy="40.5" r="2" fill="#D9A441" />
+      <circle cx="43.5" cy="42" r="2" fill="#C96A5B" />
+      <circle cx="32" cy="32" r="2.6" fill={BG} />
+    </svg>
+  );
+}
+
+// ---------- speed dials ----------
+const DIAL = { done: "#2E7D52", delegated: "#4A4E9E", track: "#C7D0D9" }; // validated: CVD-safe on white
+const PORTCO_DIALS = [
+  { key: "BravoFit", match: /bravo|project fit/i },
+  { key: "IMO", match: /\bimo\b|sea lion/i },
+  { key: "KEP", match: /kep|kindling|caryl|primrose/i },
+  { key: "Penske", match: /penske/i },
+];
+const OTHER_PROJECTS = /admin|command center|fep fund|general/i;
+
+function dialArc(cx, cy, r, a0, a1) {
+  // 0deg = left end of the semicircle, 180deg = right end, sweeping over the top
+  const pt = (a) => {
+    const rad = ((180 - a) * Math.PI) / 180;
+    return [cx + r * Math.cos(rad), cy - r * Math.sin(rad)];
+  };
+  const [x0, y0] = pt(a0);
+  const [x1, y1] = pt(a1);
+  return `M ${x0} ${y0} A ${r} ${r} 0 0 1 ${x1} ${y1}`;
+}
+
+function Gauge({ label, done, delegated, open, hero = false }) {
+  const size = hero ? 200 : 136;
+  const strokeW = hero ? 15 : 11;
+  const cx = size / 2;
+  const r = size / 2 - strokeW / 2 - 2;
+  const cy = size / 2 + 4;
+  const total = done + delegated + open;
+  const pct = total ? Math.round((done / total) * 100) : null;
+  const gapDeg = (2 / (Math.PI * r)) * 180; // ~2px surface gap between segments
+
+  const parts = [
+    { v: done, color: DIAL.done },
+    { v: delegated, color: DIAL.delegated },
+    { v: open, color: DIAL.track },
+  ].filter((p) => p.v > 0);
+
+  const segs = [];
+  let acc = 0;
+  parts.forEach((p, i) => {
+    const span = (p.v / total) * 180;
+    const a0 = acc + (i > 0 ? gapDeg / 2 : 0);
+    const a1 = acc + span - (i < parts.length - 1 ? gapDeg / 2 : 0);
+    if (a1 > a0) segs.push({ d: dialArc(cx, cy, r, a0, a1), color: p.color });
+    acc += span;
+  });
+
+  const needleAngle = total ? (done / total) * 180 : 0;
+  const nRad = ((180 - needleAngle) * Math.PI) / 180;
+  const nLen = r - strokeW / 2 - 5;
+  const nx = cx + nLen * Math.cos(nRad);
+  const ny = cy - nLen * Math.sin(nRad);
+
+  return (
+    <div style={{ textAlign: "center", padding: "4px 6px" }}>
+      <svg width={size} height={cy + 8} style={{ display: "block", margin: "0 auto" }}>
+        {segs.length === 0 && <path d={dialArc(cx, cy, r, 0, 180)} fill="none" stroke={DIAL.track} strokeWidth={strokeW} strokeLinecap="round" />}
+        {segs.map((s, i) => (
+          <path key={i} d={s.d} fill="none" stroke={s.color} strokeWidth={strokeW} strokeLinecap="butt" />
+        ))}
+        {total > 0 && (
+          <>
+            <line x1={cx} y1={cy} x2={nx} y2={ny} stroke={INK} strokeWidth={hero ? 2.5 : 2} />
+            <circle cx={cx} cy={cy} r={hero ? 5 : 4} fill={INK} />
+          </>
+        )}
+      </svg>
+      <div style={{ fontSize: hero ? 26 : 18, fontWeight: 700, color: INK, marginTop: 2, lineHeight: 1.1 }}>
+        {pct === null ? "—" : `${pct}%`}
+      </div>
+      <div style={{ fontFamily: MONO, fontSize: hero ? 12 : 10, letterSpacing: 1.2, color: SOFT, marginTop: 3 }}>
+        {label.toUpperCase()}
+      </div>
+      <div style={{ fontSize: hero ? 12 : 11, color: FAINT, marginTop: 2 }}>
+        {total === 0 ? "no tasks" : `${done} done · ${delegated} delegated · ${open} open`}
+      </div>
+    </div>
+  );
+}
+
+function DialRow({ tasks }) {
+  const cat = (t) => (t.status === "done" ? "done" : t.reassignedTo ? "delegated" : "open");
+  const tally = (list) => {
+    const c = { done: 0, delegated: 0, open: 0 };
+    list.forEach((t) => c[cat(t)]++);
+    return c;
+  };
+
+  const claimed = new Set();
+  const portcos = PORTCO_DIALS.map((p) => {
+    const list = tasks.filter((t) => p.match.test(t.project));
+    list.forEach((t) => claimed.add(t.id));
+    return { label: p.key, ...tally(list) };
+  });
+  const rest = tasks.filter((t) => !claimed.has(t.id));
+  const other = tally(rest.filter((t) => OTHER_PROJECTS.test(t.project)));
+  const liveDeals = tally(rest.filter((t) => !OTHER_PROJECTS.test(t.project)));
+
+  const chip = (color, text) => (
+    <span key={text} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: SOFT }}>
+      <span style={{ width: 10, height: 10, borderRadius: 2, background: color, display: "inline-block" }} />
+      {text}
+    </span>
+  );
+
+  return (
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "14px 16px 10px", marginTop: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: FAINT }}>MISSION DIALS</div>
+        <div style={{ display: "flex", gap: 14 }}>
+          {chip(DIAL.done, "Done")}
+          {chip(DIAL.delegated, "Delegated")}
+          {chip(DIAL.track, "Open")}
+        </div>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "4px 18px", marginTop: 6 }}>
+        <Gauge label="All Tasks" hero {...tally(tasks)} />
+        {portcos.map((p) => (
+          <Gauge key={p.label} label={p.label} done={p.done} delegated={p.delegated} open={p.open} />
+        ))}
+        <Gauge label="Live Deals" {...liveDeals} />
+        <Gauge label="Other" {...other} />
+      </div>
+    </div>
+  );
+}
+
 // ---------- component ----------
 export default function CommandCenter() {
   const [tasks, setTasks] = useState([]);
@@ -481,16 +628,22 @@ export default function CommandCenter() {
 
         {/* masthead */}
         <div style={{ borderBottom: `2px solid ${INK}`, paddingBottom: 14, marginBottom: 6 }}>
-          <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: 2, color: SOFT }}>
-            PROJECT COMMAND CENTER · {new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
-          </div>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginTop: 8 }}>
-            <div>
-              <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.5 }}>
-                {openCount} on you · {delegatedCount} delegated · {dueSoon} due ≤3d
-              </div>
-              <div style={{ fontSize: 12, color: FAINT, fontFamily: MONO, marginTop: 4 }}>
-                last inbox sync: {fmtTime(lastSync)} · run <b>/command-center-sync</b> in Claude Code, then refresh
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <Logo />
+              <div>
+                <div style={{ fontFamily: MONO, fontSize: 13, letterSpacing: 2.5, color: INK, fontWeight: 700 }}>
+                  PROJECT COMMAND CENTER
+                </div>
+                <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: SOFT, marginTop: 3 }}>
+                  {new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, marginTop: 6 }}>
+                  {openCount} on you · {delegatedCount} delegated · {dueSoon} due ≤3d
+                </div>
+                <div style={{ fontSize: 12, color: FAINT, fontFamily: MONO, marginTop: 4 }}>
+                  last inbox sync: {fmtTime(lastSync)} · run <b>/command-center-sync</b> in Claude Code, then refresh
+                </div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -502,6 +655,9 @@ export default function CommandCenter() {
             </div>
           </div>
         </div>
+
+        {/* speed dials */}
+        <DialRow tasks={tasks} />
 
         {/* notices */}
         {error && (
