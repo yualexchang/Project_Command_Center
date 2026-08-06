@@ -1,22 +1,22 @@
 {
   "tasks": [
     {
-      "id": "kepproforma1",
-      "title": "Send Joe Brady the KEP proforma",
+      "id": "kepprofrm1",
+      "title": "Send KEP proforma to Joe Brady today",
       "project": "KEP - Ken Caryl",
       "priority": "high",
-      "deadline": "2026-08-07",
-      "deadlineType": "implicit",
+      "deadline": "2026-08-06",
+      "deadlineType": "explicit",
       "status": "todo",
       "assignedBy": "Joe Brady",
       "addressedTo": "You",
       "askType": "internal",
       "needsCall": false,
-      "emailBlurb": "Joe Brady, FEP's Chief Real Estate Officer, is asking when you will send the KEP proforma for the board. He pinged you directly, so he is actively waiting on it ahead of next week's board meeting.",
+      "emailBlurb": "Joe Brady is chasing the KEP proforma he needs for the board and asked when it will arrive. You told him it would be ready today, and he has since aligned with Katie, so the model needs to go out to keep that commitment.",
       "steps": [
-        "Finalize the proforma numbers",
-        "Send it to Joe",
-        "Flag any open assumptions for the board"
+        "Finalize the proforma model iterations",
+        "Sanity-check outputs with Katie",
+        "Send to Joe Brady today"
       ],
       "context": "",
       "reassignedTo": null,
@@ -26,12 +26,41 @@
       "sender": "joe.brady@fep-us.com",
       "subject": "KEP Proforma / Board",
       "src": "email",
-      "rank": 1786038300003,
-      "createdAt": "2026-08-06T17:45:00.000Z"
+      "rank": 1786041617723,
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
-      "id": "kczalesbrf1",
-      "title": "Brief Brian Zales after Ken Caryl call",
+      "id": "aesstatus1",
+      "title": "Reply to Luke Prifogle with AES status update",
+      "project": "AES Restaurant Group",
+      "priority": "medium",
+      "deadline": "2026-08-07",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Luke Prifogle (AES CFO)",
+      "addressedTo": "You + Justin",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Luke Prifogle, AES Restaurant Group's CFO, resurfaced on the diligence thread asking whether FEP needs anything critical and where things stand overall. You run point on AES underwriting, so a prompt status reply keeps the deal dialogue warm.",
+      "steps": [
+        "Review outstanding AES request-list items",
+        "Align internally on current deal status",
+        "Reply to Luke with status and critical needs"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "lprifogle@aesgroupllc.com",
+      "subject": "RE: Intro",
+      "src": "email",
+      "rank": 1786041617724,
+      "createdAt": "2026-08-06T18:40:17.715Z"
+    },
+    {
+      "id": "zalesheads1",
+      "title": "Give Brian Zales heads-up on Ken Caryl call",
       "project": "KEP - Ken Caryl",
       "priority": "medium",
       "deadline": "2026-08-07",
@@ -40,12 +69,12 @@
       "assignedBy": "Brian Zales",
       "addressedTo": "You",
       "askType": "external",
-      "needsCall": true,
-      "emailBlurb": "Brian Zales can't join tomorrow's Ken Caryl follow-up call with Stacey (confirmed for 12-1 ET) due to a conflict and asked you to flag any significant issues to him. You offered him a quick rundown call, so close the loop before or right after the Stacey call.",
+      "needsCall": false,
+      "emailBlurb": "Brian Zales has a conflict during tomorrow's 12-1 ET Ken Caryl follow-up call and asked you to flag any significant issues that surface. You offered him a quick rundown beforehand, but he will still want a debrief after the call.",
       "steps": [
-        "Connect with Brian for the pre-call rundown",
-        "Join the Stacey call Friday 12 ET",
-        "Relay any significant issues to Brian"
+        "Brief Brian before the call if possible",
+        "Note significant issues during the call",
+        "Send Brian a short debrief after"
       ],
       "context": "",
       "reassignedTo": null,
@@ -53,39 +82,39 @@
       "notes": [],
       "links": [],
       "sender": "brian.zales@gmail.com",
-      "subject": "Ken Caryl / FEP Follow Up Call",
+      "subject": "Re: Ken Caryl / FEP Follow Up Call",
       "src": "email",
-      "rank": 1786038300002,
-      "createdAt": "2026-08-06T17:45:00.000Z"
+      "rank": 1786041617725,
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
-      "id": "aesstatus01",
-      "title": "Reply to Luke with AES status and priorities",
-      "project": "AES Restaurant Group",
+      "id": "wkflow0807",
+      "title": "Update weekly workflow file by Friday afternoon",
+      "project": "Admin",
       "priority": "medium",
-      "deadline": null,
-      "deadlineType": null,
+      "deadline": "2026-08-07",
+      "deadlineType": "explicit",
       "status": "todo",
-      "assignedBy": "Luke Prifogle",
-      "addressedTo": "You + Justin",
-      "askType": "external",
+      "assignedBy": "Kelsey Rearden",
+      "addressedTo": "You",
+      "askType": "internal",
       "needsCall": false,
-      "emailBlurb": "Luke Prifogle, AES Restaurant Group's CFO, resurfaced and is asking you and Justin whether anything critical is outstanding and where things stand overall. You run point on this diligence, so send him the priority items from the request list and any status update to keep the process warm.",
+      "emailBlurb": "Kelsey Rearden reminded the team to update the weekly workflow file before tomorrow afternoon, using the correct tab. Matt and Preston have already confirmed theirs, so yours is still outstanding.",
       "steps": [
-        "Review the outstanding request list with Justin",
-        "Identify the critical/priority items still open",
-        "Reply to Luke with status and asks"
+        "Open the weekly workflow file",
+        "Update your tab for the week",
+        "Confirm done on Kelsey's thread"
       ],
       "context": "",
       "reassignedTo": null,
       "followUpDate": null,
       "notes": [],
       "links": [],
-      "sender": "lprifogle@aesgroupllc.com",
-      "subject": "Intro",
+      "sender": "kelsey.rearden@fep-us.com",
+      "subject": "Reminder: Update Weekly Workflow file 8.7.26",
       "src": "email",
-      "rank": 1786038300001,
-      "createdAt": "2026-08-06T17:45:00.000Z"
+      "rank": 1786041617726,
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
       "id": "la4dhuu7mshow2ez",
@@ -94,7 +123,7 @@
       "priority": "high",
       "deadline": "2026-08-06",
       "deadlineType": "explicit",
-      "status": "progress",
+      "status": "done",
       "assignedBy": "David Katie",
       "addressedTo": "You",
       "askType": "internal",
@@ -169,7 +198,7 @@
       "priority": "high",
       "deadline": "2026-08-06",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "progress",
       "assignedBy": "David",
       "addressedTo": "You",
       "askType": "internal",
@@ -192,9 +221,9 @@
       "title": "AI",
       "project": "AI Projects",
       "priority": "high",
-      "deadline": "2026-08-06",
+      "deadline": "2026-08-07",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "progress",
       "assignedBy": "David",
       "addressedTo": "You",
       "askType": "external",
@@ -289,9 +318,15 @@
         "Confirm April/May delivery timing with Golub"
       ],
       "context": "",
-      "reassignedTo": null,
-      "followUpDate": null,
-      "notes": [],
+      "reassignedTo": "Preston",
+      "followUpDate": "2026-08-09",
+      "notes": [
+        {
+          "id": "8hp7mbclmshuvadg",
+          "date": "2026-08-06",
+          "text": "Reassigned to Preston"
+        }
+      ],
       "links": [],
       "sender": "Jake.Lewis@bravofit.com.au",
       "subject": "Fw: Jake Lewis (BravoFit CFO) Introduction",
@@ -390,8 +425,8 @@
       "id": "aiusecase1",
       "title": "Send Brandon your top AI use-case picks",
       "project": "AI Projects",
-      "priority": "high",
-      "deadline": "2026-08-07",
+      "priority": "medium",
+      "deadline": "2026-08-13",
       "deadlineType": "explicit",
       "status": "todo",
       "assignedBy": "Brandon Emmerich",
@@ -828,5 +863,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-06T17:46:00.000Z"
+  "lastSync": "2026-08-06T18:40:17.715Z"
 }
