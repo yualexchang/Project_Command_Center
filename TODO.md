@@ -24,6 +24,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-5 | Single home for the skills (stop the double copy) | open | medium | Two copies drift; edit one, the other silently wins |
 | CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
 | CC-7 | Bind Vite beyond `::1` | open | low | One-line prerequisite for CC-6 |
+| CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
 
 ---
 
@@ -112,6 +113,19 @@ Two viable paths (full comparison in the 2026-08-06 session):
 
 A full cloud rebuild (Anthropic API key + Entra app for Graph mail + Egnyte API) is
 the plan already abandoned for this project — don't revisit without a reason.
+
+## CC-8 — Find what resets `tasks.json` to the empty default
+
+During the 2026-08-06 ~19:21Z sync, the working copy of `data/tasks.json` was found
+reduced to exactly `{"tasks": [], "lastSync": null}` — the app's initial default —
+while HEAD had 30 tasks and `lastSync` 18:40Z. The dev server was up (it has been
+since 2026-08-05). `lastSync: null` rules out 30 manual deletes in the UI; something
+wrote the *default state* over the file. Prime suspect: an initialization/fallback
+path in [vite.config.js](vite.config.js) (e.g. failed read/parse → write defaults).
+The sync restored the file with `git restore` before merging, so nothing was lost
+this time — but only because every sync commits. Find the code path and make it
+never write defaults over an existing file (back up + 500 instead). Related: CC-1
+(undo), CC-4 (same whole-file `writeFileSync` habit).
 
 **Before either:** `tasks.json` holds live FEP deal names, portfolio companies, and
 colleagues' addresses. Hosting it moves that data off the laptop — worth a word with
