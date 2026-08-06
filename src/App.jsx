@@ -280,6 +280,9 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
 // The portco rail: which live context rides alongside each portco's dial.
 // IMO carries the UK/Germany weather because its sites sit in those two markets
 // and demand there is weather-driven; the others just get a clock and a feed.
+// Fixed pitch for the rail. Every row gets this height whether its news box is
+// full or empty, so the four dials line up instead of drifting with content.
+const PORTCO_ROW_H = 148;
 const PORTCO_RAIL = [
   { key: "BravoFit", news: { feed: "bravofit", title: "BRAVOFIT · PLNT", symbol: "PLNT" } },
   { key: "IMO", weather: true, news: { feed: "imo", title: "IMO · UK/DE" } },
@@ -326,30 +329,38 @@ function DialRow({ tasks, nonce }) {
       {/* Left column: the whole book over a 2x2 of the non-portco buckets.
           Right column: one row per portco, dial then that portco's live context.
           Both columns are flex items so the layout stacks instead of crushing
-          when the window gets narrow. */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 4 }}>
-        <div style={{ flex: "1 1 240px", minWidth: 226, maxWidth: 300, display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          when the window gets narrow. (Stacked, the divider is left hanging on
+          the left block's right edge — cosmetic, and only below ~800px.) */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 18, marginTop: 4, alignItems: "stretch" }}>
+        <div style={{
+          flex: "1 1 250px", minWidth: 236, maxWidth: 310, display: "flex", flexDirection: "column",
+          borderRight: `2px solid ${LINE}`, paddingRight: 18,
+        }}>
+          {/* the book total reads as a summary panel, not a fifth peer dial */}
+          <div style={{
+            display: "flex", justifyContent: "center",
+            background: "#EDF2F7", border: `1px solid ${LINE}`, borderRadius: 6, padding: "2px 0 6px",
+          }}>
             <Gauge label="All Projects" hero {...tally(tasks)} />
           </div>
-          <div style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 4px",
-            borderTop: `1px solid ${LINE}`, marginTop: 6, paddingTop: 6,
-          }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 4px", marginTop: 10 }}>
             {["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map((k) => (
               <div key={k} style={{ display: "flex", justifyContent: "center" }}>{dial(k)}</div>
             ))}
           </div>
         </div>
 
-        <div style={{ flex: "2 1 400px", minWidth: 300, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: "2 1 430px", minWidth: 330, display: "flex", flexDirection: "column" }}>
           {PORTCO_RAIL.map((p, i) => (
             <div key={p.key} style={{
-              display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8,
-              borderTop: i ? `1px solid ${LINE}` : "none", paddingTop: i ? 4 : 0,
+              display: "flex", alignItems: "center", gap: 10,
+              // every portco row is the same height whatever its context holds,
+              // so the four dials sit on an even pitch down the rail
+              minHeight: PORTCO_ROW_H,
+              borderTop: i ? `1px solid ${LINE}` : "none",
             }}>
               <div style={{ flexShrink: 0 }}>{dial(p.key)}</div>
-              <div style={{ display: "flex", alignItems: "stretch", flexWrap: "wrap", gap: 6, flex: "1 1 260px", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
                 <ClockCard portco={p.key} />
                 {p.weather && <WeatherStrip />}
                 <NewsBox nonce={nonce} compact {...p.news} />
@@ -373,7 +384,9 @@ const CLOCK_SPOTS = [
 const clockFor = (portco) => CLOCK_SPOTS.find((c) => c.portco === portco) || null;
 
 // One clock, for the portco rail. The portco name is not repeated on the card —
-// the dial sitting next to it already names the row.
+// the dial sitting next to it already names the row. Two lines, not three: the
+// flag emoji is gone because Windows composes no flag glyph, so 🇦🇺 rendered as
+// a bare "AU" next to the weekday and read like a bug.
 function ClockCard({ portco }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -387,22 +400,25 @@ function ClockCard({ portco }) {
   const day = now.toLocaleDateString([], { weekday: "short", timeZone: c.tz });
   return (
     <div title={`${c.city} local time — ${c.portco}`}
-      style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 8px", textAlign: "center", minWidth: 64, flexShrink: 0 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: INK, lineHeight: 1.2 }}>{time}</div>
-      <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 2 }}>
-        {day.toUpperCase()} {c.flag}
-      </div>
-      <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: FAINT, marginTop: 1 }}>
-        {c.city.toUpperCase()}
+      style={{
+        background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 9px",
+        textAlign: "center", minWidth: 78, flexShrink: 0,
+        display: "flex", flexDirection: "column", justifyContent: "center",
+      }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: INK, lineHeight: 1.15 }}>{time}</div>
+      <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 3 }}>
+        {day.toUpperCase()} · {c.city.toUpperCase()}
       </div>
     </div>
   );
 }
 
 // ---------- weather (top-right corner; Open-Meteo, no API key, cached per day) ----------
+// `label` is drawn on the card — no flag emoji, Windows renders those as bare
+// letters ("GB", "DE") which reads like a rendering fault rather than a flag.
 const WEATHER_SPOTS = [
-  { label: "UK", flag: "🇬🇧", lat: 51.5074, lon: -0.1278 },      // London
-  { label: "Germany", flag: "🇩🇪", lat: 52.52, lon: 13.405 },    // Berlin
+  { label: "UK", lat: 51.5074, lon: -0.1278 },   // London
+  { label: "GERMANY", lat: 52.52, lon: 13.405 }, // Berlin
 ];
 // WMO weather codes -> icon + label
 function wxLook(code) {
@@ -468,7 +484,7 @@ function WeatherStrip() {
             )).json();
             let factor = null;
             try { factor = wxFactor(cur.daily, base.daily, now.getMonth()); } catch (e) {}
-            return { label: s.label, flag: s.flag, temp: Math.round(cur.current.temperature_2m), code: cur.current.weather_code, factor };
+            return { label: s.label, temp: Math.round(cur.current.temperature_2m), code: cur.current.weather_code, factor };
           })
         );
         setWx(results);
@@ -488,8 +504,9 @@ function WeatherStrip() {
         return (
           <div key={w.label}
             title={`${w.label}: ${look.text}, ${w.temp}°C · Weather factor = month-to-date vs same month over the prior 3 years (dryness + warmth heuristic). 100% = normal; higher = drier/hotter than usual; lower = more rain/storm/snow days. Refreshed daily.`}
-            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 8px", textAlign: "center", minWidth: 76, flexShrink: 0 }}>
-            <div style={{ fontSize: 15, lineHeight: 1.2 }}>{w.flag} {look.icon}</div>
+            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 8px", textAlign: "center", minWidth: 84, flexShrink: 0 }}>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, letterSpacing: 0.5, color: FAINT }}>{w.label}</div>
+            <div style={{ fontSize: 15, lineHeight: 1.2, marginTop: 1 }}>{look.icon}</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: INK, marginTop: 1 }}>{w.temp}°C</div>
             <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 1 }}>{look.text.toUpperCase()}</div>
             {w.factor !== null && (
@@ -558,7 +575,10 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null, compact = fals
   return (
     <div style={{
       background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px",
-      maxWidth: compact ? 300 : 340, minWidth: compact ? 200 : 220, flex: compact ? "1 1 200px" : undefined,
+      maxWidth: compact ? 300 : 340, minWidth: compact ? 200 : 220,
+      // in the rail every box is the same height so the rows stay on an even
+      // pitch; a three-item feed and an empty one must not size differently
+      ...(compact ? { flex: "1 1 200px", height: 128, overflow: "hidden", display: "flex", flexDirection: "column" } : {}),
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
         <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>{title}</span>
@@ -590,7 +610,12 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null, compact = fals
         </a>
       ))}
       {items.length === 0 && (
-        <div style={{ fontSize: 10, color: FAINT, marginTop: 3 }}>
+        <div style={{
+          fontSize: 10, color: FAINT, marginTop: 3,
+          // centre the message in a fixed-height rail box rather than leaving it
+          // stranded under the title with dead space below
+          ...(compact ? { flex: 1, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
+        }}>
           {failed ? "Feed unavailable." : news ? "No matching news this scan." : "Loading…"}
         </div>
       )}
@@ -1313,7 +1338,9 @@ export default function CommandCenter() {
         </div>
       )}
 
-      <div style={{ maxWidth: 920, margin: "0 auto", padding: "28px 20px 80px" }}>
+      {/* widened from 920 so the IMO row (clock + two weather cards + news) fits
+          on one line instead of wrapping and making that row taller than its peers */}
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 20px 80px" }}>
 
         {/* masthead */}
         <div style={{ borderBottom: `2px solid ${INK}`, paddingBottom: 14, marginBottom: 6 }}>
