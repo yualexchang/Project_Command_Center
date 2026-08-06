@@ -636,12 +636,12 @@ export default function CommandCenter() {
     update(t.id, patch);
   }
 
-  // push the task's effective date (follow-up if delegated, else deadline) out one day
-  function snooze(t) {
+  // shift the task's effective date (follow-up if delegated, else deadline) by n days
+  function snooze(t, n = 1) {
     const key = t.reassignedTo ? "followUpDate" : "deadline";
     const cur = t[key];
     const base = cur ? new Date(cur + "T12:00:00") : new Date();
-    base.setDate(base.getDate() + 1);
+    base.setDate(base.getDate() + n);
     update(t.id, { [key]: base.toISOString().slice(0, 10) });
   }
 
@@ -1117,11 +1117,18 @@ export default function CommandCenter() {
                           <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: dChip.color, display: "inline-flex", alignItems: "center", gap: 4 }}>
                             {dChip.text}
                             {!done && (
-                              <button title="Snooze: push the date out one day"
-                                onClick={(e) => { e.stopPropagation(); snooze(t); }}
-                                style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 3, cursor: "pointer", fontSize: 9, lineHeight: 1.4, padding: "0 4px", color: SOFT }}>
-                                💤+1d
-                              </button>
+                              <>
+                                <button title="Snooze: push the date out one day"
+                                  onClick={(e) => { e.stopPropagation(); snooze(t, 1); }}
+                                  style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 3, cursor: "pointer", fontSize: 9, lineHeight: 1.4, padding: "0 4px", color: SOFT }}>
+                                  💤+1d
+                                </button>
+                                <button title="Unsnooze: pull the date in one day"
+                                  onClick={(e) => { e.stopPropagation(); snooze(t, -1); }}
+                                  style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 3, cursor: "pointer", fontSize: 9, lineHeight: 1.4, padding: "0 4px", color: SOFT }}>
+                                  ⏰-1d
+                                </button>
+                              </>
                             )}
                           </span>
                         )}
