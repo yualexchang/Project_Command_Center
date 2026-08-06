@@ -43,6 +43,23 @@ function tasksApi() {
   };
 }
 
+// Serves data/industry-news.json (written by the sync skill's news scan).
+function newsApi() {
+  return {
+    name: "news-api",
+    configureServer(server) {
+      server.middlewares.use("/api/news", (req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        try {
+          res.end(fs.readFileSync(path.join(here, "data", "industry-news.json"), "utf-8"));
+        } catch (e) {
+          res.end(JSON.stringify({ updatedAt: null, items: [] }));
+        }
+      });
+    },
+  };
+}
+
 // Bridges dashboard buttons to headless Claude Code runs (`claude -p`), which
 // inherit this machine's Claude session + MCP connectors (M365, Egnyte).
 const sync = { proc: null, running: false, exitCode: null, startedAt: null, log: "" };
@@ -172,5 +189,5 @@ function claudeBridge() {
 }
 
 export default defineConfig({
-  plugins: [react(), tasksApi(), claudeBridge()],
+  plugins: [react(), tasksApi(), newsApi(), claudeBridge()],
 });

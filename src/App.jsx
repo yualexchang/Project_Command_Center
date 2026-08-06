@@ -444,6 +444,53 @@ function WeatherStrip() {
   );
 }
 
+// ---------- industry news (early education / childcare; refreshed by each sync) ----------
+function NewsBox({ nonce }) {
+  const [news, setNews] = useState(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const d = await (await fetch("/api/news")).json();
+        setNews(d);
+      } catch (e) { /* endpoint absent — box stays hidden */ }
+    })();
+  }, [nonce]);
+
+  if (!news || !news.items || news.items.length === 0) return null;
+  const tone = { positive: DONE_COLOR, negative: "#B3382C", neutral: SOFT };
+  const mark = { positive: "▲", negative: "▼", neutral: "•" };
+  const pos = news.items.filter((i) => i.sentiment === "positive").length;
+  const neg = news.items.filter((i) => i.sentiment === "negative").length;
+
+  return (
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", maxWidth: 320, minWidth: 210 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
+        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>EARLY ED INDUSTRY</span>
+        <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700 }}>
+          <span style={{ color: DONE_COLOR }}>▲{pos}</span> <span style={{ color: "#B3382C" }}>▼{neg}</span>
+        </span>
+      </div>
+      {news.items.slice(0, 3).map((it, i) => (
+        <a key={i} href={it.url || undefined} target="_blank" rel="noreferrer"
+          title={`${it.summary || it.headline}${it.source ? ` — ${it.source}` : ""}${it.date ? ` (${it.date})` : ""}`}
+          style={{ display: "flex", gap: 4, marginTop: 3, textDecoration: "none", alignItems: "flex-start" }}>
+          <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, color: tone[it.sentiment] || SOFT, flexShrink: 0 }}>
+            {mark[it.sentiment] || "•"}
+          </span>
+          <span style={{ fontSize: 10, color: INK, lineHeight: 1.25, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+            {it.headline}
+          </span>
+        </a>
+      ))}
+      {news.updatedAt && (
+        <div style={{ fontFamily: MONO, fontSize: 8, color: FAINT, marginTop: 4 }}>
+          scanned {fmtTime(news.updatedAt)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---------- due pipeline ----------
 // horizontal stacked bar: outstanding tasks (everything not complete) by due horizon
 const DUE_SEGMENTS = [
@@ -1014,6 +1061,7 @@ export default function CommandCenter() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignSelf: "flex-start", justifyContent: "flex-end" }}>
               <ClockStrip />
               <WeatherStrip />
+              <NewsBox nonce={lastSync} />
             </div>
           </div>
         </div>

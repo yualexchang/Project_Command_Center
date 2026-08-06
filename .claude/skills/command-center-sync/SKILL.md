@@ -73,6 +73,44 @@ inside it).
    server is running and you are unsure, mention that a Refresh will pick up
    the changes.
 
+## Industry news scan (run once per sync, after the tasks are written)
+
+The dashboard shows an "Early Ed Industry" box fed by `data/industry-news.json`.
+Refresh it on every sync:
+
+1. Use `WebSearch` (2–4 queries) for developments in the **early education /
+   childcare industry** relevant to KEP/Primrose: sector news, M&A and
+   franchise-market moves, **legislation or funding-policy changes** (federal
+   and state — especially Colorado, where Ken Caryl sits), regulatory shifts
+   (staff ratios, licensing), and credible **rumors of upcoming changes**.
+   Prefer the last ~30 days; skip anything older than ~90 days.
+2. Judge each item's impact on an early-education operator/investor:
+   `positive` (tailwind — e.g. new subsidies, favorable ratios, strong demand),
+   `negative` (headwind — funding cuts, cost mandates, enrollment declines),
+   or `neutral`.
+3. Write **up to 5** items, most significant first:
+
+```json
+{
+  "updatedAt": "<current ISO timestamp>",
+  "items": [
+    {
+      "sentiment": "positive|negative|neutral",
+      "headline": "<= 90 chars, plain language",
+      "summary": "1 sentence on why it matters to an early-ed operator",
+      "source": "publication",
+      "date": "YYYY-MM-DD",
+      "url": "https://..."
+    }
+  ]
+}
+```
+
+4. `git add data/industry-news.json` with the same commit as the sync.
+
+If the searches fail or return nothing usable, leave the existing file untouched
+(a stale box beats an empty one) and mention it in the report.
+
 ## Live progress file (required — the dashboard renders this as a progress bar)
 
 Maintain `data/sync-progress.json` throughout the sync (do NOT commit it):

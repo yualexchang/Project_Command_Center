@@ -1,0 +1,45 @@
+{
+  "updatedAt": "2026-08-06T17:05:00.000Z",
+  "items": [
+    {
+      "sentiment": "negative",
+      "headline": "Colorado UPK quality rules phase in July 2026: class cap 20, ratio 1:10",
+      "summary": "Tighter caps than today's 24 children and 1:12 ratio mean more staff per classroom and lower per-room revenue for Colorado operators like Ken Caryl.",
+      "source": "Chalkbeat Colorado",
+      "date": "2026-07-01",
+      "url": "https://www.chalkbeat.org/colorado/2025/04/11/universal-preschool-quality-rules-delayed-again/"
+    },
+    {
+      "sentiment": "negative",
+      "headline": "Colorado CCCAP and Early Intervention facing funding shortfalls",
+      "summary": "State subsidy programs are short of money, with universal preschool flagged as potentially next — a risk to subsidy-linked enrollment revenue.",
+      "source": "Colorado General Assembly FY26-27 briefing",
+      "date": "2026-07-15",
+      "url": "https://content.leg.colorado.gov/sites/default/files/fy2026-27_earbrf.pdf"
+    },
+    {
+      "sentiment": "positive",
+      "headline": "Colorado delays 7% family copay cap from Aug 2026 to Aug 2028",
+      "summary": "Two more years before copayments are capped at 7% of income, deferring a revenue constraint for Colorado providers.",
+      "source": "NAEYC / CCDF final rule tracking",
+      "date": "2026-05-12",
+      "url": "https://www.naeyc.org/our-work/public-policy-advocacy/2026-ccdf-final-rule"
+    },
+    {
+      "sentiment": "positive",
+      "headline": "Childcare among the most actively consolidated sectors; PE playbooks scaling",
+      "summary": "Private equity is running dental/derm-style roll-ups in a still mom-and-pop market — supportive of multiples and add-on pipeline for KEP.",
+      "source": "CT Acquisitions / market coverage",
+      "date": "2026-07-20",
+      "url": "https://ctacquisitions.com/sell-your-business/preschool/"
+    },
+    {
+      "sentiment": "positive",
+      "headline": "Center-based care holds ~63% share as demand outstrips supply in most metros",
+      "summary": "Dual-income household growth keeps waitlists tight, supporting enrollment and pricing power at quality centers.",
+      "source": "Fortune Business Insights",
+      "date": "2026-06-30",
+      "url": "https://www.fortunebusinessinsights.com/child-care-market-116172"
+    }
+  ]
+}
