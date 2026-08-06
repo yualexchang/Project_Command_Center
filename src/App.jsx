@@ -475,7 +475,7 @@ export default function CommandCenter() {
       const r = await fetch("/api/find-path", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: draft.title, project: draft.project, blurb: draft.emailBlurb }),
+        body: JSON.stringify({ title: draft.title, project: draft.project, blurb: draft.emailBlurb, bucket: bucketFor(draft.project).key }),
       });
       const d = await r.json();
       if (d.path) setDraft((p) => ({ ...p, link: d.path }));

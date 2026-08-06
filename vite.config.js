@@ -141,9 +141,17 @@ function claudeBridge() {
         try {
           info = JSON.parse(await readBody(req));
         } catch (e) {}
+        // scope the search to the portco's known root folder (data/egnyte-roots.json)
+        let roots = {};
+        try {
+          roots = JSON.parse(fs.readFileSync(path.join(here, "data", "egnyte-roots.json"), "utf-8"));
+        } catch (e) {}
+        const root = roots[info.bucket] || roots.default || "/Shared/FEP";
         const clean = (s) => String(s || "").replace(/["`]/g, "'").slice(0, 400);
         const prompt =
-          `Using the Egnyte MCP tools (search, list_filesystem_by_path), find the single most likely existing Egnyte file or folder for this task. ` +
+          `Using the Egnyte MCP tools, find the single most likely existing Egnyte file or folder for this task. ` +
+          `IMPORTANT: scope the search to the folder '${root}' — start with list_filesystem_by_path on that folder (and its likely subfolder), ` +
+          `and if you use search/advanced_search, constrain it to that folder path. Do NOT search the whole domain unless nothing plausible exists under '${root}'. ` +
           `Task title: '${clean(info.title)}'. Deal/project: '${clean(info.project)}'. Details: '${clean(info.blurb)}'. ` +
           `Respond with ONLY the best Egnyte path or URL on one line, no commentary. If nothing plausible is found respond with exactly: NONE`;
         runClaude(
