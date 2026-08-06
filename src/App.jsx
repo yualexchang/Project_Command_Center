@@ -470,15 +470,18 @@ function NewsBox({ nonce }) {
           <span style={{ color: DONE_COLOR }}>▲{pos}</span> <span style={{ color: "#B3382C" }}>▼{neg}</span>
         </span>
       </div>
-      {news.items.slice(0, 3).map((it, i) => (
+      {news.items.slice(0, 4).map((it, i) => (
         <a key={i} href={it.url || undefined} target="_blank" rel="noreferrer"
-          title={`${it.summary || it.headline}${it.source ? ` — ${it.source}` : ""}${it.date ? ` (${it.date})` : ""}`}
-          style={{ display: "flex", gap: 4, marginTop: 3, textDecoration: "none", alignItems: "flex-start" }}>
+          title={`${it.headline}${it.summary ? ` — ${it.summary}` : ""}${it.source ? ` (${it.source})` : ""}`}
+          style={{ display: "flex", gap: 4, marginTop: 3, textDecoration: "none", alignItems: "baseline" }}>
           <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, color: tone[it.sentiment] || SOFT, flexShrink: 0 }}>
             {mark[it.sentiment] || "•"}
           </span>
-          <span style={{ fontSize: 10, color: INK, lineHeight: 1.25, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-            {it.headline}
+          <span style={{ fontSize: 10.5, color: INK, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {it.short || it.headline}
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 8.5, color: FAINT, marginLeft: "auto", flexShrink: 0 }}>
+            {it.date ? new Date(it.date + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric" }) : ""}
           </span>
         </a>
       ))}

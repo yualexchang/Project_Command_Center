@@ -83,12 +83,20 @@ Refresh it on every sync:
    franchise-market moves, **legislation or funding-policy changes** (federal
    and state — especially Colorado, where Ken Caryl sits), regulatory shifts
    (staff ratios, licensing), and credible **rumors of upcoming changes**.
-   Prefer the last ~30 days; skip anything older than ~90 days.
-2. Judge each item's impact on an early-education operator/investor:
+   **Search only for news published since the last sync** (the `lastSync` you
+   read in step 1) — include the month/year in the query so results are current.
+2. **Date discipline — this is the easy thing to get wrong.** `date` must be the
+   date the *article was published*, not the date a policy takes effect and not
+   today. Take it from the URL slug (e.g. `/2026/08/03/`) or the page itself. If
+   you cannot establish a publication date, **drop the item**. Never carry an
+   item whose publication date is older than 30 days.
+3. Judge each item's impact on an early-education operator/investor:
    `positive` (tailwind — e.g. new subsidies, favorable ratios, strong demand),
    `negative` (headwind — funding cuts, cost mandates, enrollment declines),
-   or `neutral`.
-3. Write **up to 5** items, most significant first:
+   or `neutral` (genuinely mixed — say so rather than forcing a direction).
+4. **Merge, don't replace:** load the existing file, prepend the new items,
+   drop anything published more than 30 days ago, dedupe by URL, keep **up to 5**
+   with the newest/most significant first.
 
 ```json
 {
@@ -96,10 +104,11 @@ Refresh it on every sync:
   "items": [
     {
       "sentiment": "positive|negative|neutral",
-      "headline": "<= 90 chars, plain language",
+      "short": "2-4 words, e.g. 'Head Start deregulation' — this is what the box displays",
+      "headline": "<= 90 chars, plain language (shown on hover)",
       "summary": "1 sentence on why it matters to an early-ed operator",
       "source": "publication",
-      "date": "YYYY-MM-DD",
+      "date": "YYYY-MM-DD — the article's PUBLICATION date",
       "url": "https://..."
     }
   ]
