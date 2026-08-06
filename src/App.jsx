@@ -270,8 +270,14 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
         {dot && <span style={{ width: 7, height: 7, borderRadius: 2, background: dot, display: "inline-block", flexShrink: 0 }} />}
         {label.toUpperCase()}
       </div>
-      <div style={{ fontSize: 10, color: FAINT, marginTop: 1 }}>
-        {total === 0 ? "no tasks" : `${open} open · ${inProgress} in prog · ${delegated} deleg · ${done} done`}
+      {/* Small dials sit in ~145px cells, where the long form wrapped to two
+          ragged lines — they get the abbreviated tally at a smaller size. */}
+      <div style={{ fontSize: hero ? 10 : 9, color: FAINT, marginTop: 1, whiteSpace: "nowrap" }}>
+        {total === 0
+          ? "no tasks"
+          : hero
+          ? `${open} open · ${inProgress} in prog · ${delegated} deleg · ${done} done`
+          : `${open} open · ${inProgress} prog · ${delegated} del · ${done} done`}
       </div>
     </div>
   );
@@ -282,7 +288,9 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
 // and demand there is weather-driven; the others just get a clock and a feed.
 // Fixed pitch for the rail. Every row gets this height whether its news box is
 // full or empty, so the four dials line up instead of drifting with content.
-const PORTCO_ROW_H = 148;
+const PORTCO_ROW_H = 138;
+// Reserved on every rail row so the columns align; only IMO fills it.
+const WEATHER_SLOT_W = 138;
 const PORTCO_RAIL = [
   { key: "BravoFit", news: { feed: "bravofit", title: "BRAVOFIT · PLNT", symbol: "PLNT" } },
   { key: "IMO", weather: true, news: { feed: "imo", title: "IMO · UK/DE" } },
@@ -333,8 +341,10 @@ function DialRow({ tasks, nonce }) {
           the left block's right edge — cosmetic, and only below ~800px.) */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 18, marginTop: 4, alignItems: "stretch" }}>
         <div style={{
-          flex: "1 1 250px", minWidth: 236, maxWidth: 310, display: "flex", flexDirection: "column",
-          borderRight: `2px solid ${LINE}`, paddingRight: 18,
+          // 340 wide so the 2x2 cells clear ~168px and the abbreviated tally
+          // under each small dial fits on one line
+          flex: "1 1 280px", minWidth: 250, maxWidth: 340, display: "flex", flexDirection: "column",
+          borderRight: `2px solid ${LINE}`, paddingRight: 18, boxSizing: "content-box",
         }}>
           {/* the book total reads as a summary panel, not a fifth peer dial */}
           <div style={{
@@ -343,7 +353,13 @@ function DialRow({ tasks, nonce }) {
           }}>
             <Gauge label="All Projects" hero {...tally(tasks)} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 4px", marginTop: 10 }}>
+          {/* flex:1 + space-around spreads the quadrants down the column so the
+              leftover height against the taller rail is distributed, not dumped
+              as one void under the bottom row */}
+          <div style={{
+            flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr",
+            alignContent: "space-around", gap: "2px 4px", marginTop: 8,
+          }}>
             {["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map((k) => (
               <div key={k} style={{ display: "flex", justifyContent: "center" }}>{dial(k)}</div>
             ))}
@@ -360,9 +376,13 @@ function DialRow({ tasks, nonce }) {
               borderTop: i ? `1px solid ${LINE}` : "none",
             }}>
               <div style={{ flexShrink: 0 }}>{dial(p.key)}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
                 <ClockCard portco={p.key} />
-                {p.weather && <WeatherStrip />}
+                {/* the weather slot is reserved on every row, not just IMO's, so
+                    the clocks and news boxes line up as columns down the rail */}
+                <div style={{ width: WEATHER_SLOT_W, flexShrink: 0, display: "flex" }}>
+                  {p.weather && <WeatherStrip />}
+                </div>
                 <NewsBox nonce={nonce} compact {...p.news} />
               </div>
             </div>
@@ -402,7 +422,7 @@ function ClockCard({ portco }) {
     <div title={`${c.city} local time — ${c.portco}`}
       style={{
         background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 9px",
-        textAlign: "center", minWidth: 78, flexShrink: 0,
+        textAlign: "center", width: 82, flexShrink: 0, boxSizing: "border-box",
         display: "flex", flexDirection: "column", justifyContent: "center",
       }}>
       <div style={{ fontSize: 15, fontWeight: 700, color: INK, lineHeight: 1.15 }}>{time}</div>
@@ -417,8 +437,8 @@ function ClockCard({ portco }) {
 // `label` is drawn on the card — no flag emoji, Windows renders those as bare
 // letters ("GB", "DE") which reads like a rendering fault rather than a flag.
 const WEATHER_SPOTS = [
-  { label: "UK", lat: 51.5074, lon: -0.1278 },   // London
-  { label: "GERMANY", lat: 52.52, lon: 13.405 }, // Berlin
+  { label: "UK", short: "UK", lat: 51.5074, lon: -0.1278 },   // London
+  { label: "Germany", short: "DE", lat: 52.52, lon: 13.405 }, // Berlin
 ];
 // WMO weather codes -> icon + label
 function wxLook(code) {
@@ -484,7 +504,7 @@ function WeatherStrip() {
             )).json();
             let factor = null;
             try { factor = wxFactor(cur.daily, base.daily, now.getMonth()); } catch (e) {}
-            return { label: s.label, temp: Math.round(cur.current.temperature_2m), code: cur.current.weather_code, factor };
+            return { label: s.label, short: s.short, temp: Math.round(cur.current.temperature_2m), code: cur.current.weather_code, factor };
           })
         );
         setWx(results);
@@ -496,23 +516,28 @@ function WeatherStrip() {
   }, []);
 
   if (!wx) return null;
+  // One card, one line per market. Two separate stacked cards ate ~175px of the
+  // IMO rail row and pushed its news box off the edge of the dials card.
   return (
-    <div style={{ display: "flex", gap: 6 }}>
+    <div style={{
+      background: CARD, border: `1px solid ${LINE}`, borderRadius: 6,
+      padding: "5px 8px", width: "100%", flexShrink: 0, boxSizing: "border-box",
+      display: "flex", flexDirection: "column", justifyContent: "center", gap: 3,
+    }}>
       {wx.map((w) => {
         const look = wxLook(w.code);
         const fColor = w.factor === null ? FAINT : w.factor >= 100 ? DONE_COLOR : "#B3382C";
         return (
           <div key={w.label}
             title={`${w.label}: ${look.text}, ${w.temp}°C · Weather factor = month-to-date vs same month over the prior 3 years (dryness + warmth heuristic). 100% = normal; higher = drier/hotter than usual; lower = more rain/storm/snow days. Refreshed daily.`}
-            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 8px", textAlign: "center", minWidth: 84, flexShrink: 0 }}>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, letterSpacing: 0.5, color: FAINT }}>{w.label}</div>
-            <div style={{ fontSize: 15, lineHeight: 1.2, marginTop: 1 }}>{look.icon}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: INK, marginTop: 1 }}>{w.temp}°C</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 1 }}>{look.text.toUpperCase()}</div>
+            style={{ display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+            <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: FAINT, width: 24, flexShrink: 0 }}>{w.short}</span>
+            <span style={{ fontSize: 12, lineHeight: 1 }}>{look.icon}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: INK }}>{w.temp}°</span>
             {w.factor !== null && (
-              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: fColor, marginTop: 2 }}>
-                {w.factor >= 100 ? "▲" : "▼"} MTD {w.factor}%
-              </div>
+              <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: fColor, marginLeft: "auto" }}>
+                {w.factor >= 100 ? "▲" : "▼"}{w.factor}%
+              </span>
             )}
           </div>
         );
@@ -575,10 +600,11 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null, compact = fals
   return (
     <div style={{
       background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px",
-      maxWidth: compact ? 300 : 340, minWidth: compact ? 200 : 220,
-      // in the rail every box is the same height so the rows stay on an even
-      // pitch; a three-item feed and an empty one must not size differently
-      ...(compact ? { flex: "1 1 200px", height: 128, overflow: "hidden", display: "flex", flexDirection: "column" } : {}),
+      maxWidth: compact ? undefined : 340, minWidth: compact ? 0 : 220, boxSizing: "border-box",
+      // In the rail: minWidth 0 so flexbox can always shrink this rather than
+      // overflow the card, and a fixed height so a three-item feed and an empty
+      // one leave the rows on the same pitch.
+      ...(compact ? { flex: "1 1 0", height: 118, overflow: "hidden", display: "flex", flexDirection: "column" } : {}),
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
         <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>{title}</span>
