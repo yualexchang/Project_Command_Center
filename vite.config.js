@@ -114,7 +114,50 @@ function stockApi() {
 
 // Bridges dashboard buttons to headless Claude Code runs (`claude -p`), which
 // inherit this machine's Claude session + MCP connectors (M365, Egnyte).
-const sync = { proc: null, running: false, exitCode: null, startedAt: null, log: "" };
+const sync = { proc: null, running: false, exitCode: null, startedAt: null, log: "", activity: null };
+
+// Friendly label for each tool Claude invokes during a sync.
+function toolLabel(name, input) {
+  const n = String(name || "");
+  if (/email_search/i.test(n)) return "Searching the inbox";
+  if (/read_resource/i.test(n)) return "Reading an email";
+  if (/WebSearch/i.test(n)) return "Scanning industry news";
+  if (/WebFetch/i.test(n)) return "Reading an article";
+  if (/^(Write|Edit|MultiEdit)$/i.test(n)) {
+    const f = String((input && input.file_path) || "");
+    if (/sync-progress/i.test(f)) return "Updating progress";
+    if (/tasks\.json/i.test(f)) return "Writing tasks";
+    if (/news/i.test(f)) return "Writing news";
+    return "Writing files";
+  }
+  if (/^Bash$/i.test(n)) {
+    const c = String((input && input.command) || "");
+    if (/git commit/i.test(c)) return "Committing";
+    if (/git push/i.test(c)) return "Pushing to GitHub";
+    return "Running a command";
+  }
+  if (/^(Read|Glob|Grep)$/i.test(n)) return "Reading files";
+  return n ? `Using ${n}` : "Working";
+}
+
+// Parse one NDJSON line from `claude --output-format stream-json`.
+function noteSyncEvent(line) {
+  let ev;
+  try { ev = JSON.parse(line); } catch (e) { return; }
+  const a = sync.activity || (sync.activity = { tools: 0, tool: null, text: null, at: null });
+  if (ev.type === "assistant" && ev.message && Array.isArray(ev.message.content)) {
+    for (const b of ev.message.content) {
+      if (b.type === "tool_use") {
+        a.tools += 1;
+        a.tool = toolLabel(b.name, b.input);
+        a.at = Date.now();
+      } else if (b.type === "text" && b.text && b.text.trim()) {
+        a.text = b.text.trim().replace(/\s+/g, " ").slice(0, 160);
+        a.at = Date.now();
+      }
+    }
+  }
+}
 
 function readBody(req) {
   return new Promise((resolve) => {
@@ -124,7 +167,7 @@ function readBody(req) {
   });
 }
 
-function runClaude(args, onDone, timeoutMs) {
+function runClaude(args, onDone, timeoutMs, onLine) {
   let proc;
   try {
     proc = spawn("claude", args, { cwd: here, shell: true, windowsHide: true });
@@ -133,7 +176,15 @@ function runClaude(args, onDone, timeoutMs) {
     return null;
   }
   let out = "";
-  proc.stdout.on("data", (d) => (out += d));
+  let buf = "";
+  proc.stdout.on("data", (d) => {
+    out += d;
+    if (!onLine) return;
+    buf += d;
+    const lines = buf.split(/\r?\n/);
+    buf = lines.pop(); // keep the partial line
+    lines.filter(Boolean).forEach(onLine);
+  });
   proc.stderr.on("data", (d) => (out += d));
   const timer = timeoutMs ? setTimeout(() => proc.kill(), timeoutMs) : null;
   proc.on("close", (code) => {
@@ -164,18 +215,21 @@ function claudeBridge() {
           sync.exitCode = null;
           sync.startedAt = Date.now();
           sync.log = "";
+          sync.activity = { tools: 0, tool: null, text: null, at: Date.now() };
           try {
             fs.writeFileSync(PROGRESS, JSON.stringify({ phase: "starting", totalEmails: 0, processed: 0, created: 0, skipped: 0 }) + "\n");
           } catch (e) {}
           sync.proc = runClaude(
-            ["-p", '"/command-center-sync"', "--permission-mode", "bypassPermissions"],
+            ["-p", '"/command-center-sync"', "--permission-mode", "bypassPermissions",
+             "--output-format", "stream-json", "--verbose"],
             (code, out) => {
               sync.running = false;
               sync.exitCode = code;
               sync.log = (out || "").slice(-2000);
               sync.proc = null;
             },
-            15 * 60 * 1000
+            15 * 60 * 1000,
+            noteSyncEvent
           );
           res.end(JSON.stringify({ started: true }));
         } else if (req.method === "GET") {
@@ -190,6 +244,7 @@ function claudeBridge() {
               startedAt: sync.startedAt,
               tail: sync.log.slice(-600),
               progress,
+              activity: sync.activity,
             })
           );
         } else {

@@ -595,6 +595,9 @@ export default function CommandCenter() {
   const [syncing, setSyncing] = useState(false);
   const [syncNote, setSyncNote] = useState("");
   const [syncProgress, setSyncProgress] = useState(null); // {phase, totalEmails, processed, created, skipped}
+  const [syncActivity, setSyncActivity] = useState(null); // {tools, tool, text, at} — live from Claude's stream
+  const [syncPct, setSyncPct] = useState(0); // animated bar width
+  const [syncElapsed, setSyncElapsed] = useState(0);
   const [findingPath, setFindingPath] = useState(false);
   const [expanded, setExpanded] = useState(new Set());
 
@@ -691,9 +694,10 @@ export default function CommandCenter() {
       const r = await fetch("/api/sync", { method: "POST" });
       if (!r.ok && r.status !== 409) throw new Error(`API ${r.status}`);
       for (;;) {
-        await new Promise((s) => setTimeout(s, 2000));
+        await new Promise((s) => setTimeout(s, 900));
         const st = await (await fetch("/api/sync")).json();
         if (st.progress) setSyncProgress(st.progress);
+        if (st.activity) setSyncActivity(st.activity);
         if (!st.running) {
           if (st.exitCode !== 0) throw new Error(`Claude sync exited ${st.exitCode} — ${st.tail ? st.tail.slice(-180) : "no output (is the claude CLI on PATH?)"}`);
           break;
@@ -704,8 +708,36 @@ export default function CommandCenter() {
     } catch (e) {
       setError(`Sync failed: ${e.message}`);
       try { await loadFromFile(); } catch (_) { /* keep the original error */ }
-    } finally { setSyncing(false); setSyncProgress(null); }
+    } finally { setSyncing(false); setSyncProgress(null); setSyncActivity(null); }
   }
+
+  // Latest poll results, read by the animation loop without restarting it.
+  const progressRef = useRef(null);
+  const activityRef = useRef(null);
+  useEffect(() => { progressRef.current = syncProgress; }, [syncProgress]);
+  useEffect(() => { activityRef.current = syncActivity; }, [syncActivity]);
+
+  // Animate the bar: ease toward a real target, and keep creeping while Claude
+  // works between updates so it never looks frozen. Depends ONLY on `syncing`,
+  // or the interval (and the elapsed clock) would reset on every poll.
+  useEffect(() => {
+    if (!syncing) { setSyncPct(0); setSyncElapsed(0); return; }
+    const started = Date.now();
+    const id = setInterval(() => {
+      setSyncElapsed(Math.round((Date.now() - started) / 1000));
+      setSyncPct((p) => {
+        const pr = progressRef.current;
+        const em = pr && pr.totalEmails ? (pr.processed / pr.totalEmails) * 100 : 0;
+        // tool-count fallback: asymptotic, so more work = more bar without ever finishing early
+        const tools = (activityRef.current && activityRef.current.tools) || 0;
+        const byTools = (1 - Math.exp(-tools / 14)) * 80;
+        const target = Math.max(em, byTools, 3);
+        if (p < target) return Math.min(target, p + Math.max(0.5, (target - p) * 0.2));
+        return Math.min(p + 0.12, 96); // idle creep, capped short of 100
+      });
+    }, 250);
+    return () => clearInterval(id);
+  }, [syncing]);
 
   async function findPath() {
     setFindingPath(true); setError("");
@@ -1186,33 +1218,39 @@ export default function CommandCenter() {
         {/* live sync progress — fed by data/sync-progress.json, written by the skill as it triages */}
         {syncing && (
           <div style={{ background: "#EDF2F7", border: `1px solid ${LINE}`, borderRadius: 4, padding: "10px 14px", marginTop: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6, fontSize: 11, fontFamily: MONO, color: SOFT, marginBottom: 7 }}>
-              <span>
-                {!syncProgress || syncProgress.phase === "starting"
-                  ? "Starting Claude & connecting to Outlook…"
-                  : syncProgress.phase === "searching"
-                  ? "Searching the inbox…"
-                  : syncProgress.phase === "done"
-                  ? "Finishing up…"
-                  : `Reading email ${syncProgress.processed}${syncProgress.totalEmails ? ` of ${syncProgress.totalEmails}` : ""}`}
+            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6, fontSize: 11, fontFamily: MONO, color: SOFT, marginBottom: 6 }}>
+              <span style={{ fontWeight: 700, color: INK }}>
+                {(syncActivity && syncActivity.tool) ||
+                  (syncProgress && syncProgress.phase === "searching" && "Searching the inbox") ||
+                  "Starting Claude & connecting to Outlook"}
+                <span style={{ animation: "pccPulse 1.2s ease-in-out infinite" }}>…</span>
               </span>
-              {syncProgress && (
-                <span>
-                  {syncProgress.created} categorized · {syncProgress.skipped} disregarded
-                </span>
-              )}
+              <span>
+                {syncProgress && syncProgress.totalEmails
+                  ? `email ${syncProgress.processed}/${syncProgress.totalEmails} · `
+                  : ""}
+                {syncActivity && syncActivity.tools ? `${syncActivity.tools} steps · ` : ""}
+                {Math.floor(syncElapsed / 60)}m{String(syncElapsed % 60).padStart(2, "0")}s
+              </span>
             </div>
             <div style={{ height: 8, background: "#DCE3EA", borderRadius: 4, overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 borderRadius: 4,
-                transition: "width 0.6s ease",
+                transition: "width 0.3s linear",
                 background: INK,
-                animation: "pccPulse 1.6s ease-in-out infinite",
-                width: `${syncProgress && syncProgress.totalEmails
-                  ? Math.max(Math.round((syncProgress.processed / syncProgress.totalEmails) * 100), 4)
-                  : 4}%`,
+                width: `${Math.max(syncPct, 3)}%`,
               }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 6 }}>
+              <span style={{ fontSize: 10.5, color: SOFT, lineHeight: 1.3, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                {(syncActivity && syncActivity.text) || "Claude is reading your mailbox and triaging what needs your action."}
+              </span>
+              {syncProgress && (syncProgress.created || syncProgress.skipped) ? (
+                <span style={{ fontFamily: MONO, fontSize: 10, color: SOFT, whiteSpace: "nowrap" }}>
+                  {syncProgress.created} kept · {syncProgress.skipped} skipped
+                </span>
+              ) : null}
             </div>
           </div>
         )}
