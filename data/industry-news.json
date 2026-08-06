@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-06T17:50:00.000Z",
+  "updatedAt": "2026-08-06T21:31:19.150Z",
   "items": [
     {
       "sentiment": "positive",
@@ -20,36 +20,6 @@
       "source": "Colorado Children's Campaign / CDEC",
       "date": "2026-07-23",
       "url": "https://cdec.colorado.gov/child-care-and-development-fund-ccdf-update"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "CO",
-      "short": "14k on CCCAP waitlists",
-      "headline": "Nearly 14,000 Colorado children on CCCAP waitlists or under enrollment freezes",
-      "summary": "Subsidy rationing suppresses reachable demand in Colorado markets until freezes actually lift.",
-      "source": "Early Milestones Colorado / CPR",
-      "date": "2026-05-04",
-      "url": "https://www.cpr.org/2026/05/04/colorado-budget-markets-child-care/"
-    },
-    {
-      "sentiment": "positive",
-      "scope": "UT",
-      "short": "Employer credit tripled",
-      "headline": "Utah HB 190 raises employer child care tax credit from 10% to 30% for small businesses",
-      "summary": "Employer-sponsored demand becomes materially cheaper in Utah — a corporate-partnership angle for SLC centers.",
-      "source": "Voices for Utah Children",
-      "date": "2026-03-15",
-      "url": "https://utahchildren.org/newsroom/speaking-of-kids-blog/education-and-care-2026-legislative-updates"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "UT",
-      "short": "HB 453 rejected",
-      "headline": "Utah HB 453 early childhood funding account rejected on the floor; no state ECE funding",
-      "summary": "Utah still provides no recurring state early-childhood funding, leaving SLC economics fully private-pay dependent.",
-      "source": "Voices for Utah Children",
-      "date": "2026-03-15",
-      "url": "https://utahchildren.org/newsroom/speaking-of-kids-blog/education-and-care-2026-legislative-updates"
     }
   ]
 }

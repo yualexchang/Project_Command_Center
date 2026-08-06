@@ -1,6 +1,87 @@
 {
   "tasks": [
     {
+      "id": "kepslc7f2a",
+      "title": "Reformat KEP SLC exec summary deck into KEP format",
+      "project": "KEP - SLC",
+      "priority": "high",
+      "deadline": "2026-08-07",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Katie Haverty",
+      "addressedTo": "You + Biddi + John Straley",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Katie wants the Salt Lake City executive summary rebuilt in the standard KEP deck format while she finishes the Excel outputs. The goal is to hand Andrea a near-turnkey deck where the only thing left for her is feedback on the operating inputs.",
+      "steps": [
+        "Pull KEP-format template from Katie's attached deck",
+        "Port SLC content into that layout",
+        "Send draft to Katie and Biddi for review"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "katie.haverty@fep-us.com",
+      "subject": "KEP_SLC_Executive_Summary_ 8-4-26 (002).pptx",
+      "src": "email",
+      "rank": 1786051705098.2612,
+      "createdAt": "2026-08-06T21:30:12.882Z"
+    },
+    {
+      "id": "om4gifkpmsi12iw2",
+      "title": "Check in on 401k in service transfer with Isaac",
+      "project": "Admin",
+      "bucket": null,
+      "priority": "high",
+      "deadline": "2026-08-10",
+      "deadlineType": "explicit",
+      "status": "progress",
+      "assignedBy": "Myself",
+      "addressedTo": "Isaac",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "",
+      "steps": [],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "",
+      "subject": "",
+      "src": "manual",
+      "rank": 1786051704098.2612,
+      "createdAt": "2026-08-06T21:28:24.098Z"
+    },
+    {
+      "id": "weo59ukdmsi11qs2",
+      "title": "Hello Auto Waiting on Feedback for Final Bid",
+      "project": "Hello Auto",
+      "bucket": "Live Deals",
+      "priority": "high",
+      "deadline": "2026-08-06",
+      "deadlineType": "explicit",
+      "status": "progress",
+      "assignedBy": "Myself",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "",
+      "steps": [],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "",
+      "subject": "",
+      "src": "manual",
+      "rank": 1786051667666.1729,
+      "createdAt": "2026-08-06T21:27:47.666Z"
+    },
+    {
       "id": "95j05iugmsi0wavu",
       "title": "Mark Auto Group",
       "project": "Marks Auto Group",
@@ -8,7 +89,7 @@
       "priority": "high",
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "progress",
       "assignedBy": "Myself",
       "addressedTo": "John and Rhea",
       "askType": "internal",
@@ -16,9 +97,15 @@
       "emailBlurb": "statement spread and blue",
       "steps": [],
       "context": "",
-      "reassignedTo": null,
-      "followUpDate": null,
-      "notes": [],
+      "reassignedTo": "john and rhea",
+      "followUpDate": "2026-08-09",
+      "notes": [
+        {
+          "id": "nvsut3wlmsi10qne",
+          "date": "2026-08-06",
+          "text": "Reassigned to john and rhea"
+        }
+      ],
       "links": [],
       "sender": "",
       "subject": "",
@@ -1047,5 +1134,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-06T20:22:24.170Z"
+  "lastSync": "2026-08-06T21:30:12.882Z"
 }
