@@ -390,7 +390,7 @@
       "priority": "low",
       "deadline": null,
       "deadlineType": null,
-      "status": "progress",
+      "status": "done",
       "assignedBy": "Phil Strauss (PwC)",
       "addressedTo": "You",
       "askType": "external",

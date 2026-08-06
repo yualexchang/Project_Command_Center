@@ -301,6 +301,7 @@ export default function CommandCenter() {
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [syncNote, setSyncNote] = useState("");
+  const [syncProgress, setSyncProgress] = useState(null); // {phase, totalEmails, processed, created, skipped}
   const [findingPath, setFindingPath] = useState(false);
   const [expanded, setExpanded] = useState(new Set());
 
@@ -373,8 +374,9 @@ export default function CommandCenter() {
       const r = await fetch("/api/sync", { method: "POST" });
       if (!r.ok && r.status !== 409) throw new Error(`API ${r.status}`);
       for (;;) {
-        await new Promise((s) => setTimeout(s, 3000));
+        await new Promise((s) => setTimeout(s, 2000));
         const st = await (await fetch("/api/sync")).json();
+        if (st.progress) setSyncProgress(st.progress);
         if (!st.running) {
           if (st.exitCode !== 0) throw new Error(`Claude sync exited ${st.exitCode} — ${st.tail ? st.tail.slice(-180) : "no output (is the claude CLI on PATH?)"}`);
           break;
@@ -385,7 +387,7 @@ export default function CommandCenter() {
     } catch (e) {
       setError(`Sync failed: ${e.message}`);
       try { await loadFromFile(); } catch (_) { /* keep the original error */ }
-    } finally { setSyncing(false); }
+    } finally { setSyncing(false); setSyncProgress(null); }
   }
 
   async function findPath() {
@@ -411,6 +413,15 @@ export default function CommandCenter() {
   const remove = (id) => setTasks((prev) => prev.filter((t) => t.id !== id));
   const toggleExpand = (id) =>
     setExpanded((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+  // +1d/+3d stack: each click pushes the current draft deadline further out
+  function bumpDeadline(n) {
+    setDraft((p) => {
+      const base = p.deadline ? new Date(p.deadline + "T12:00:00") : new Date();
+      base.setDate(base.getDate() + n);
+      return { ...p, deadline: base.toISOString().slice(0, 10) };
+    });
+  }
 
   function addManual() {
     if (!draft.title.trim()) return;
@@ -760,6 +771,39 @@ export default function CommandCenter() {
           <button style={btn(false)} onClick={openExport} title="Export / restore a backup of your list">⇄ Backup</button>
         </div>
 
+        {/* live sync progress — fed by data/sync-progress.json, written by the skill as it triages */}
+        {syncing && (
+          <div style={{ background: "#EDF2F7", border: `1px solid ${LINE}`, borderRadius: 4, padding: "10px 14px", marginTop: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6, fontSize: 11, fontFamily: MONO, color: SOFT, marginBottom: 7 }}>
+              <span>
+                {!syncProgress || syncProgress.phase === "starting"
+                  ? "Starting Claude & connecting to Outlook…"
+                  : syncProgress.phase === "searching"
+                  ? "Searching the inbox…"
+                  : syncProgress.phase === "done"
+                  ? "Finishing up…"
+                  : `Reading email ${syncProgress.processed}${syncProgress.totalEmails ? ` of ${syncProgress.totalEmails}` : ""}`}
+              </span>
+              {syncProgress && (
+                <span>
+                  {syncProgress.created} categorized · {syncProgress.skipped} disregarded
+                </span>
+              )}
+            </div>
+            <div style={{ height: 8, background: "#DCE3EA", borderRadius: 4, overflow: "hidden" }}>
+              <div style={{
+                height: "100%",
+                borderRadius: 4,
+                transition: "width 0.6s ease",
+                background: INK,
+                width: `${syncProgress && syncProgress.totalEmails
+                  ? Math.max(Math.round((syncProgress.processed / syncProgress.totalEmails) * 100), 4)
+                  : 4}%`,
+              }} />
+            </div>
+          </div>
+        )}
+
         {/* notices */}
         {syncNote && !syncing && (
           <div style={{ background: "#EEF4EE", border: "1px solid #CBDCCB", borderRadius: 4, padding: "10px 14px", fontSize: 13, color: "#2F5233", marginTop: 12 }}>
@@ -788,15 +832,15 @@ export default function CommandCenter() {
               <select value={draft.askType} onChange={(e) => setDraft({ ...draft, askType: e.target.value })} style={sel}>
                 <option value="internal">Internal ask</option><option value="external">External ask</option>
               </select>
-              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                <input type="date" value={draft.deadline} onChange={(e) => setDraft({ ...draft, deadline: e.target.value })} style={{ ...sel, flex: 1 }} />
-                <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Due tomorrow" onClick={() => setDraft({ ...draft, deadline: plusDays(1) })}>+1d</button>
-                <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Due in 3 days" onClick={() => setDraft({ ...draft, deadline: plusDays(3) })}>+3d</button>
+              <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", gridColumn: "span 2", minWidth: 0 }}>
+                <input type="date" value={draft.deadline} onChange={(e) => setDraft({ ...draft, deadline: e.target.value })} style={{ ...sel, flex: "1 1 120px", minWidth: 110 }} />
+                <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Push deadline out 1 day (stacks)" onClick={() => bumpDeadline(1)}>+1d</button>
+                <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Push deadline out 3 days (stacks)" onClick={() => bumpDeadline(3)}>+3d</button>
                 <select value={draft.deadlineType} onChange={(e) => setDraft({ ...draft, deadlineType: e.target.value })} style={sel}>
                   <option value="explicit">Explicit</option><option value="implicit">Implicit</option>
                 </select>
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: SOFT }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: SOFT, whiteSpace: "nowrap" }}>
                 <input type="checkbox" checked={draft.needsCall} onChange={(e) => setDraft({ ...draft, needsCall: e.target.checked })} />
                 Needs a call first
               </label>

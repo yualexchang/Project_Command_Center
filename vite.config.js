@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const DATA = path.join(here, "data", "tasks.json");
+const PROGRESS = path.join(here, "data", "sync-progress.json"); // written by the sync skill, read by the dashboard
 
 // Serves data/tasks.json as GET/PUT /api/tasks. Local-only: the dev server
 // binds to localhost and holds no secrets — Claude Code and the dashboard
@@ -94,6 +95,9 @@ function claudeBridge() {
           sync.exitCode = null;
           sync.startedAt = Date.now();
           sync.log = "";
+          try {
+            fs.writeFileSync(PROGRESS, JSON.stringify({ phase: "starting", totalEmails: 0, processed: 0, created: 0, skipped: 0 }) + "\n");
+          } catch (e) {}
           sync.proc = runClaude(
             ["-p", '"/command-center-sync"', "--permission-mode", "bypassPermissions"],
             (code, out) => {
@@ -106,12 +110,17 @@ function claudeBridge() {
           );
           res.end(JSON.stringify({ started: true }));
         } else if (req.method === "GET") {
+          let progress = null;
+          try {
+            progress = JSON.parse(fs.readFileSync(PROGRESS, "utf-8"));
+          } catch (e) {}
           res.end(
             JSON.stringify({
               running: sync.running,
               exitCode: sync.exitCode,
               startedAt: sync.startedAt,
               tail: sync.log.slice(-600),
+              progress,
             })
           );
         } else {

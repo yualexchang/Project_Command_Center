@@ -73,6 +73,22 @@ inside it).
    server is running and you are unsure, mention that a Refresh will pick up
    the changes.
 
+## Live progress file (required — the dashboard renders this as a progress bar)
+
+Maintain `data/sync-progress.json` throughout the sync (do NOT commit it):
+
+1. Immediately after determining the window, write:
+   `{"phase": "searching", "totalEmails": 0, "processed": 0, "created": 0, "skipped": 0}`
+2. As soon as the first search page returns (it includes `totalResultCount`),
+   update `totalEmails` and set `"phase": "triaging"`.
+3. While triaging, rewrite the file after every ~10 emails judged:
+   `processed` = emails read/judged so far, `created` = tasks created so far,
+   `skipped` = emails disregarded so far.
+4. After the final write + git commit, write the final counts with `"phase": "done"`.
+
+Keep each write a single small JSON object. If the file can't be written, continue
+the sync anyway — the progress bar is best-effort.
+
 ## New-task schema
 
 ```json
