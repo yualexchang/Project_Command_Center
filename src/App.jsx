@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 // ---------- constants ----------
 const PRI = { high: 0, medium: 1, low: 2 };
-const PRI_COLOR = { high: "#8B1A1A", medium: "#C63D2F", low: "#D9822B" }; // dark red / red / orange
+const PRI_COLOR = { high: "#6E0F0F", medium: "#C63D2F", low: "#D9822B" }; // darkest red / red / orange
 const DONE_COLOR = "#2E7D52"; // green = completed
 const PROGRESS_COLOR = "#B58200"; // amber = in progress
 const DELEGATED = "#6B4FA1"; // purple = delegated
@@ -568,6 +568,15 @@ export default function CommandCenter() {
       notes: [...t.notes, { id: uid(), date: new Date().toISOString().slice(0, 10), text: "Taken back" }],
     });
   }
+  // push the task's effective date (follow-up if delegated, else deadline) out one day
+  function snooze(t) {
+    const key = t.reassignedTo ? "followUpDate" : "deadline";
+    const cur = t[key];
+    const base = cur ? new Date(cur + "T12:00:00") : new Date();
+    base.setDate(base.getDate() + 1);
+    update(t.id, { [key]: base.toISOString().slice(0, 10) });
+  }
+
   function addNote(t) {
     const txt = window.prompt(`Progress note for "${t.title}":`);
     if (!txt || !txt.trim()) return;
@@ -958,7 +967,8 @@ export default function CommandCenter() {
                 <div key={t.id} style={{
                   background: t.reassignedTo && !done ? "#F7F7FC" : CARD,
                   border: `1px solid ${t.reassignedTo && !done ? "#D5D6EC" : LINE}`,
-                  borderLeft: `4px solid ${railColor}`,
+                  borderLeft: `6px solid ${railColor}`,
+                  borderRight: `6px solid ${bucket.color}`,
                   borderRadius: 6, marginBottom: 8, opacity: done ? 0.55 : 1,
                 }}>
                   {/* ---- overview row ---- */}
@@ -975,35 +985,48 @@ export default function CommandCenter() {
                       {done ? "✓" : ""}
                     </button>
 
-                    <div style={{ flex: 1, minWidth: 0, cursor: "pointer" }} onClick={() => toggleExpand(t.id)}>
-                      <div style={{ fontSize: 15, fontWeight: 600, textDecoration: done ? "line-through" : "none" }}>
+                    <div style={{ flex: 1, minWidth: 0, cursor: "pointer", display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", columnGap: 10, rowGap: 5, alignItems: "start" }} onClick={() => toggleExpand(t.id)}>
+                      {/* top left: title */}
+                      <div style={{ fontSize: 15, fontWeight: 600, textDecoration: done ? "line-through" : "none", minWidth: 0 }}>
                         {t.title}
                       </div>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
-                        {t.assignedBy && (
-                          <span style={{ fontSize: 11, color: SOFT }}>
-                            <b>{t.assignedBy}</b> → {t.addressedTo || "You"}
-                          </span>
-                        )}
-                        {!grouped && (
-                          <span style={{ fontFamily: MONO, fontSize: 10, color: SOFT, background: BG, border: `1px solid ${bucket.color}`, borderRadius: 3, padding: "1px 6px", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                            <span style={{ width: 7, height: 7, borderRadius: 2, background: bucket.color, display: "inline-block" }} />
-                            {t.project}
-                          </span>
-                        )}
+                      {/* top right: labels */}
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end", alignItems: "center" }}>
                         <span style={tag(t.askType === "external" ? "#7A4A1F" : SOFT, false)}>
                           {t.askType === "external" ? "EXT" : "INT"}
                         </span>
-                        {dChip && (
-                          <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: dChip.color }}>
-                            {dChip.text}{!t.reassignedTo && t.deadline ? (t.deadlineType === "explicit" ? " ·E" : " ·I") : ""}
-                          </span>
-                        )}
                         {t.needsCall && !done && <span style={tag("#1F5E7A", false)}>📞 CALL FIRST</span>}
                         {t.reassignedTo && !done && <span style={tag(DELEGATED, true)}>WITH {t.reassignedTo.toUpperCase()}</span>}
                         {t.status === "progress" && !done && (
                           <span style={{ fontFamily: MONO, fontSize: 10, color: PROGRESS_COLOR, fontWeight: 700 }}>IN PROGRESS</span>
                         )}
+                      </div>
+                      {/* bottom left: from -> to, due date + snooze */}
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", minWidth: 0 }}>
+                        {t.assignedBy && (
+                          <span style={{ fontSize: 11, color: SOFT }}>
+                            <b>{t.assignedBy}</b> → {t.addressedTo || "You"}
+                          </span>
+                        )}
+                        {dChip && (
+                          <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: dChip.color, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            {dChip.text}{!t.reassignedTo && t.deadline ? (t.deadlineType === "explicit" ? " ·E" : " ·I") : ""}
+                            {!done && (
+                              <button title="Snooze: push the date out one day"
+                                onClick={(e) => { e.stopPropagation(); snooze(t); }}
+                                style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 3, cursor: "pointer", fontSize: 9, lineHeight: 1.4, padding: "0 4px", color: SOFT }}>
+                                💤+1d
+                              </button>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                      {/* bottom right: project category */}
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <span style={{ fontFamily: MONO, fontSize: 10, color: SOFT, background: BG, border: `1px solid ${bucket.color}`, borderRadius: 3, padding: "1px 6px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: 2, background: bucket.color, display: "inline-block" }} />
+                          {t.project}
+                        </span>
                       </div>
                     </div>
 
