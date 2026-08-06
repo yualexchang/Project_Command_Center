@@ -7,7 +7,7 @@
       "priority": "high",
       "deadline": "2026-08-06",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "done",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + David",
       "askType": "internal",
@@ -471,5 +471,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-05T23:56:46.695Z"
+  "lastSync": "2026-08-06T00:03:01.000Z"
 }
