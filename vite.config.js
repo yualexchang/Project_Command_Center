@@ -43,17 +43,69 @@ function tasksApi() {
   };
 }
 
-// Serves data/industry-news.json (written by the sync skill's news scan).
+// Serves the news feeds written by the sync skill's news scans.
+// /api/news            -> data/industry-news.json  (early education: CO/UT)
+// /api/news?feed=bravofit -> data/bravofit-news.json (BravoFit / Planet Fitness AU)
+const NEWS_FEEDS = { earlyed: "industry-news.json", bravofit: "bravofit-news.json" };
+
 function newsApi() {
   return {
     name: "news-api",
     configureServer(server) {
       server.middlewares.use("/api/news", (req, res) => {
         res.setHeader("Content-Type", "application/json");
+        const feed = new URL(req.url, "http://localhost").searchParams.get("feed") || "earlyed";
+        const file = NEWS_FEEDS[feed] || NEWS_FEEDS.earlyed;
         try {
-          res.end(fs.readFileSync(path.join(here, "data", "industry-news.json"), "utf-8"));
+          res.end(fs.readFileSync(path.join(here, "data", file), "utf-8"));
         } catch (e) {
           res.end(JSON.stringify({ updatedAt: null, items: [] }));
+        }
+      });
+    },
+  };
+}
+
+// Proxies a daily stock quote (browsers are CORS-blocked from the upstream).
+// Cached in memory for the calendar day; /api/stock?symbol=PLNT
+const quoteCache = {};
+function stockApi() {
+  return {
+    name: "stock-api",
+    configureServer(server) {
+      server.middlewares.use("/api/stock", async (req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        const symbol = (new URL(req.url, "http://localhost").searchParams.get("symbol") || "PLNT")
+          .toUpperCase()
+          .replace(/[^A-Z.\-]/g, "")
+          .slice(0, 10);
+        const today = new Date().toISOString().slice(0, 10);
+        if (quoteCache[symbol] && quoteCache[symbol].date === today) {
+          res.end(JSON.stringify(quoteCache[symbol].data));
+          return;
+        }
+        try {
+          const r = await fetch(
+            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`,
+            { headers: { "User-Agent": "Mozilla/5.0" } }
+          );
+          const j = await r.json();
+          const m = j.chart.result[0].meta;
+          const price = m.regularMarketPrice;
+          const prev = m.chartPreviousClose ?? m.previousClose;
+          const data = {
+            symbol,
+            price: Math.round(price * 100) / 100,
+            change: Math.round((price - prev) * 100) / 100,
+            pct: Math.round(((price - prev) / prev) * 1000) / 10,
+            currency: m.currency || "USD",
+            asOf: new Date((m.regularMarketTime || Date.now() / 1000) * 1000).toISOString(),
+          };
+          quoteCache[symbol] = { date: today, data };
+          res.end(JSON.stringify(data));
+        } catch (e) {
+          res.statusCode = 502;
+          res.end(JSON.stringify({ error: "quote unavailable" }));
         }
       });
     },
@@ -189,5 +241,5 @@ function claudeBridge() {
 }
 
 export default defineConfig({
-  plugins: [react(), tasksApi(), newsApi(), claudeBridge()],
+  plugins: [react(), tasksApi(), newsApi(), stockApi(), claudeBridge()],
 });

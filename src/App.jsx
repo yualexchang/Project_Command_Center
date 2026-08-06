@@ -445,32 +445,59 @@ function WeatherStrip() {
 }
 
 // ---------- industry news (early education / childcare; refreshed by each sync) ----------
-function NewsBox({ nonce }) {
+// Live daily quote line (proxied through the dev server; cached per day)
+function StockLine({ symbol }) {
+  const [q, setQ] = useState(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const d = await (await fetch(`/api/stock?symbol=${symbol}`)).json();
+        if (!d.error) setQ(d);
+      } catch (e) { /* quote unavailable — line hidden */ }
+    })();
+  }, [symbol]);
+  if (!q) return null;
+  const up = q.change >= 0;
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginTop: 2, paddingBottom: 3, borderBottom: `1px solid ${LINE}` }}
+      title={`${symbol} last close ${q.price} ${q.currency} (as of ${fmtTime(q.asOf)})`}>
+      <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, color: SOFT }}>{symbol}</span>
+      <span style={{ fontSize: 13, fontWeight: 700, color: INK }}>${q.price.toFixed(2)}</span>
+      <span style={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 700, color: up ? DONE_COLOR : "#B3382C" }}>
+        {up ? "▲" : "▼"} {up ? "+" : ""}{q.change.toFixed(2)} ({up ? "+" : ""}{q.pct.toFixed(1)}%)
+      </span>
+    </div>
+  );
+}
+
+function NewsBox({ nonce, title, feed = "earlyed", symbol = null }) {
   const [news, setNews] = useState(null);
   useEffect(() => {
     (async () => {
       try {
-        const d = await (await fetch("/api/news")).json();
+        const d = await (await fetch(`/api/news?feed=${feed}`)).json();
         setNews(d);
       } catch (e) { /* endpoint absent — box stays hidden */ }
     })();
-  }, [nonce]);
+  }, [nonce, feed]);
 
-  if (!news || !news.items || news.items.length === 0) return null;
+  const items = (news && news.items) || [];
+  if (!symbol && items.length === 0) return null;
   const tone = { positive: DONE_COLOR, negative: "#B3382C", neutral: SOFT };
-  const mark = { positive: "▲", negative: "▼", neutral: "•" };
-  const pos = news.items.filter((i) => i.sentiment === "positive").length;
-  const neg = news.items.filter((i) => i.sentiment === "negative").length;
+  const mark = { positive: "▲", negative: "▼", neutral: "▬" };
+  const pos = items.filter((i) => i.sentiment === "positive").length;
+  const neg = items.filter((i) => i.sentiment === "negative").length;
 
   return (
-    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", maxWidth: 320, minWidth: 210 }}>
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", maxWidth: 340, minWidth: 220 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
-        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>EARLY ED INDUSTRY</span>
+        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>{title}</span>
         <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700 }}>
           <span style={{ color: DONE_COLOR }}>▲{pos}</span> <span style={{ color: "#B3382C" }}>▼{neg}</span>
         </span>
       </div>
-      {news.items.slice(0, 4).map((it, i) => (
+      {symbol && <StockLine symbol={symbol} />}
+      {items.slice(0, 4).map((it, i) => (
         <a key={i} href={it.url || undefined} target="_blank" rel="noreferrer"
           title={`${it.headline}${it.summary ? ` — ${it.summary}` : ""}${it.source ? ` (${it.source})` : ""}`}
           style={{ display: "flex", gap: 5, marginTop: 3, textDecoration: "none", alignItems: "baseline" }}>
@@ -492,7 +519,10 @@ function NewsBox({ nonce }) {
           </span>
         </a>
       ))}
-      {news.updatedAt && (
+      {items.length === 0 && (
+        <div style={{ fontSize: 10, color: FAINT, marginTop: 3 }}>No matching news this scan.</div>
+      )}
+      {news && news.updatedAt && (
         <div style={{ fontFamily: MONO, fontSize: 8, color: FAINT, marginTop: 4 }}>
           scanned {fmtTime(news.updatedAt)}
         </div>
@@ -1071,7 +1101,8 @@ export default function CommandCenter() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignSelf: "flex-start", justifyContent: "flex-end" }}>
               <ClockStrip />
               <WeatherStrip />
-              <NewsBox nonce={lastSync} />
+              <NewsBox nonce={lastSync} title="EARLY ED · CO/UT" feed="earlyed" />
+              <NewsBox nonce={lastSync} title="BRAVOFIT · PLNT" feed="bravofit" symbol="PLNT" />
             </div>
           </div>
         </div>

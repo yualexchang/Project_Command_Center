@@ -1,0 +1,35 @@
+{
+  "updatedAt": "2026-08-06T18:05:00.000Z",
+  "items": [
+    {
+      "sentiment": "positive",
+      "scope": "PLNT",
+      "short": "Q2 sales beat",
+      "headline": "Planet Fitness Q2 CY2026 revenue $365.2M, up 7.1%, tops estimates; adj EPS $0.88 beats by 3.7%",
+      "summary": "Brand momentum holds, but system-wide same-club sales grew only 1.7% and adjusted net income fell 5.7% — watch the comp line.",
+      "source": "StockStory / FinancialContent",
+      "date": "2026-08-06",
+      "url": "https://markets.financialcontent.com/stocks/article/stockstory-2026-8-6-planet-fitnesss-nyseplnt-q2-cy2026-sales-top-estimates"
+    },
+    {
+      "sentiment": "neutral",
+      "scope": "PLNT",
+      "short": "New CFO, Intl president",
+      "headline": "Planet Fitness appoints Sudhanshu Priyadarshi CFO and President, International",
+      "summary": "New international leadership is the counterparty for Bravo Fit's development pipeline — worth an early relationship.",
+      "source": "Planet Fitness Q2 release",
+      "date": "2026-08-06",
+      "url": "https://www.stocktitan.net/news/PLNT/planet-fitness-inc-to-report-second-quarter-2026-results-on-august-6-dsyzuz1dqm7k.html"
+    },
+    {
+      "sentiment": "positive",
+      "scope": "BRAVO",
+      "short": "FEP acquires Bravo Fit",
+      "headline": "Franchise Equity Partners acquires Bravo Fit, Planet Fitness' Australian franchisee",
+      "summary": "32 clubs today with exclusive development rights for ~100 more across VIC, NSW, SA, QLD and ACT; targeting 135+ clubs.",
+      "source": "PR Newswire / Athletech News",
+      "date": "2026-07-30",
+      "url": "https://athletechnews.com/planet-fitness-australia-acquisition-franchise-equity-partners/"
+    }
+  ]
+}

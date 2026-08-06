@@ -73,10 +73,27 @@ inside it).
    server is running and you are unsure, mention that a Refresh will pick up
    the changes.
 
-## Industry news scan (run once per sync, after the tasks are written)
+## News scans (run once per sync, after the tasks are written)
 
-The dashboard shows an "Early Ed Industry" box fed by `data/industry-news.json`.
-Refresh it on every sync:
+Two boxes on the dashboard are fed by two files. Refresh **both** every sync,
+using the same rules (recency since last sync, publication-date discipline,
+`short` summaries, merge-don't-replace, max 5 items).
+
+### Feed B — BravoFit (`data/bravofit-news.json`)
+
+Same JSON shape as feed A below, but `scope` is `BRAVO` or `PLNT`. Include an
+article **only** if it satisfies one of:
+
+- it mentions **Bravo Fit** (the Australian Planet Fitness franchisee, FEP-owned), or
+- it mentions **Planet Fitness AND Australia in the same article**.
+
+Planet Fitness news with no Australian angle (US club openings, US marketing) is
+out of scope — with one exception: **PLNT corporate results, guidance, franchise
+economics, or leadership changes** count, since they set the terms Bravo Fit
+operates under. Tag those `PLNT`; tag Bravo-Fit-specific items `BRAVO`.
+The PLNT share price is fetched live by the dashboard — do not put it in this file.
+
+### Feed A — Early education (`data/industry-news.json`)
 
 1. Use `WebSearch` (2–4 queries) for developments in the **early education /
    childcare industry**: sector news, M&A and franchise-market moves,
