@@ -1009,14 +1009,34 @@ export default function CommandCenter() {
             style={{ ...btn(false), padding: "5px 12px", fontSize: 12, background: INK, color: "#fff", border: `1px solid ${INK}` }}>
             {STATUS_LABEL[fStatus]}
           </button>
-          <select value={fProject} onChange={(e) => setFProject(e.target.value)} style={sel} title="Filter by deal/project">
-            <option value="all">All deals/projects</option>
-            {projects.map((p) => <option key={p} value={p}>{p}</option>)}
-          </select>
-          <select value={fAssigned} onChange={(e) => setFAssigned(e.target.value)} style={sel} title="Filter by who assigned the task">
-            <option value="all">Assigned by anyone</option>
-            {assigners.map((a) => <option key={a} value={a}>{a}</option>)}
-          </select>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+            <select value={fProject} onChange={(e) => setFProject(e.target.value)}
+              style={{ ...sel, borderColor: fProject !== "all" ? INK : LINE, fontWeight: fProject !== "all" ? 600 : 400 }}
+              title="Filter by deal/project">
+              <option value="all">All deals/projects</option>
+              {projects.map((p) => <option key={p} value={p}>{p}</option>)}
+            </select>
+            {fProject !== "all" && (
+              <button onClick={() => setFProject("all")} title="Clear project filter"
+                style={{ ...sel, cursor: "pointer", padding: "4px 7px", fontWeight: 700, color: "#8C3226" }}>
+                ✕
+              </button>
+            )}
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+            <select value={fAssigned} onChange={(e) => setFAssigned(e.target.value)}
+              style={{ ...sel, borderColor: fAssigned !== "all" ? INK : LINE, fontWeight: fAssigned !== "all" ? 600 : 400 }}
+              title="Filter by who assigned the task">
+              <option value="all">Assigned by anyone</option>
+              {assigners.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+            {fAssigned !== "all" && (
+              <button onClick={() => setFAssigned("all")} title="Clear assigned-by filter"
+                style={{ ...sel, cursor: "pointer", padding: "4px 7px", fontWeight: 700, color: "#8C3226" }}>
+                ✕
+              </button>
+            )}
+          </span>
         </div>
 
         {/* empty state */}

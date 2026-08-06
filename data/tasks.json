@@ -332,7 +332,7 @@
       "priority": "medium",
       "deadline": null,
       "deadlineType": null,
-      "status": "todo",
+      "status": "progress",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You + Luke + Justin",
       "askType": "internal",
