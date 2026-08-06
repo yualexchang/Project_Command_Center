@@ -473,15 +473,22 @@ function NewsBox({ nonce }) {
       {news.items.slice(0, 4).map((it, i) => (
         <a key={i} href={it.url || undefined} target="_blank" rel="noreferrer"
           title={`${it.headline}${it.summary ? ` — ${it.summary}` : ""}${it.source ? ` (${it.source})` : ""}`}
-          style={{ display: "flex", gap: 4, marginTop: 3, textDecoration: "none", alignItems: "baseline" }}>
+          style={{ display: "flex", gap: 5, marginTop: 3, textDecoration: "none", alignItems: "baseline" }}>
+          {/* sentiment · date · summary · jurisdiction */}
           <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, color: tone[it.sentiment] || SOFT, flexShrink: 0 }}>
-            {mark[it.sentiment] || "•"}
+            {mark[it.sentiment] || "▬"}
+          </span>
+          <span style={{ fontFamily: MONO, fontSize: 8.5, color: FAINT, flexShrink: 0 }}>
+            {it.date ? new Date(it.date + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric" }) : "—"}
           </span>
           <span style={{ fontSize: 10.5, color: INK, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {it.short || it.headline}
           </span>
-          <span style={{ fontFamily: MONO, fontSize: 8.5, color: FAINT, marginLeft: "auto", flexShrink: 0 }}>
-            {it.date ? new Date(it.date + "T12:00:00").toLocaleDateString([], { month: "short", day: "numeric" }) : ""}
+          <span style={{
+            fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: 0.5, marginLeft: "auto", flexShrink: 0,
+            color: SOFT, border: `1px solid ${LINE}`, borderRadius: 3, padding: "0 3px",
+          }}>
+            {it.scope || "FED"}
           </span>
         </a>
       ))}

@@ -79,12 +79,20 @@ The dashboard shows an "Early Ed Industry" box fed by `data/industry-news.json`.
 Refresh it on every sync:
 
 1. Use `WebSearch` (2–4 queries) for developments in the **early education /
-   childcare industry** relevant to KEP/Primrose: sector news, M&A and
-   franchise-market moves, **legislation or funding-policy changes** (federal
-   and state — especially Colorado, where Ken Caryl sits), regulatory shifts
-   (staff ratios, licensing), and credible **rumors of upcoming changes**.
+   childcare industry**: sector news, M&A and franchise-market moves,
+   **legislation or funding-policy changes**, regulatory shifts (staff ratios,
+   licensing), and credible **rumors of upcoming changes**.
    **Search only for news published since the last sync** (the `lastSync` you
    read in step 1) — include the month/year in the query so results are current.
+
+   **Jurisdiction filter — only three scopes count. Drop everything else:**
+   - `CO` — Colorado (KEP / Ken Caryl / Denver)
+   - `UT` — Utah (KEP / SLC)
+   - `FED` — United States federal level
+   
+   State-level news about any *other* state (Iowa, Oregon, Texas…) is out of
+   scope no matter how interesting — do not include it. Tag every item you keep
+   with its `scope`.
 2. **Date discipline — this is the easy thing to get wrong.** `date` must be the
    date the *article was published*, not the date a policy takes effect and not
    today. Take it from the URL slug (e.g. `/2026/08/03/`) or the page itself. If
@@ -104,6 +112,7 @@ Refresh it on every sync:
   "items": [
     {
       "sentiment": "positive|negative|neutral",
+      "scope": "CO|UT|FED — required; drop the item if it is none of these",
       "short": "2-4 words, e.g. 'Head Start deregulation' — this is what the box displays",
       "headline": "<= 90 chars, plain language (shown on hover)",
       "summary": "1 sentence on why it matters to an early-ed operator",
