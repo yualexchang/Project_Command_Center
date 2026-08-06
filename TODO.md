@@ -41,6 +41,8 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-22 | Pin per-deal Egnyte folders in `data/egnyte-roots.json` as deals spin up | open | low | Recurring upkeep; keeps path lookups fast as deal count grows |
 | CC-23 | Keyboard shortcuts (j/k move, space advance, u undo) | open | low | Speed for a daily-driver tool |
 | CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | open | low | Pairs with CC-6 (phone access) |
+| CC-25 | Due pipeline on calendar weeks, not a rolling 7/14-day window | done | medium | Shipped: buckets now cut off at the coming Sunday; also fixed the off-by-one in `daysUntil` |
+| CC-26 | `setDueIn` lands a day late when used after ~20:00 local | open | medium | The +1/+3/+7 buttons silently set the wrong date in the evening |
 
 ---
 
@@ -183,3 +185,38 @@ Short notes; promote to a full section when one goes `next`.
   `data/archive.json`; dashboard shows a count link. Restore = move back.
 - **CC-21/CC-22 are recurring upkeep,** not builds — revisit when the trigger event
   happens (first Penske task; each new live deal folder).
+
+## CC-25 — Due pipeline on calendar weeks — DONE
+
+Shipped 2026-08-06. `DUE_SEGMENTS` was a static const testing rolling offsets
+(`1..7` = this week, `8..14` = next week), so a task's bucket drifted every day
+and "this week" could mean *into* the following week. Replaced with
+`dueSegments()`, rebuilt per render off `daysToWeekEnd()`: weeks run Mon-Sun,
+"this week" ends at the coming Sunday, "next week" is the Mon-Sun block after.
+On Sunday `daysToWeekEnd()` is 0 — "this week" is empty (filtered out of the bar
+by the existing `n > 0` check) and everything ahead is next week.
+
+**Also fixed, because the buckets sit on it:** `daysUntil` built its date as
+`dstr + "T23:59:59"` and `Math.ceil`'d the delta, so it returned **1 for today
+and 0 for yesterday** — a whole-day skew. "Due today" tasks were rendering in the
+orange "this week" segment, and `chipFor`'s `n === 0` TODAY branch was
+unreachable except in the last second of a day. Now both sides pin to local
+midnight with `Math.round` (DST-safe): 0 = today, 1 = tomorrow, -1 = yesterday.
+This also repairs the OVERDUE/TODAY chips and the `n <= 3` weekday chip, which
+were all a day off.
+
+Verified with a sweep over all 7 weekdays × 08:00/22:00, asserting: both week
+blocks end on a Sunday, next-week is exactly 7 days, today reads as "today", and
+tomorrow never does.
+
+## CC-26 — `setDueIn` lands a day late in the evening
+
+`setDueIn` ([App.jsx](src/App.jsx)) does `new Date()` → `setDate(+n)` →
+`.toISOString().slice(0,10)`. `toISOString` is **UTC**, so from ~20:00 local
+(EDT, UTC-4) the ISO date has already rolled over and the `+1` button writes a
+date two days out. Same class of bug as the `daysUntil` skew fixed in CC-25, in
+the write path rather than the read path.
+
+`snooze` is *not* affected — it anchors at `T12:00:00` local, and noon survives
+the UTC conversion. Fix `setDueIn` the same way: build the date at local noon
+before serializing, or format from the local components directly.

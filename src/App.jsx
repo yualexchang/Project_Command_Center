@@ -27,11 +27,23 @@ const SANS = "-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif";
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 // ---------- date helpers ----------
+// whole calendar days from today to dstr: 0 = today, 1 = tomorrow, -1 = yesterday.
+// Both sides are pinned to local midnight so the answer never depends on the time
+// of day; Math.round absorbs the 23/25-hour days at a DST boundary.
 function daysUntil(dstr) {
   if (!dstr) return null;
-  const d = new Date(dstr + "T23:59:59");
+  const d = new Date(dstr + "T00:00:00");
   if (isNaN(d)) return null;
-  return Math.ceil((d - new Date()) / 86400000);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((d - today) / 86400000);
+}
+// Days from today to the Sunday that closes the current week (weeks run Mon-Sun).
+// On Sunday this is 0 — the week ends today, so "this week" is empty and
+// everything ahead belongs to next week.
+function daysToWeekEnd() {
+  const dow = new Date().getDay(); // 0 = Sunday
+  return dow === 0 ? 0 : 7 - dow;
 }
 function weekdayOf(dstr) {
   if (!dstr) return "";
@@ -540,18 +552,25 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null }) {
 
 // ---------- due pipeline ----------
 // horizontal stacked bar: outstanding tasks (everything not complete) by due horizon
-const DUE_SEGMENTS = [
-  { key: "today", label: "due today", color: "#C63D2F", test: (n) => n !== null && n <= 0 },
-  { key: "week", label: "this week", color: "#D9822B", test: (n) => n !== null && n >= 1 && n <= 7 },
-  { key: "next", label: "next week", color: "#B58200", test: (n) => n !== null && n >= 8 && n <= 14 },
-  { key: "later", label: "longer", color: "#64748B", test: (n) => n !== null && n > 14 },
-  { key: "none", label: "no date", color: "#C7D0D9", test: (n) => n === null },
-];
+// Buckets are calendar weeks, not rolling windows: "this week" runs out to the
+// coming Sunday and "next week" is the Mon-Sun block after it, so a task keeps
+// its bucket all week and then rolls over on Monday rather than drifting daily.
+// Rebuilt per render because the boundary moves with the current weekday.
+function dueSegments() {
+  const wk = daysToWeekEnd();
+  return [
+    { key: "today", label: "due today", color: "#C63D2F", test: (n) => n !== null && n <= 0 },
+    { key: "week", label: "this week", color: "#D9822B", test: (n) => n !== null && n >= 1 && n <= wk },
+    { key: "next", label: "next week", color: "#B58200", test: (n) => n !== null && n > wk && n <= wk + 7 },
+    { key: "later", label: "longer", color: "#64748B", test: (n) => n !== null && n > wk + 7 },
+    { key: "none", label: "no date", color: "#C7D0D9", test: (n) => n === null },
+  ];
+}
 
 function DueBar({ tasks }) {
   const eff = (t) => (t.reassignedTo ? t.followUpDate : t.deadline);
   const outstanding = tasks.filter((t) => t.status !== "done");
-  const counts = DUE_SEGMENTS.map((s) => ({ ...s, n: outstanding.filter((t) => s.test(daysUntil(eff(t)))).length }));
+  const counts = dueSegments().map((s) => ({ ...s, n: outstanding.filter((t) => s.test(daysUntil(eff(t)))).length }));
   const total = outstanding.length;
   const shown = counts.filter((c) => c.n > 0);
   return (
