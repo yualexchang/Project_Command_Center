@@ -27,13 +27,18 @@ function daysUntil(dstr) {
   if (isNaN(d)) return null;
   return Math.ceil((d - new Date()) / 86400000);
 }
+function weekdayOf(dstr) {
+  if (!dstr) return "";
+  const d = new Date(dstr + "T12:00:00");
+  return isNaN(d) ? "" : d.toLocaleDateString([], { weekday: "short" });
+}
 function chipFor(dstr, prefix) {
   const n = daysUntil(dstr);
   if (n === null) return null;
   if (n < 0) return { text: `${prefix} OVERDUE ${Math.abs(n)}d`, color: "#B3382C" };
   if (n === 0) return { text: `${prefix} TODAY`, color: "#B3382C" };
-  if (n <= 3) return { text: `${prefix} ${n}d`, color: "#9A6B00" };
-  return { text: `${prefix} ${dstr}`, color: FAINT };
+  if (n <= 3) return { text: `${prefix} ${weekdayOf(dstr)} (${n}d)`, color: "#9A6B00" };
+  return { text: `${prefix} ${weekdayOf(dstr)} ${dstr}`, color: FAINT };
 }
 function fmtTime(iso) {
   if (!iso) return "never";
@@ -287,6 +292,48 @@ function DialRow({ tasks }) {
   );
 }
 
+// ---------- due pipeline ----------
+// horizontal stacked bar: outstanding tasks (everything not complete) by due horizon
+const DUE_SEGMENTS = [
+  { key: "today", label: "due today", color: "#C63D2F", test: (n) => n !== null && n <= 0 },
+  { key: "week", label: "this week", color: "#D9822B", test: (n) => n !== null && n >= 1 && n <= 7 },
+  { key: "next", label: "next week", color: "#B58200", test: (n) => n !== null && n >= 8 && n <= 14 },
+  { key: "later", label: "longer", color: "#64748B", test: (n) => n !== null && n > 14 },
+  { key: "none", label: "no date", color: "#C7D0D9", test: (n) => n === null },
+];
+
+function DueBar({ tasks }) {
+  const eff = (t) => (t.reassignedTo ? t.followUpDate : t.deadline);
+  const outstanding = tasks.filter((t) => t.status !== "done");
+  const counts = DUE_SEGMENTS.map((s) => ({ ...s, n: outstanding.filter((t) => s.test(daysUntil(eff(t)))).length }));
+  const total = outstanding.length;
+  const shown = counts.filter((c) => c.n > 0);
+  return (
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "8px 12px", marginTop: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: FAINT }}>
+          DUE PIPELINE · {total} OUTSTANDING
+        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {shown.map((c) => (
+            <span key={c.key} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: SOFT }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: c.color, display: "inline-block" }} />
+              {c.n} {c.label}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", height: 10, borderRadius: 5, overflow: "hidden", marginTop: 6, background: BG }}>
+        {total > 0 &&
+          shown.map((c, i) => (
+            <div key={c.key} title={`${c.n} ${c.label}`}
+              style={{ width: `${(c.n / total) * 100}%`, background: c.color, marginRight: i < shown.length - 1 ? 2 : 0 }} />
+          ))}
+      </div>
+    </div>
+  );
+}
+
 // ---------- component ----------
 export default function CommandCenter() {
   const [tasks, setTasks] = useState([]);
@@ -309,9 +356,10 @@ export default function CommandCenter() {
   const [showAdd, setShowAdd] = useState(false);
   const blankDraft = {
     title: "", project: "", priority: "high", deadline: new Date().toISOString().slice(0, 10), deadlineType: "explicit",
-    assignedBy: "Me", addressedTo: "You", askType: "internal", needsCall: false,
+    assignedBy: "Myself", addressedTo: "You", askType: "internal", needsCall: false,
     emailBlurb: "", link: "",
   };
+  const [customProj, setCustomProj] = useState(false);
   const [draft, setDraft] = useState(blankDraft);
   const saveTimer = useRef(null);
   const skipNextSave = useRef(false);
@@ -466,6 +514,7 @@ export default function CommandCenter() {
     if (draft.link.trim()) t.links = [{ id: uid(), path: draft.link.trim() }];
     setTasks((prev) => [t, ...prev]);
     setDraft(blankDraft);
+    setCustomProj(false);
     setShowAdd(false);
   }
 
@@ -813,6 +862,9 @@ export default function CommandCenter() {
         {/* speed dials */}
         <DialRow tasks={tasks} />
 
+        {/* due pipeline */}
+        <DueBar tasks={tasks} />
+
         {/* action bar */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "center", marginTop: 10 }}>
           <button style={{ ...btn(true), opacity: syncing ? 0.85 : 1 }} onClick={runSync} disabled={syncing}>
@@ -877,8 +929,24 @@ export default function CommandCenter() {
           <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: 16, marginTop: 14 }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
               <input placeholder="Task title *" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} style={{ ...sel, padding: 8, gridColumn: "1 / -1" }} />
-              <input placeholder="Deal / project" value={draft.project} onChange={(e) => setDraft({ ...draft, project: e.target.value })} list="proj-list" style={{ ...sel, padding: 8 }} />
-              <datalist id="proj-list">{projects.map((p) => <option key={p} value={p} />)}</datalist>
+              <div style={{ display: "flex", gap: 6, minWidth: 0 }}>
+                <select
+                  value={customProj ? "__new__" : draft.project}
+                  onChange={(e) => {
+                    if (e.target.value === "__new__") { setCustomProj(true); setDraft({ ...draft, project: "" }); }
+                    else { setCustomProj(false); setDraft({ ...draft, project: e.target.value }); }
+                  }}
+                  style={{ ...sel, padding: 8, flex: 1, minWidth: 0 }}>
+                  <option value="">— Deal / project —</option>
+                  {projects.map((p) => <option key={p} value={p}>{p}</option>)}
+                  <option value="__new__">+ New project…</option>
+                </select>
+                {customProj && (
+                  <input autoFocus placeholder="New project name" value={draft.project}
+                    onChange={(e) => setDraft({ ...draft, project: e.target.value })}
+                    style={{ ...sel, padding: 8, flex: 1, minWidth: 0 }} />
+                )}
+              </div>
               <input placeholder="Assigned by (who's asking)" value={draft.assignedBy} onChange={(e) => setDraft({ ...draft, assignedBy: e.target.value })} style={{ ...sel, padding: 8 }} />
               <input placeholder="Addressed to (You / You + team)" value={draft.addressedTo} onChange={(e) => setDraft({ ...draft, addressedTo: e.target.value })} style={{ ...sel, padding: 8 }} />
               <select value={draft.priority} onChange={(e) => setDraft({ ...draft, priority: e.target.value })}
@@ -890,6 +958,9 @@ export default function CommandCenter() {
               </select>
               <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", gridColumn: "span 2", minWidth: 0 }}>
                 <input type="date" value={draft.deadline} onChange={(e) => setDraft({ ...draft, deadline: e.target.value })} style={{ ...sel, flex: "1 1 120px", minWidth: 110 }} />
+                <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: INK, minWidth: 30, textAlign: "center" }} title="Day of the week for the chosen date">
+                  {weekdayOf(draft.deadline) || "—"}
+                </span>
                 <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Push deadline out 1 day (stacks)" onClick={() => bumpDeadline(1)}>+1d</button>
                 <button type="button" style={{ ...sel, cursor: "pointer", fontWeight: 600 }} title="Push deadline out 3 days (stacks)" onClick={() => bumpDeadline(3)}>+3d</button>
                 <select value={draft.deadlineType} onChange={(e) => setDraft({ ...draft, deadlineType: e.target.value })} style={sel}>
