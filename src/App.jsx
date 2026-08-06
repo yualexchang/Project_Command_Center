@@ -62,6 +62,7 @@ function normalizeTask(raw, source) {
     id: uid(),
     title: String(raw.title || "Untitled task").slice(0, 120),
     project: String(raw.project || "General").trim() || "General",
+    bucket: raw.bucket || null, // explicit dial category; null = infer from project name
     priority: ["high", "medium", "low"].includes(raw.priority) ? raw.priority : "medium",
     deadline: raw.deadline && /^\d{4}-\d{2}-\d{2}$/.test(raw.deadline) ? raw.deadline : null,
     deadlineType: ["explicit", "implicit"].includes(raw.deadlineType) ? raw.deadlineType : raw.deadline ? "implicit" : null,
@@ -132,12 +133,18 @@ const BUCKETS = [
   { key: "Live Deals", color: "#7E8F1F", match: /botinkit|lincoln|atlas|acquisition|\bdeal\b|\blbo\b|\bjv\b/i },
   { key: "Miscellaneous", color: "#64748B", match: null }, // neutral catch-all: anything not matched above
 ];
-function bucketFor(project) {
-  return BUCKETS.find((b) => b.match && b.match.test(project)) || BUCKETS[BUCKETS.length - 1];
+const bucketByKey = (key) => BUCKETS.find((b) => b.key === key) || null;
+// An explicit task.bucket always wins; otherwise infer from the project name.
+function bucketFor(project, explicit) {
+  return (
+    (explicit && bucketByKey(explicit)) ||
+    BUCKETS.find((b) => b.match && b.match.test(project || "")) ||
+    BUCKETS[BUCKETS.length - 1]
+  );
 }
 // display/sort order: portcos first, then live deals, AI, admin, misc
 const BUCKET_ORDER = ["BravoFit", "IMO", "KEP", "Penske", "Live Deals", "AI Projects", "Admin", "Miscellaneous"];
-const bucketRank = (project) => BUCKET_ORDER.indexOf(bucketFor(project).key);
+const bucketRank = (t) => BUCKET_ORDER.indexOf(bucketFor(t.project, t.bucket).key);
 
 function dialArc(cx, cy, r, a0, a1) {
   // 0deg = left end of the semicircle, 180deg = right end, sweeping over the top
@@ -259,7 +266,7 @@ function DialRow({ tasks }) {
 
   const byBucket = {};
   BUCKETS.forEach((b) => (byBucket[b.key] = []));
-  tasks.forEach((t) => byBucket[bucketFor(t.project).key].push(t));
+  tasks.forEach((t) => byBucket[bucketFor(t.project, t.bucket).key].push(t));
   const dial = (key) => {
     const b = BUCKETS.find((x) => x.key === key);
     return <Gauge key={key} label={key} dot={b.color} {...tally(byBucket[key])} />;
@@ -595,9 +602,10 @@ export default function CommandCenter() {
   const blankDraft = {
     title: "", project: "", priority: "high", deadline: new Date().toISOString().slice(0, 10), deadlineType: "explicit",
     assignedBy: "Myself", addressedTo: "You", askType: "internal", needsCall: false,
-    emailBlurb: "", link: "",
+    emailBlurb: "", link: "", bucket: null,
   };
   const [customProj, setCustomProj] = useState(false);
+  const [bucketMenu, setBucketMenu] = useState(null); // {id, x, y} — right-click recategorize
   const [draft, setDraft] = useState(blankDraft);
   const saveTimer = useRef(null);
   const skipNextSave = useRef(false);
@@ -905,7 +913,7 @@ export default function CommandCenter() {
     priority: (a, b) => PRI[a.priority] - PRI[b.priority] || cmpDeadline(a, b),
     deadline: cmpDeadline,
     // portco buckets in fixed order, subprojects clustered alphabetically within their bucket
-    project: (a, b) => bucketRank(a.project) - bucketRank(b.project) || a.project.localeCompare(b.project) || PRI[a.priority] - PRI[b.priority],
+    project: (a, b) => bucketRank(a) - bucketRank(b) || a.project.localeCompare(b.project) || PRI[a.priority] - PRI[b.priority],
     rank: (a, b) => a.rank - b.rank,
   };
   visible = [...visible].sort(sorters[sortBy]);
@@ -926,7 +934,7 @@ export default function CommandCenter() {
   // bucket because `visible` is already bucket->project sorted, and each card's
   // bottom-right chip names its specific subproject (e.g. "IMO / Sea Lion")
   const groups = grouped
-    ? BUCKET_ORDER.map((k) => ({ name: k, items: visible.filter((t) => bucketFor(t.project).key === k) })).filter((g) => g.items.length > 0)
+    ? BUCKET_ORDER.map((k) => ({ name: k, items: visible.filter((t) => bucketFor(t.project, t.bucket).key === k) })).filter((g) => g.items.length > 0)
     : [{ name: null, items: visible }];
 
   const openCount = tasks.filter((t) => t.status !== "done" && !t.reassignedTo).length;
@@ -962,6 +970,54 @@ export default function CommandCenter() {
 
   return (
     <div style={{ background: BG, minHeight: "100vh", fontFamily: SANS, color: INK }}>
+
+      {/* ---- right-click: change a task's dial category ---- */}
+      {bucketMenu && (() => {
+        const t = tasks.find((x) => x.id === bucketMenu.id);
+        if (!t) return null;
+        const cur = bucketFor(t.project, t.bucket);
+        const pick = (key) => { update(t.id, { bucket: key }); setBucketMenu(null); };
+        return (
+          <div onClick={() => setBucketMenu(null)} onContextMenu={(e) => { e.preventDefault(); setBucketMenu(null); }}
+            style={{ position: "fixed", inset: 0, zIndex: 60 }}>
+            <div onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "fixed",
+                top: Math.min(bucketMenu.y, window.innerHeight - 300),
+                left: Math.min(bucketMenu.x, window.innerWidth - 210),
+                background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: 5, minWidth: 190,
+                boxShadow: "0 8px 24px rgba(22,32,43,0.22)",
+              }}>
+              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: 1, color: FAINT, padding: "3px 6px 5px" }}>
+                CATEGORY · {t.project.toUpperCase()}
+              </div>
+              {BUCKET_ORDER.map((k) => {
+                const b = bucketByKey(k);
+                const active = cur.key === k;
+                return (
+                  <button key={k} onClick={() => pick(k)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 7, width: "100%", textAlign: "left",
+                      background: active ? BG : "none", border: "none", borderRadius: 4, cursor: "pointer",
+                      padding: "5px 6px", fontSize: 12, fontFamily: SANS, color: INK, fontWeight: active ? 700 : 400,
+                    }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 2, background: b.color, display: "inline-block", flexShrink: 0 }} />
+                    {k}{active ? " ✓" : ""}
+                  </button>
+                );
+              })}
+              <button onClick={() => { update(t.id, { bucket: null }); setBucketMenu(null); }}
+                style={{
+                  display: "block", width: "100%", textAlign: "left", background: "none", border: "none",
+                  borderTop: `1px solid ${LINE}`, marginTop: 4, paddingTop: 6, paddingLeft: 6, paddingBottom: 3,
+                  cursor: "pointer", fontSize: 11, fontFamily: SANS, color: SOFT,
+                }}>
+                ↺ Auto-detect from project name
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ---- backup / restore modal ---- */}
       {backupMode && (
@@ -1196,6 +1252,13 @@ export default function CommandCenter() {
                     style={{ ...sel, padding: 8, flex: 1, minWidth: 0 }} />
                 )}
               </div>
+              {/* dial category — defaults to auto-detect from the project name */}
+              <select value={draft.bucket || ""} onChange={(e) => setDraft({ ...draft, bucket: e.target.value || null })}
+                title="Which speed dial this task counts toward"
+                style={{ ...sel, padding: 8, borderColor: bucketFor(draft.project, draft.bucket).color, fontWeight: 600 }}>
+                <option value="">Category: auto ({bucketFor(draft.project, draft.bucket).key})</option>
+                {BUCKET_ORDER.map((k) => <option key={k} value={k}>{k}</option>)}
+              </select>
               <input placeholder="Assigned by (who's asking)" value={draft.assignedBy} onChange={(e) => setDraft({ ...draft, assignedBy: e.target.value })} style={{ ...sel, padding: 8 }} />
               <input placeholder="Addressed to (You / You + team)" value={draft.addressedTo} onChange={(e) => setDraft({ ...draft, addressedTo: e.target.value })} style={{ ...sel, padding: 8 }} />
               <select value={draft.priority} onChange={(e) => setDraft({ ...draft, priority: e.target.value })}
@@ -1292,7 +1355,7 @@ export default function CommandCenter() {
           <div key={g.name || "flat"}>
             {g.name && (
               <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: 1.5, color: SOFT, margin: "22px 0 8px", borderBottom: `1px solid ${LINE}`, paddingBottom: 4, display: "flex", alignItems: "center", gap: 7 }}>
-                <span style={{ width: 9, height: 9, borderRadius: 2, background: bucketFor(g.name).color, display: "inline-block" }} />
+                <span style={{ width: 9, height: 9, borderRadius: 2, background: (bucketByKey(g.name) || {}).color || SOFT, display: "inline-block" }} />
                 {g.name.toUpperCase()} <span style={{ color: FAINT }}>({g.items.length})</span>
               </div>
             )}
@@ -1300,7 +1363,7 @@ export default function CommandCenter() {
               const isOpen = expanded.has(t.id);
               const done = t.status === "done";
               const railColor = done ? DONE_COLOR : t.reassignedTo ? DELEGATED : PRI_COLOR[t.priority];
-              const bucket = bucketFor(t.project);
+              const bucket = bucketFor(t.project, t.bucket);
               const dChip = t.reassignedTo
                 ? chipFor(t.followUpDate, "FOLLOW UP")
                 : chipFor(t.deadline, "DUE");
@@ -1381,9 +1444,12 @@ export default function CommandCenter() {
                           </span>
                         )}
                       </div>
-                      {/* bottom right: project category */}
+                      {/* bottom right: project category (right-click to recategorize) */}
                       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                        <span style={{ fontFamily: MONO, fontSize: 10, color: SOFT, background: BG, border: `1px solid ${bucket.color}`, borderRadius: 3, padding: "1px 6px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        <span
+                          onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setBucketMenu({ id: t.id, x: e.clientX, y: e.clientY }); }}
+                          title={`${bucket.key}${t.bucket ? " (set manually)" : " (auto from project name)"} — right-click to change category`}
+                          style={{ fontFamily: MONO, fontSize: 10, color: SOFT, background: BG, border: `1px solid ${bucket.color}`, borderRadius: 3, padding: "1px 6px", display: "inline-flex", alignItems: "center", gap: 5, cursor: "context-menu" }}>
                           <span style={{ width: 7, height: 7, borderRadius: 2, background: bucket.color, display: "inline-block" }} />
                           {t.project}
                         </span>
