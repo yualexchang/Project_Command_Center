@@ -117,8 +117,9 @@ const BUCKETS = [
   { key: "KEP", color: "#00939F", match: /kep|kindling|caryl|primrose/i },
   { key: "Penske", color: "#D34F8A", match: /penske/i },
   { key: "AI Projects", color: "#6E7FD1", match: /command center|deal desk|claude|deepseek|\bai\b/i },
-  { key: "Other Projects", color: "#A34E2A", match: /admin|fep fund|general/i },
-  { key: "Live Deals", color: "#7E8F1F", match: null }, // fallback: any project not matched above
+  { key: "Admin", color: "#A34E2A", match: /admin|fep fund|general/i },
+  { key: "Live Deals", color: "#7E8F1F", match: /botinkit|lincoln|atlas|acquisition|\bdeal\b|\blbo\b|\bjv\b/i },
+  { key: "Miscellaneous", color: "#64748B", match: null }, // neutral catch-all: anything not matched above
 ];
 function bucketFor(project) {
   return BUCKETS.find((b) => b.match && b.match.test(project)) || BUCKETS[BUCKETS.length - 1];
@@ -280,7 +281,7 @@ function DialRow({ tasks }) {
       {row(["BravoFit", "IMO", "KEP", "Penske"].map(dial))}
       {/* row 3: everything else */}
       <div style={{ marginTop: 6 }}>
-        {row(["Live Deals", "AI Projects", "Other Projects"].map(dial))}
+        {row(["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map(dial))}
       </div>
     </div>
   );
