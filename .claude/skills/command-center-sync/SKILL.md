@@ -77,17 +77,23 @@ inside it).
 
 Maintain `data/sync-progress.json` throughout the sync (do NOT commit it):
 
+The bar only moves when this file changes, so WRITE FREQUENTLY — never batch the
+updates to the end of the run:
+
 1. Immediately after determining the window, write:
    `{"phase": "searching", "totalEmails": 0, "processed": 0, "created": 0, "skipped": 0}`
-2. As soon as the first search page returns (it includes `totalResultCount`),
-   update `totalEmails` and set `"phase": "triaging"`.
-3. While triaging, rewrite the file after every ~10 emails judged:
-   `processed` = emails read/judged so far, `created` = tasks created so far,
-   `skipped` = emails disregarded so far.
-4. After the final write + git commit, write the final counts with `"phase": "done"`.
+2. **After EVERY `outlook_email_search` page returns** (before doing anything
+   else), rewrite the file: set `totalEmails` from `totalResultCount`, set
+   `processed` = number of emails fetched so far, `"phase": "triaging"`.
+3. **After every ~5 triage judgments** (and after each `read_resource` full
+   read), rewrite the file with updated `processed` (emails judged so far),
+   `created` (tasks created so far), and `skipped` (disregarded so far).
+4. Just before writing tasks.json, write `"phase": "writing"` with final counts.
+5. After the git commit, write `"phase": "done"` with final counts.
 
-Keep each write a single small JSON object. If the file can't be written, continue
-the sync anyway — the progress bar is best-effort.
+A sync of ~100 emails should produce 10+ progress writes. Keep each write a
+single small JSON object. If the file can't be written, continue the sync
+anyway — the progress bar is best-effort.
 
 ## New-task schema
 

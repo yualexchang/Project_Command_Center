@@ -9,6 +9,12 @@ const DELEGATED = "#6B4FA1"; // purple = delegated
 // left-click advances (todo -> in progress -> done); right-click retreats to todo
 const STATUS_NEXT = { todo: "progress", progress: "done", done: "todo" };
 
+// filter-bar cyclers
+const SORT_CYCLE = ["priority", "project", "deadline", "rank"];
+const SORT_LABEL = { priority: "Priority", project: "Project", deadline: "Deadline", rank: "Ingested" };
+const STATUS_CYCLE = ["open", "delegated", "done", "all"];
+const STATUS_LABEL = { open: "On Alex / Open", delegated: "Delegated", done: "Completed", all: "All" };
+
 const INK = "#16202B";
 const SOFT = "#5C6B7A";
 const FAINT = "#8B98A5";
@@ -340,11 +346,10 @@ export default function CommandCenter() {
   const [lastSync, setLastSync] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
-  const [sortBy, setSortBy] = useState("priority");
+  const [sortBy, setSortBy] = useState("priority"); // priority | project | deadline | rank (ingested)
   const [fStatus, setFStatus] = useState("open"); // open | delegated | done | all
-  const [fPriority, setFPriority] = useState("all");
   const [fProject, setFProject] = useState("all");
-  const [fAsk, setFAsk] = useState("all"); // all | external | internal
+  const [fAssigned, setFAssigned] = useState("all");
 
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
@@ -478,6 +483,7 @@ export default function CommandCenter() {
   }
 
   const projects = [...new Set(tasks.map((t) => t.project))].sort();
+  const assigners = [...new Set(tasks.map((t) => t.assignedBy).filter(Boolean))].sort();
 
   // ---------- mutations ----------
   const update = (id, patch) => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
@@ -652,9 +658,8 @@ export default function CommandCenter() {
     if (fStatus === "open" && (t.status === "done" || t.reassignedTo)) return false;
     if (fStatus === "delegated" && !t.reassignedTo) return false;
     if (fStatus === "done" && t.status !== "done") return false;
-    if (fPriority !== "all" && t.priority !== fPriority) return false;
     if (fProject !== "all" && t.project !== fProject) return false;
-    if (fAsk !== "all" && t.askType !== fAsk) return false;
+    if (fAssigned !== "all" && t.assignedBy !== fAssigned) return false;
     return true;
   });
   const effDate = (t) => (t.reassignedTo ? t.followUpDate : t.deadline);
@@ -904,6 +909,7 @@ export default function CommandCenter() {
                 borderRadius: 4,
                 transition: "width 0.6s ease",
                 background: INK,
+                animation: "pccPulse 1.6s ease-in-out infinite",
                 width: `${syncProgress && syncProgress.totalEmails
                   ? Math.max(Math.round((syncProgress.processed / syncProgress.totalEmails) * 100), 4)
                   : 4}%`,
@@ -984,35 +990,26 @@ export default function CommandCenter() {
           </div>
         )}
 
-        {/* filter bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, margin: "18px 0 10px" }}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-            {[["open", "On Alex / Open"], ["delegated", "Delegated"], ["done", "Complete"], ["all", "All"]].map(([k, l]) => (
-              <button key={k} onClick={() => setFStatus(k)}
-                style={{ ...btn(false), padding: "5px 12px", fontSize: 12, background: fStatus === k ? INK : CARD, color: fStatus === k ? "#fff" : SOFT, border: `1px solid ${fStatus === k ? INK : LINE}` }}>
-                {l}
-              </button>
-            ))}
-            <select value={fPriority} onChange={(e) => setFPriority(e.target.value)} style={sel}>
-              <option value="all">Any priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
-            </select>
-            <select value={fProject} onChange={(e) => setFProject(e.target.value)} style={sel}>
-              <option value="all">All deals/projects</option>
-              {projects.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-            <select value={fAsk} onChange={(e) => setFAsk(e.target.value)} style={sel}>
-              <option value="all">External + internal</option><option value="external">External asks</option><option value="internal">Internal asks</option>
-            </select>
-          </div>
-          <div style={{ fontSize: 12, color: SOFT, display: "flex", alignItems: "center", gap: 6 }}>
-            Sort
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={sel}>
-              <option value="priority">Priority</option>
-              <option value="deadline">Deadline</option>
-              <option value="project">Project</option>
-              <option value="rank">My order</option>
-            </select>
-          </div>
+        {/* filter bar: sort cycler · status cycler · project filter · assigned-by filter */}
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, margin: "18px 0 10px" }}>
+          <button onClick={() => setSortBy(SORT_CYCLE[(SORT_CYCLE.indexOf(sortBy) + 1) % SORT_CYCLE.length])}
+            title="Click to cycle sort: priority → project → deadline → ingested"
+            style={{ ...btn(false), padding: "5px 12px", fontSize: 12 }}>
+            ⇅ Sort: <b>{SORT_LABEL[sortBy]}</b>
+          </button>
+          <button onClick={() => setFStatus(STATUS_CYCLE[(STATUS_CYCLE.indexOf(fStatus) + 1) % STATUS_CYCLE.length])}
+            title="Click to cycle view: On Alex/Open → Delegated → Completed → All"
+            style={{ ...btn(false), padding: "5px 12px", fontSize: 12, background: INK, color: "#fff", border: `1px solid ${INK}` }}>
+            {STATUS_LABEL[fStatus]}
+          </button>
+          <select value={fProject} onChange={(e) => setFProject(e.target.value)} style={sel} title="Filter by deal/project">
+            <option value="all">All deals/projects</option>
+            {projects.map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+          <select value={fAssigned} onChange={(e) => setFAssigned(e.target.value)} style={sel} title="Filter by who assigned the task">
+            <option value="all">Assigned by anyone</option>
+            {assigners.map((a) => <option key={a} value={a}>{a}</option>)}
+          </select>
         </div>
 
         {/* empty state */}
