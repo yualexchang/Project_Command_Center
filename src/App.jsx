@@ -301,6 +301,70 @@ function DialRow({ tasks }) {
   );
 }
 
+// ---------- weather (top-right corner; Open-Meteo, no API key, cached per day) ----------
+const WEATHER_SPOTS = [
+  { label: "UK", flag: "🇬🇧", lat: 51.5074, lon: -0.1278 },      // London
+  { label: "Germany", flag: "🇩🇪", lat: 52.52, lon: 13.405 },    // Berlin
+];
+// WMO weather codes -> icon + label
+function wxLook(code) {
+  if (code === 0) return { icon: "☀️", text: "Clear" };
+  if (code <= 2) return { icon: "⛅", text: "Partly cloudy" };
+  if (code === 3) return { icon: "☁️", text: "Overcast" };
+  if (code === 45 || code === 48) return { icon: "🌫️", text: "Fog" };
+  if (code >= 51 && code <= 57) return { icon: "🌦️", text: "Drizzle" };
+  if (code >= 61 && code <= 67) return { icon: "🌧️", text: "Rain" };
+  if (code >= 71 && code <= 77) return { icon: "🌨️", text: "Snow" };
+  if (code >= 80 && code <= 82) return { icon: "🌧️", text: "Showers" };
+  if (code >= 95) return { icon: "⛈️", text: "Storm" };
+  return { icon: "🌡️", text: "—" };
+}
+
+function WeatherStrip() {
+  const [wx, setWx] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      try {
+        const cached = JSON.parse(localStorage.getItem("pcc-weather") || "null");
+        if (cached && cached.date === today) { setWx(cached.data); return; }
+      } catch (e) {}
+      try {
+        const results = await Promise.all(
+          WEATHER_SPOTS.map(async (s) => {
+            const r = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&current=temperature_2m,weather_code`
+            );
+            const d = await r.json();
+            return { label: s.label, flag: s.flag, temp: Math.round(d.current.temperature_2m), code: d.current.weather_code };
+          })
+        );
+        setWx(results);
+        localStorage.setItem("pcc-weather", JSON.stringify({ date: today, data: results }));
+      } catch (e) {
+        /* network blocked or offline — widget simply stays hidden */
+      }
+    })();
+  }, []);
+
+  if (!wx) return null;
+  return (
+    <div style={{ display: "flex", gap: 8, alignSelf: "flex-start" }}>
+      {wx.map((w) => {
+        const look = wxLook(w.code);
+        return (
+          <div key={w.label} title={`${w.label}: ${look.text}, ${w.temp}°C (refreshed daily)`}
+            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", textAlign: "center", minWidth: 74 }}>
+            <div style={{ fontSize: 15, lineHeight: 1.2 }}>{w.flag} {look.icon}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: INK, marginTop: 1 }}>{w.temp}°C</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 1 }}>{look.text.toUpperCase()}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ---------- due pipeline ----------
 // horizontal stacked bar: outstanding tasks (everything not complete) by due horizon
 const DUE_SEGMENTS = [
@@ -868,6 +932,7 @@ export default function CommandCenter() {
                 </div>
               </div>
             </div>
+            <WeatherStrip />
           </div>
         </div>
 
