@@ -17,7 +17,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 
 | ID | Idea | Status | Priority | Why it matters |
 |---|---|---|---|---|
-| CC-1 | Undo action in the dashboard | open | high | Alex wants it; no recovery path today short of `git checkout` |
+| CC-1 | Undo action in the dashboard | done | high | Shipped: ↶ Undo button, 25-step in-memory stack (commit b088374). Refresh persistence → CC-20; sync-clobber caveat → CC-4 |
 | CC-2 | Auth/origin check on the Claude bridge endpoints | open | high | Any web page you visit can trigger a `bypassPermissions` Claude run |
 | CC-3 | Make `npm run build` produce a working app | open | medium | Blocks every hosting option; API is dev-server-only |
 | CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | open | medium | Silent data loss when editing the file while the server is up |
@@ -25,12 +25,33 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
 | CC-7 | Bind Vite beyond `::1` | open | low | One-line prerequisite for CC-6 |
 | CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
+| CC-9 | Scheduled morning sync (Task Scheduler → `claude -p "/command-center-sync"`) | open | high | Desk is fresh before it's opened; removes the last manual step |
+| CC-10 | Done-detection — sync scans Sent Items, flags tasks whose thread Alex replied to | open | high | Tasks only close by hand today; the mailbox already knows |
+| CC-11 | Per-task 🔍 Research button (bridge endpoint → `/command-center-research`) | open | medium | Skill exists, button missing. Do CC-2 first — it's another bridge route |
+| CC-12 | ✉️ Draft-reply button — Claude drafts the reply into Outlook Drafts via M365 MCP | open | medium | Turns triage into throughput; review beats writing from scratch |
+| CC-13 | Delegation chasers — on follow-up date, sync drafts the nudge email to the delegate | open | medium | Delegated work is where things silently die |
+| CC-14 | Search box over title/blurb/context/sender | open | medium | List already at 30+ tasks and growing weekly |
+| CC-15 | Needs-a-call helper — button runs `find_meeting_availability`, proposes slots | open | low | Closes the loop on the CALL FIRST label |
+| CC-16 | Weekly Friday digest per portco from tasks.json git history, emailed to self | open | low | Free retro from data already collected |
+| CC-17 | Click a mission dial to filter the task list to that bucket | open | low | Dials become navigation, not just display |
+| CC-18 | Overdue strip pinned above the list regardless of sort/filter | open | low | Overdue currently signaled by chip color only |
+| CC-19 | Archive completed tasks >30 days old to `data/archive.json` | open | low | Keeps tasks.json and the dashboard lean; git keeps everything anyway |
+| CC-20 | Persist undo stack to localStorage (survives refresh) | open | low | CC-1 follow-up |
+| CC-21 | Verify Penske bucket regex when the first Penske task lands | open | low | Silent misbucketing risk; `/penske/i` is unproven against real naming |
+| CC-22 | Pin per-deal Egnyte folders in `data/egnyte-roots.json` as deals spin up | open | low | Recurring upkeep; keeps path lookups fast as deal count grows |
+| CC-23 | Keyboard shortcuts (j/k move, space advance, u undo) | open | low | Speed for a daily-driver tool |
+| CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | open | low | Pairs with CC-6 (phone access) |
 
 ---
 
-## CC-1 — Undo action in the dashboard
+## CC-1 — Undo action in the dashboard — DONE
 
-**Ask:** Alex needs to undo an action (2026-08-06). Nothing in the UI reverses an
+Shipped 2026-08-05 (commit b088374): ↶ Undo button in the action bar, 25-step
+in-memory stack of full `{tasks, lastSync}` snapshots; loads/syncs reset the
+baseline rather than entering the stack. Remaining gaps became their own rows:
+refresh persistence (CC-20) and the sync-clobber race (CC-4).
+
+**Original ask:** Alex needs to undo an action (2026-08-06). Nothing in the UI reverses an
 edit, a status flip, or a delete today — the only recovery is
 `git checkout data/tasks.json`, which throws away *everything* since the last commit.
 
@@ -138,3 +159,27 @@ The dev server currently listens on `::1:5173` (IPv6 localhost only), so nothing
 can reach it. Add `server: { host: true }` to `vite.config.js`. If Vite then rejects
 the tunnel's hostname, also set `server.allowedHosts`. Only do this alongside CC-2 —
 it is what makes the unauthenticated endpoints reachable.
+
+## CC-9 … CC-24 — batch captured 2026-08-06 (improvement brainstorm)
+
+Short notes; promote to a full section when one goes `next`.
+
+- **CC-9 scheduled sync:** Windows Task Scheduler can run a user-level task without
+  admin: `schtasks /Create /SC DAILY /ST 07:00 /TN CommandCenterSync /TR "claude -p
+  \"/command-center-sync\" ..."` with cwd at the repo. Test M365 connector
+  availability from a scheduled (non-interactive login) context before trusting it.
+- **CC-10 done-detection:** extend the sync skill — after triaging inbound, search
+  Sent Items for replies matching open tasks' `subject`/`sender`; list "likely
+  complete" candidates in the sync report rather than auto-completing (false
+  positives: a reply isn't always resolution).
+- **CC-11/CC-12/CC-13/CC-15:** all are new headless-bridge routes or skill steps that
+  act on the mailbox. CC-2 (bridge auth) is a prerequisite for any new bridge route.
+  Drafts only — never auto-send.
+- **CC-14 search:** client-side filter over title+blurb+context+sender; add to the
+  filter bar with its own ✕.
+- **CC-16 digest:** `git log --follow -p data/tasks.json` diffing week-over-week gives
+  completed/added/slipped per bucket; render as text email via `outlook_create_draft`.
+- **CC-19 archive:** on sync, move `status==="done" && createdAt < now-30d` to
+  `data/archive.json`; dashboard shows a count link. Restore = move back.
+- **CC-21/CC-22 are recurring upkeep,** not builds — revisit when the trigger event
+  happens (first Penske task; each new live deal folder).
