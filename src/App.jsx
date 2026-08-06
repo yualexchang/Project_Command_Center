@@ -301,6 +301,44 @@ function DialRow({ tasks }) {
   );
 }
 
+// ---------- portco clocks (top-right corner, next to weather) ----------
+const CLOCK_SPOTS = [
+  { city: "Sydney", portco: "BravoFit", tz: "Australia/Sydney", flag: "🇦🇺" },
+  { city: "London", portco: "IMO", tz: "Europe/London", flag: "🇬🇧" },
+  { city: "LA", portco: "Penske", tz: "America/Los_Angeles", flag: "🇺🇸" },
+  { city: "Denver", portco: "KEP", tz: "America/Denver", flag: "🇺🇸" },
+];
+
+function ClockStrip() {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30000); // re-render every 30s
+    return () => clearInterval(id);
+  }, []);
+  const now = new Date();
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      {CLOCK_SPOTS.map((c) => {
+        const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: c.tz });
+        const day = now.toLocaleDateString([], { weekday: "short", timeZone: c.tz });
+        const color = (BUCKETS.find((b) => b.key === c.portco) || {}).color || SOFT;
+        return (
+          <div key={c.city} title={`${c.city} local time — ${c.portco}`}
+            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", textAlign: "center", minWidth: 66 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: INK, lineHeight: 1.2 }}>{time}</div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 2 }}>
+              {day.toUpperCase()} {c.flag} {c.city.toUpperCase()}
+            </div>
+            <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, letterSpacing: 0.5, color, marginTop: 1 }}>
+              {c.portco.toUpperCase()}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ---------- weather (top-right corner; Open-Meteo, no API key, cached per day) ----------
 const WEATHER_SPOTS = [
   { label: "UK", flag: "🇬🇧", lat: 51.5074, lon: -0.1278 },      // London
@@ -973,7 +1011,10 @@ export default function CommandCenter() {
                 </div>
               </div>
             </div>
-            <WeatherStrip />
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignSelf: "flex-start", justifyContent: "flex-end" }}>
+              <ClockStrip />
+              <WeatherStrip />
+            </div>
           </div>
         </div>
 
