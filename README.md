@@ -40,6 +40,11 @@ Open Claude Code and run `/command-center-sync`. When it finishes, hit
 **↻ Refresh** in the dashboard. Avoid editing tasks in the dashboard while a
 sync is running — last write wins.
 
+## Ideas / not yet built
+
+`TODO.md` is the single managed state for open ideas and known rough edges — one row
+per idea, git history is the archive. Add to it rather than starting a side note.
+
 ## Provenance
 
 `versions/` holds the original Claude.ai artifact source this app was ported from.
