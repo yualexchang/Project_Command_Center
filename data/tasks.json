@@ -4,6 +4,7 @@
       "id": "kepslc7f2a",
       "title": "Reformat KEP SLC exec summary deck into KEP format",
       "project": "KEP - SLC",
+      "bucket": null,
       "priority": "high",
       "deadline": "2026-08-07",
       "deadlineType": "implicit",
@@ -1134,5 +1135,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-06T21:30:12.882Z"
+  "lastSync": "2026-08-06T21:34:43.462Z"
 }
