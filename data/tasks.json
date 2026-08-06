@@ -1,6 +1,36 @@
 {
   "tasks": [
     {
+      "id": "atlasmip01",
+      "title": "Confirm US MIP will only have Jake as participant",
+      "project": "Bravo Fit",
+      "bucket": null,
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Brayden Koslowsky (DWT)",
+      "addressedTo": "You + David",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "DWT is relaying a question from Mallesons: will Jake be the sole US MIP participant, or could others join later? The answer decides whether shares are held directly or through a bare trustee, since crossing 50 shareholders pulls Atlas into the Australian takeovers regime.",
+      "steps": [
+        "Confirm with David whether more US participants are planned",
+        "Reply to Brayden and Mallesons with the confirmation",
+        "Flag bare-trustee structure if future participants are likely"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "BraydenKoslowsky@dwt.com",
+      "subject": "RE: Atlas Management MIP Plans",
+      "src": "email",
+      "rank": 1786055700000,
+      "createdAt": "2026-08-06T22:35:00.000Z"
+    },
+    {
       "id": "kndlhdi9x2",
       "title": "Build Kindling strategic package for Heidi Matheys",
       "project": "Kindling (KEP)",
@@ -1195,5 +1225,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-06T22:31:00.000Z"
+  "lastSync": "2026-08-06T22:35:00.000Z"
 }
