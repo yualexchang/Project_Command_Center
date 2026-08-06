@@ -10,8 +10,10 @@ const DELEGATED = "#6B4FA1"; // purple = delegated
 const STATUS_NEXT = { todo: "progress", progress: "done", done: "todo" };
 
 // filter-bar cyclers
-const SORT_CYCLE = ["priority", "project", "deadline", "rank"];
-const SORT_LABEL = { priority: "Priority", project: "Project", deadline: "Deadline", rank: "Ingested" };
+const SORT_CYCLE = ["priority", "project", "deadline", "fifo", "lifo"];
+const SORT_LABEL = { priority: "Priority", project: "Project", deadline: "Deadline", fifo: "FIFO", lifo: "LIFO" };
+// FIFO and LIFO are the two ingestion orders; both are hand-reorderable.
+const REORDERABLE = ["fifo", "lifo"];
 const STATUS_CYCLE = ["open", "delegated", "done", "all"];
 const STATUS_LABEL = { open: "On Alex / Open", delegated: "Delegated", done: "Completed", all: "All" };
 
@@ -44,6 +46,14 @@ function daysUntil(dstr) {
 function daysToWeekEnd() {
   const dow = new Date().getDay(); // 0 = Sunday
   return dow === 0 ? 0 : 7 - dow;
+}
+// Days from today to the last day of the current calendar month. Day 0 of the
+// next month is the last day of this one, so this never needs a length table.
+function daysToMonthEnd() {
+  const t = new Date();
+  t.setHours(0, 0, 0, 0);
+  const end = new Date(t.getFullYear(), t.getMonth() + 1, 0);
+  return Math.round((end - t) / 86400000);
 }
 function weekdayOf(dstr) {
   if (!dstr) return "";
@@ -556,16 +566,56 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null }) {
 // coming Sunday and "next week" is the Mon-Sun block after it, so a task keeps
 // its bucket all week and then rolls over on Monday rather than drifting daily.
 // Rebuilt per render because the boundary moves with the current weekday.
+// Late in the month "next week" can already run past month end, which would leave
+// "this month" describing days that are also next week's. Anchoring the month
+// bucket to `> wk + 7` keeps the set disjoint and simply empties it in that case;
+// "longer" opens at whichever of the two boundaries is further out so no day
+// falls through the gap.
 function dueSegments() {
   const wk = daysToWeekEnd();
+  const me = daysToMonthEnd();
+  const beyond = Math.max(wk + 7, me);
   return [
     { key: "today", label: "due today", color: "#C63D2F", test: (n) => n !== null && n <= 0 },
     { key: "week", label: "this week", color: "#D9822B", test: (n) => n !== null && n >= 1 && n <= wk },
     { key: "next", label: "next week", color: "#B58200", test: (n) => n !== null && n > wk && n <= wk + 7 },
-    { key: "later", label: "longer", color: "#64748B", test: (n) => n !== null && n > wk + 7 },
+    { key: "month", label: "this month", color: "#7A8B99", test: (n) => n !== null && n > wk + 7 && n <= me },
+    { key: "later", label: "longer", color: "#64748B", test: (n) => n !== null && n > beyond },
     { key: "none", label: "no date", color: "#C7D0D9", test: (n) => n === null },
   ];
 }
+
+// Ingestion-age horizons — dueSegments() pointed backwards. `age` is whole days
+// since the task landed (0 = today, 1 = yesterday), and the same Mon-Sun week and
+// calendar-month boundaries apply, so "this week" reaches back to the Monday just
+// gone rather than a rolling 7 days. Listed oldest-first to match the ascending
+// rank sort, so reading the list top to bottom stays monotonic.
+// `newestFirst` flips the group order to match LIFO, so reading the list top to
+// bottom stays monotonic under either direction.
+function ingestSegments(newestFirst) {
+  const sinceMonday = 6 - daysToWeekEnd(); // Mon = 0 … Sun = 6
+  const sinceMonthStart = new Date().getDate() - 1;
+  const beyond = Math.max(sinceMonday, sinceMonthStart);
+  const dated = [
+    { key: "today", label: "ingested today", color: "#D9822B", test: (a) => a !== null && a <= 0 },
+    { key: "week", label: "ingested this week", color: "#B58200", test: (a) => a !== null && a >= 1 && a <= sinceMonday },
+    { key: "month", label: "ingested this month", color: "#7A8B99", test: (a) => a !== null && a > sinceMonday && a <= sinceMonthStart },
+    { key: "earlier", label: "ingested earlier", color: "#64748B", test: (a) => a !== null && a > beyond },
+  ];
+  return [
+    ...(newestFirst ? dated : [...dated].reverse()),
+    { key: "none", label: "no ingest date", color: "#C7D0D9", test: (a) => a === null },
+  ];
+}
+// Whole days since a task was ingested. Uses createdAt, not rank: rank is the
+// sort key that manual reordering deliberately scrambles, createdAt is the real
+// arrival time.
+const ageOf = (t) => {
+  const n = daysUntil((t.createdAt || "").slice(0, 10));
+  return n === null ? null : -n;
+};
+// Priority layers, most urgent first — matches the primary key of the priority sort.
+const PRI_ORDER = ["high", "medium", "low"];
 
 function DueBar({ tasks }) {
   const eff = (t) => (t.reassignedTo ? t.followUpDate : t.deadline);
@@ -605,7 +655,7 @@ export default function CommandCenter() {
   const [lastSync, setLastSync] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
-  const [sortBy, setSortBy] = useState("priority"); // priority | project | deadline | rank (ingested)
+  const [sortBy, setSortBy] = useState("priority"); // priority | project | deadline | fifo | lifo
   const [fStatus, setFStatus] = useState("open"); // open | delegated | done | all
   const [fProject, setFProject] = useState("all");
   const [fAssigned, setFAssigned] = useState("all");
@@ -965,7 +1015,8 @@ export default function CommandCenter() {
     deadline: cmpDeadline,
     // portco buckets in fixed order, subprojects clustered alphabetically within their bucket
     project: (a, b) => bucketRank(a) - bucketRank(b) || a.project.localeCompare(b.project) || PRI[a.priority] - PRI[b.priority],
-    rank: (a, b) => a.rank - b.rank,
+    fifo: (a, b) => a.rank - b.rank, // oldest ingested first
+    lifo: (a, b) => b.rank - a.rank, // newest ingested first
   };
   visible = [...visible].sort(sorters[sortBy]);
 
@@ -980,13 +1031,49 @@ export default function CommandCenter() {
     });
   }
 
-  const grouped = sortBy === "project";
-  // group by dial bucket (portcos first); subprojects stay clustered inside each
-  // bucket because `visible` is already bucket->project sorted, and each card's
-  // bottom-right chip names its specific subproject (e.g. "IMO / Sea Lion")
-  const groups = grouped
-    ? BUCKET_ORDER.map((k) => ({ name: k, items: visible.filter((t) => bucketFor(t.project, t.bucket).key === k) })).filter((g) => g.items.length > 0)
-    : [{ name: null, items: visible }];
+  // Every sort lays its list out under headers. Each definition carries its own
+  // colour, and `visible` is already sorted, so filtering per group keeps each
+  // group internally ordered by that sort's key. Group order always follows the
+  // sort direction so reading top to bottom stays monotonic.
+  let groupDefs;
+  if (sortBy === "project") {
+    // dial bucket (portcos first); subprojects stay clustered inside each bucket
+    // because `visible` is already bucket->project sorted, and each card's
+    // bottom-right chip names its specific subproject (e.g. "IMO / Sea Lion")
+    groupDefs = BUCKET_ORDER.map((k) => ({
+      name: k,
+      color: (bucketByKey(k) || {}).color || SOFT,
+      match: (t) => bucketFor(t.project, t.bucket).key === k,
+    }));
+  } else if (sortBy === "deadline") {
+    // same horizons as the due pipeline bar, in the same order — the list reads
+    // as the bar expanded
+    groupDefs = dueSegments().map((s) => ({
+      name: s.label,
+      color: s.color,
+      match: (t) => s.test(daysUntil(effDate(t))),
+    }));
+  } else if (sortBy === "priority") {
+    groupDefs = PRI_ORDER.map((p) => ({
+      name: `${p} priority`,
+      color: PRI_COLOR[p],
+      match: (t) => t.priority === p,
+    }));
+  } else {
+    groupDefs = ingestSegments(sortBy === "lifo").map((s) => ({
+      name: s.label,
+      color: s.color,
+      match: (t) => s.test(ageOf(t)),
+    }));
+  }
+  const groups = groupDefs
+    .map((g) => ({ name: g.name, color: g.color, items: visible.filter(g.match) }))
+    .filter((g) => g.items.length > 0);
+
+  // Hand-reordering only makes sense in the ingestion orders. LIFO renders rank
+  // descending, so the arrows must push the opposite way to still read as up/down.
+  const reorderable = REORDERABLE.includes(sortBy);
+  const moveDir = sortBy === "lifo" ? -1 : 1;
 
   const openCount = tasks.filter((t) => t.status !== "done" && !t.reassignedTo).length;
   const delegatedCount = tasks.filter((t) => t.reassignedTo && t.status !== "done").length;
@@ -1356,7 +1443,7 @@ export default function CommandCenter() {
         {/* filter bar: sort cycler · status cycler · project filter · assigned-by filter */}
         <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, margin: "18px 0 10px" }}>
           <button onClick={() => setSortBy(SORT_CYCLE[(SORT_CYCLE.indexOf(sortBy) + 1) % SORT_CYCLE.length])}
-            title="Click to cycle sort: priority → project → deadline → ingested"
+            title="Click to cycle sort: priority → project → deadline → FIFO (oldest ingested first) → LIFO (newest ingested first)"
             style={{ ...btn(false), padding: "5px 12px", fontSize: 12 }}>
             ⇅ Sort: <b>{SORT_LABEL[sortBy]}</b>
           </button>
@@ -1412,7 +1499,7 @@ export default function CommandCenter() {
           <div key={g.name || "flat"}>
             {g.name && (
               <div style={{ fontFamily: MONO, fontSize: 12, letterSpacing: 1.5, color: SOFT, margin: "22px 0 8px", borderBottom: `1px solid ${LINE}`, paddingBottom: 4, display: "flex", alignItems: "center", gap: 7 }}>
-                <span style={{ width: 9, height: 9, borderRadius: 2, background: (bucketByKey(g.name) || {}).color || SOFT, display: "inline-block" }} />
+                <span style={{ width: 9, height: 9, borderRadius: 2, background: g.color || SOFT, display: "inline-block" }} />
                 {g.name.toUpperCase()} <span style={{ color: FAINT }}>({g.items.length})</span>
               </div>
             )}
@@ -1514,10 +1601,10 @@ export default function CommandCenter() {
                     </div>
 
                     <div style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-                      {sortBy === "rank" && (
+                      {reorderable && (
                         <>
-                          <button style={{ ...sel, cursor: "pointer" }} onClick={() => move(t.id, -1)} title="Move up">↑</button>
-                          <button style={{ ...sel, cursor: "pointer" }} onClick={() => move(t.id, 1)} title="Move down">↓</button>
+                          <button style={{ ...sel, cursor: "pointer" }} onClick={() => move(t.id, -moveDir)} title="Move up">↑</button>
+                          <button style={{ ...sel, cursor: "pointer" }} onClick={() => move(t.id, moveDir)} title="Move down">↓</button>
                         </>
                       )}
                       <button onClick={() => toggleExpand(t.id)} title={isOpen ? "Collapse" : "Expand"}

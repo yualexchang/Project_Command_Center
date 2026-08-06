@@ -43,6 +43,8 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | open | low | Pairs with CC-6 (phone access) |
 | CC-25 | Due pipeline on calendar weeks, not a rolling 7/14-day window | done | medium | Shipped: buckets now cut off at the coming Sunday; also fixed the off-by-one in `daysUntil` |
 | CC-26 | `setDueIn` lands a day late when used after ~20:00 local | open | medium | The +1/+3/+7 buttons silently set the wrong date in the evening |
+| CC-27 | Group every sort under headers; split Ingested into FIFO/LIFO | done | medium | Shipped: deadline/priority/FIFO/LIFO all group; due pipeline gained a "this month" bucket |
+| CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
 
 ---
 
@@ -208,6 +210,50 @@ were all a day off.
 Verified with a sweep over all 7 weekdays × 08:00/22:00, asserting: both week
 blocks end on a Sunday, next-week is exactly 7 days, today reads as "today", and
 tomorrow never does.
+
+## CC-27 — Group every sort under headers; FIFO/LIFO — DONE
+
+Shipped 2026-08-06. Previously only the project sort grouped; the other three
+rendered as one flat list. Now all of them lay out under headers, each group
+carrying its own colour (`groups` entries gained a `color`, so the header no
+longer looks colours up via `bucketByKey`):
+
+- **Deadline** — the `dueSegments()` horizons, same order as the pipeline bar, so
+  the list reads as the bar expanded.
+- **Priority** — high / medium / low, coloured from `PRI_COLOR`.
+- **FIFO / LIFO** — `ingestSegments()`, the due horizons pointed backwards
+  (ingested today / this week / this month / earlier), bucketed on `createdAt`.
+
+**Due pipeline gained a "this month" bucket** (CC-25 shipped today / this week /
+next week / longer). Late in the month "next week" can already run past month
+end, so the month bucket is anchored at `> wk + 7` and simply empties in that
+case, and "longer" opens at `max(wk + 7, monthEnd)` so no day falls through the
+gap. Verified: 340,425 date/horizon pairs across 425 days each land in exactly
+one bucket.
+
+**Ingested became two sorts, FIFO and LIFO**, replacing the single `rank` sort.
+`SORT_CYCLE` is now priority → project → deadline → FIFO → LIFO. Both are
+hand-reorderable (`REORDERABLE`); LIFO renders rank descending, so `move()` is
+called with the direction inverted or the arrows would read backwards. Group
+order flips with the sort so the list stays monotonic top to bottom.
+
+Bucketing uses `createdAt`, **not** `rank` — rank is the sort key that manual
+reordering deliberately scrambles, `createdAt` is the real arrival time. A
+hand-moved task therefore sits in its true age group but in its manual position
+within it, which is the intended behaviour.
+
+## CC-28 — Overdue tasks are labelled "due today"
+
+The first due segment tests `n <= 0`, so a task three weeks late sits in the red
+"due today" bucket in the pipeline bar and under the "DUE TODAY" header in the
+deadline sort. The per-card chip still says `OVERDUE 21d`, so the information
+isn't lost — but the bucket label is actively wrong, and overdue is the single
+thing this desk exists to surface.
+
+Add a sixth segment ahead of today: `{ key: "overdue", test: (n) => n < 0 }` in a
+harder red, and tighten today to `n === 0`. Both the bar and the deadline sort
+pick it up automatically. Held back from CC-27 only because the bucket list was
+specified explicitly; no other code depends on the current grouping.
 
 ## CC-26 — `setDueIn` lands a day late in the evening
 
