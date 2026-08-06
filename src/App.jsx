@@ -320,27 +320,61 @@ function wxLook(code) {
   return { icon: "🌡️", text: "—" };
 }
 
+// "Good weather" day score in [0,1]: 70% dryness, 30% warmth-vs-baseline.
+// Severe codes (storms, snow, heavy rain) force dryness to 0.
+function wxDayScore(precip, code, temp, baseTemp) {
+  const severe =
+    code >= 95 || (code >= 71 && code <= 77) || code === 85 || code === 86 || code === 65 || code === 67 || code === 82;
+  const dry = severe ? 0 : precip <= 0.5 ? 1 : precip <= 4 ? 0.5 : 0;
+  const warm = Math.max(0, Math.min(1, 0.5 + (temp - baseTemp) / 10));
+  return 0.7 * dry + 0.3 * warm;
+}
+
+// MTD score vs same-calendar-month over the prior 3 years -> % (100 = normal)
+function wxFactor(hist, base, month) {
+  const inMonth = (dates) => dates.map((d, i) => ({ d, i })).filter((x) => new Date(x.d + "T12:00:00").getMonth() === month);
+  const baseDays = inMonth(base.time);
+  if (!baseDays.length) return null;
+  const baseTemp = baseDays.reduce((s, x) => s + base.temperature_2m_mean[x.i], 0) / baseDays.length;
+  const score = (days, src) =>
+    days.reduce((s, x) => s + wxDayScore(src.precipitation_sum[x.i] ?? 0, src.weather_code[x.i] ?? 0, src.temperature_2m_mean[x.i] ?? baseTemp, baseTemp), 0) / days.length;
+  const histDays = inMonth(hist.time).filter((x) => hist.temperature_2m_mean[x.i] !== null);
+  if (histDays.length < 3) return null; // too early in the month to be meaningful
+  const baseScore = score(baseDays, base);
+  if (!baseScore) return null;
+  return Math.round((score(histDays, hist) / baseScore) * 100);
+}
+
 function WeatherStrip() {
   const [wx, setWx] = useState(null);
   useEffect(() => {
     (async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const now = new Date();
+      const today = now.toISOString().slice(0, 10);
       try {
-        const cached = JSON.parse(localStorage.getItem("pcc-weather") || "null");
+        const cached = JSON.parse(localStorage.getItem("pcc-weather-v2") || "null");
         if (cached && cached.date === today) { setWx(cached.data); return; }
       } catch (e) {}
       try {
+        const y = now.getFullYear();
         const results = await Promise.all(
           WEATHER_SPOTS.map(async (s) => {
-            const r = await fetch(
-              `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&current=temperature_2m,weather_code`
-            );
-            const d = await r.json();
-            return { label: s.label, flag: s.flag, temp: Math.round(d.current.temperature_2m), code: d.current.weather_code };
+            const geo = `latitude=${s.lat}&longitude=${s.lon}`;
+            // current conditions + this month's daily history (past 31 days covers any MTD)
+            const cur = await (await fetch(
+              `https://api.open-meteo.com/v1/forecast?${geo}&current=temperature_2m,weather_code&daily=temperature_2m_mean,precipitation_sum,weather_code&past_days=31&forecast_days=1`
+            )).json();
+            // baseline: prior 3 full years of daily data (filtered to this month client-side)
+            const base = await (await fetch(
+              `https://archive-api.open-meteo.com/v1/archive?${geo}&start_date=${y - 3}-01-01&end_date=${y - 1}-12-31&daily=temperature_2m_mean,precipitation_sum,weather_code`
+            )).json();
+            let factor = null;
+            try { factor = wxFactor(cur.daily, base.daily, now.getMonth()); } catch (e) {}
+            return { label: s.label, flag: s.flag, temp: Math.round(cur.current.temperature_2m), code: cur.current.weather_code, factor };
           })
         );
         setWx(results);
-        localStorage.setItem("pcc-weather", JSON.stringify({ date: today, data: results }));
+        localStorage.setItem("pcc-weather-v2", JSON.stringify({ date: today, data: results }));
       } catch (e) {
         /* network blocked or offline — widget simply stays hidden */
       }
@@ -352,12 +386,19 @@ function WeatherStrip() {
     <div style={{ display: "flex", gap: 8, alignSelf: "flex-start" }}>
       {wx.map((w) => {
         const look = wxLook(w.code);
+        const fColor = w.factor === null ? FAINT : w.factor >= 100 ? DONE_COLOR : "#B3382C";
         return (
-          <div key={w.label} title={`${w.label}: ${look.text}, ${w.temp}°C (refreshed daily)`}
-            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", textAlign: "center", minWidth: 74 }}>
+          <div key={w.label}
+            title={`${w.label}: ${look.text}, ${w.temp}°C · Weather factor = month-to-date vs same month over the prior 3 years (dryness + warmth heuristic). 100% = normal; higher = drier/hotter than usual; lower = more rain/storm/snow days. Refreshed daily.`}
+            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", textAlign: "center", minWidth: 84 }}>
             <div style={{ fontSize: 15, lineHeight: 1.2 }}>{w.flag} {look.icon}</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: INK, marginTop: 1 }}>{w.temp}°C</div>
             <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 1 }}>{look.text.toUpperCase()}</div>
+            {w.factor !== null && (
+              <div style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: fColor, marginTop: 2 }}>
+                {w.factor >= 100 ? "▲" : "▼"} MTD {w.factor}%
+              </div>
+            )}
           </div>
         );
       })}
