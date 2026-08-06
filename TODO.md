@@ -45,6 +45,8 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-26 | `setDueIn` lands a day late when used after ~20:00 local | open | medium | The +1/+3/+7 buttons silently set the wrong date in the evening |
 | CC-27 | Group every sort under headers; split Ingested into FIFO/LIFO | done | medium | Shipped: deadline/priority/FIFO/LIFO all group; due pipeline gained a "this month" bucket |
 | CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
+| CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
+| CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
 
 ---
 
@@ -254,6 +256,64 @@ Add a sixth segment ahead of today: `{ key: "overdue", test: (n) => n < 0 }` in 
 harder red, and tighten today to `n === 0`. Both the bar and the deadline sort
 pick it up automatically. Held back from CC-27 only because the bucket list was
 specified explicitly; no other code depends on the current grouping.
+
+## CC-29 — Mission dial layout — DONE
+
+Shipped 2026-08-06. Was three centred rows (hero / 4 portcos / 4 others) with the
+clocks, weather and both news boxes crammed into the masthead's right corner.
+Now two columns inside the dials card:
+
+- **Left** — the All Projects hero over a 2x2 grid of Live Deals, AI Projects,
+  Admin, Miscellaneous.
+- **Right** — a rail with one row per portco: the dial, then that portco's live
+  context. Driven by `PORTCO_RAIL`, so adding a portco is a one-line change.
+
+| portco | clock | extra | news feed |
+|---|---|---|---|
+| BravoFit | Sydney | — | `bravofit` (+ live PLNT quote) |
+| IMO | London | UK + Germany weather | `imo` |
+| KEP | Denver | — | `earlyed` |
+| Penske | LA | — | `penske` |
+
+`ClockStrip` became `ClockCard({ portco })` (one clock, no repeated portco name —
+the dial next to it already labels the row). `NewsBox` gained `compact` for the
+rail (narrower, 3 headlines) and **no longer returns null when empty** — in a rail
+an absent box leaves a ragged row, and it now distinguishes loading / feed
+unavailable / no matching news.
+
+Two feeds added, `imo` and `penske`, with empty seed files. **`/api/news` no
+longer falls back to early-ed for an unknown feed** — harmless with two feeds,
+but with one per portco it would have quietly shown KEP's childcare news under
+Penske's dial. Unknown feeds now return empty plus an `error` field.
+
+Verified by rendering `DialRow` against live `tasks.json` via
+`renderToStaticMarkup`: 1 hero + 8 small dials, 4 clocks, 4 news boxes, and all
+four `/api/news` feeds serving correctly. **Not** verified visually — there is no
+browser tooling in this repo, so the proportions are reasoned, not seen. The IMO
+row is the tallest: clock + two weather cards + news exceeds the rail width at
+920px, so its news box wraps to a second line by design.
+
+## CC-30 — IMO and Penske news feeds have no scan rules
+
+`data/imo-news.json` and `data/penske-news.json` exist and are wired to the
+dashboard, but the sync skill's news section only defines Feed A (early ed) and
+Feed B (BravoFit). Until Feeds C and D are written, both boxes render "No
+matching news this scan" forever.
+
+Blocked on confirming what each business actually is, because a wrong sector
+definition sends every weekly sync down the wrong search path. Working
+assumptions from the repo, to confirm before writing:
+
+- **IMO** — European car wash operator. UK and Germany are the two markets the
+  dashboard already tracks weather for (wash volumes track dry days, which is
+  why weather sits on this row), and `IMO Belux and France PF Sale Impact` and
+  `IMO Q2 covenant compliance` appear in live tasks. Likely scopes `UK`/`DE`/`EU`.
+- **Penske** — automotive retail / dealership group; `Penske July Reporting` is
+  the only live task. Likely scopes `US`/`OEM`.
+
+Once confirmed, add Feed C and Feed D to
+`.claude/skills/command-center-sync/SKILL.md` in the same shape as Feed B, and
+mirror to `~\.claude\skills\` (CC-5).
 
 ## CC-26 — `setDueIn` lands a day late in the evening
 

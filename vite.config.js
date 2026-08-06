@@ -43,10 +43,18 @@ function tasksApi() {
   };
 }
 
-// Serves the news feeds written by the sync skill's news scans.
-// /api/news            -> data/industry-news.json  (early education: CO/UT)
-// /api/news?feed=bravofit -> data/bravofit-news.json (BravoFit / Planet Fitness AU)
-const NEWS_FEEDS = { earlyed: "industry-news.json", bravofit: "bravofit-news.json" };
+// Serves the news feeds written by the sync skill's news scans. One feed per
+// portco rail slot in the dashboard's mission dials.
+// /api/news                -> data/industry-news.json (early education CO/UT — KEP)
+// /api/news?feed=bravofit  -> data/bravofit-news.json (BravoFit / Planet Fitness AU)
+// /api/news?feed=imo       -> data/imo-news.json      (IMO — UK/Germany)
+// /api/news?feed=penske    -> data/penske-news.json   (Penske — automotive retail)
+const NEWS_FEEDS = {
+  earlyed: "industry-news.json",
+  bravofit: "bravofit-news.json",
+  imo: "imo-news.json",
+  penske: "penske-news.json",
+};
 
 function newsApi() {
   return {
@@ -55,9 +63,14 @@ function newsApi() {
       server.middlewares.use("/api/news", (req, res) => {
         res.setHeader("Content-Type", "application/json");
         const feed = new URL(req.url, "http://localhost").searchParams.get("feed") || "earlyed";
-        const file = NEWS_FEEDS[feed] || NEWS_FEEDS.earlyed;
+        // An unknown feed must NOT fall back to early-ed: with a feed per portco
+        // that would quietly show KEP's childcare news under another portco's dial.
+        if (!NEWS_FEEDS[feed]) {
+          res.end(JSON.stringify({ updatedAt: null, items: [], error: `unknown feed "${feed}"` }));
+          return;
+        }
         try {
-          res.end(fs.readFileSync(path.join(here, "data", file), "utf-8"));
+          res.end(fs.readFileSync(path.join(here, "data", NEWS_FEEDS[feed]), "utf-8"));
         } catch (e) {
           res.end(JSON.stringify({ updatedAt: null, items: [] }));
         }

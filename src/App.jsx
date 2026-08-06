@@ -277,7 +277,17 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
   );
 }
 
-function DialRow({ tasks }) {
+// The portco rail: which live context rides alongside each portco's dial.
+// IMO carries the UK/Germany weather because its sites sit in those two markets
+// and demand there is weather-driven; the others just get a clock and a feed.
+const PORTCO_RAIL = [
+  { key: "BravoFit", news: { feed: "bravofit", title: "BRAVOFIT · PLNT", symbol: "PLNT" } },
+  { key: "IMO", weather: true, news: { feed: "imo", title: "IMO · UK/DE" } },
+  { key: "KEP", news: { feed: "earlyed", title: "EARLY ED · CO/UT" } },
+  { key: "Penske", news: { feed: "penske", title: "PENSKE · AUTO" } },
+];
+
+function DialRow({ tasks, nonce }) {
   const cat = (t) =>
     t.status === "done" ? "done" : t.reassignedTo ? "delegated" : t.status === "progress" ? "inProgress" : "open";
   const tally = (list) => {
@@ -301,12 +311,6 @@ function DialRow({ tasks }) {
     </span>
   );
 
-  const row = (children) => (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "center", gap: "2px 14px" }}>
-      {children}
-    </div>
-  );
-
   return (
     <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "10px 12px 8px", marginTop: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
@@ -318,13 +322,41 @@ function DialRow({ tasks }) {
           {chip(DIAL.done, "Complete")}
         </div>
       </div>
-      {/* row 1: all projects */}
-      {row(<Gauge label="All Projects" hero {...tally(tasks)} />)}
-      {/* row 2: portcos */}
-      {row(["BravoFit", "IMO", "KEP", "Penske"].map(dial))}
-      {/* row 3: everything else */}
-      <div style={{ marginTop: 6 }}>
-        {row(["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map(dial))}
+
+      {/* Left column: the whole book over a 2x2 of the non-portco buckets.
+          Right column: one row per portco, dial then that portco's live context.
+          Both columns are flex items so the layout stacks instead of crushing
+          when the window gets narrow. */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 4 }}>
+        <div style={{ flex: "1 1 240px", minWidth: 226, maxWidth: 300, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Gauge label="All Projects" hero {...tally(tasks)} />
+          </div>
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 4px",
+            borderTop: `1px solid ${LINE}`, marginTop: 6, paddingTop: 6,
+          }}>
+            {["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map((k) => (
+              <div key={k} style={{ display: "flex", justifyContent: "center" }}>{dial(k)}</div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ flex: "2 1 400px", minWidth: 300, display: "flex", flexDirection: "column" }}>
+          {PORTCO_RAIL.map((p, i) => (
+            <div key={p.key} style={{
+              display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8,
+              borderTop: i ? `1px solid ${LINE}` : "none", paddingTop: i ? 4 : 0,
+            }}>
+              <div style={{ flexShrink: 0 }}>{dial(p.key)}</div>
+              <div style={{ display: "flex", alignItems: "stretch", flexWrap: "wrap", gap: 6, flex: "1 1 260px", justifyContent: "flex-end" }}>
+                <ClockCard portco={p.key} />
+                {p.weather && <WeatherStrip />}
+                <NewsBox nonce={nonce} compact {...p.news} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -338,32 +370,31 @@ const CLOCK_SPOTS = [
   { city: "Denver", portco: "KEP", tz: "America/Denver", flag: "🇺🇸" },
 ];
 
-function ClockStrip() {
+const clockFor = (portco) => CLOCK_SPOTS.find((c) => c.portco === portco) || null;
+
+// One clock, for the portco rail. The portco name is not repeated on the card —
+// the dial sitting next to it already names the row.
+function ClockCard({ portco }) {
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 30000); // re-render every 30s
     return () => clearInterval(id);
   }, []);
+  const c = clockFor(portco);
+  if (!c) return null;
   const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: c.tz });
+  const day = now.toLocaleDateString([], { weekday: "short", timeZone: c.tz });
   return (
-    <div style={{ display: "flex", gap: 8 }}>
-      {CLOCK_SPOTS.map((c) => {
-        const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: c.tz });
-        const day = now.toLocaleDateString([], { weekday: "short", timeZone: c.tz });
-        const color = (BUCKETS.find((b) => b.key === c.portco) || {}).color || SOFT;
-        return (
-          <div key={c.city} title={`${c.city} local time — ${c.portco}`}
-            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", textAlign: "center", minWidth: 66 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: INK, lineHeight: 1.2 }}>{time}</div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 2 }}>
-              {day.toUpperCase()} {c.flag} {c.city.toUpperCase()}
-            </div>
-            <div style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, letterSpacing: 0.5, color, marginTop: 1 }}>
-              {c.portco.toUpperCase()}
-            </div>
-          </div>
-        );
-      })}
+    <div title={`${c.city} local time — ${c.portco}`}
+      style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 8px", textAlign: "center", minWidth: 64, flexShrink: 0 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: INK, lineHeight: 1.2 }}>{time}</div>
+      <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 2 }}>
+        {day.toUpperCase()} {c.flag}
+      </div>
+      <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: FAINT, marginTop: 1 }}>
+        {c.city.toUpperCase()}
+      </div>
     </div>
   );
 }
@@ -450,14 +481,14 @@ function WeatherStrip() {
 
   if (!wx) return null;
   return (
-    <div style={{ display: "flex", gap: 8, alignSelf: "flex-start" }}>
+    <div style={{ display: "flex", gap: 6 }}>
       {wx.map((w) => {
         const look = wxLook(w.code);
         const fColor = w.factor === null ? FAINT : w.factor >= 100 ? DONE_COLOR : "#B3382C";
         return (
           <div key={w.label}
             title={`${w.label}: ${look.text}, ${w.temp}°C · Weather factor = month-to-date vs same month over the prior 3 years (dryness + warmth heuristic). 100% = normal; higher = drier/hotter than usual; lower = more rain/storm/snow days. Refreshed daily.`}
-            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", textAlign: "center", minWidth: 84 }}>
+            style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 8px", textAlign: "center", minWidth: 76, flexShrink: 0 }}>
             <div style={{ fontSize: 15, lineHeight: 1.2 }}>{w.flag} {look.icon}</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: INK, marginTop: 1 }}>{w.temp}°C</div>
             <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 1 }}>{look.text.toUpperCase()}</div>
@@ -499,26 +530,36 @@ function StockLine({ symbol }) {
   );
 }
 
-function NewsBox({ nonce, title, feed = "earlyed", symbol = null }) {
+// `compact` is the portco-rail size: narrower, three headlines instead of four.
+// The box always renders — in the rail an absent box would leave a ragged row,
+// and "no news yet" is information rather than a reason to disappear.
+function NewsBox({ nonce, title, feed = "earlyed", symbol = null, compact = false }) {
   const [news, setNews] = useState(null);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     (async () => {
       try {
         const d = await (await fetch(`/api/news?feed=${feed}`)).json();
         setNews(d);
-      } catch (e) { /* endpoint absent — box stays hidden */ }
+        setFailed(false);
+      } catch (e) {
+        setFailed(true); // endpoint absent (e.g. a built bundle) — say so, don't vanish
+      }
     })();
   }, [nonce, feed]);
 
   const items = (news && news.items) || [];
-  if (!symbol && items.length === 0) return null;
+  const limit = compact ? 3 : 4;
   const tone = { positive: DONE_COLOR, negative: "#B3382C", neutral: SOFT };
   const mark = { positive: "▲", negative: "▼", neutral: "▬" };
   const pos = items.filter((i) => i.sentiment === "positive").length;
   const neg = items.filter((i) => i.sentiment === "negative").length;
 
   return (
-    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px", maxWidth: 340, minWidth: 220 }}>
+    <div style={{
+      background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 10px",
+      maxWidth: compact ? 300 : 340, minWidth: compact ? 200 : 220, flex: compact ? "1 1 200px" : undefined,
+    }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
         <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>{title}</span>
         <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700 }}>
@@ -526,7 +567,7 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null }) {
         </span>
       </div>
       {symbol && <StockLine symbol={symbol} />}
-      {items.slice(0, 4).map((it, i) => (
+      {items.slice(0, limit).map((it, i) => (
         <a key={i} href={it.url || undefined} target="_blank" rel="noreferrer"
           title={`${it.headline}${it.summary ? ` — ${it.summary}` : ""}${it.source ? ` (${it.source})` : ""}`}
           style={{ display: "flex", gap: 5, marginTop: 3, textDecoration: "none", alignItems: "baseline" }}>
@@ -549,7 +590,9 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null }) {
         </a>
       ))}
       {items.length === 0 && (
-        <div style={{ fontSize: 10, color: FAINT, marginTop: 3 }}>No matching news this scan.</div>
+        <div style={{ fontSize: 10, color: FAINT, marginTop: 3 }}>
+          {failed ? "Feed unavailable." : news ? "No matching news this scan." : "Loading…"}
+        </div>
       )}
       {news && news.updatedAt && (
         <div style={{ fontFamily: MONO, fontSize: 8, color: FAINT, marginTop: 4 }}>
@@ -1292,17 +1335,11 @@ export default function CommandCenter() {
                 </div>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignSelf: "flex-start", justifyContent: "flex-end" }}>
-              <ClockStrip />
-              <WeatherStrip />
-              <NewsBox nonce={lastSync} title="EARLY ED · CO/UT" feed="earlyed" />
-              <NewsBox nonce={lastSync} title="BRAVOFIT · PLNT" feed="bravofit" symbol="PLNT" />
-            </div>
           </div>
         </div>
 
-        {/* speed dials */}
-        <DialRow tasks={tasks} />
+        {/* speed dials — clocks, weather and news now ride in the portco rail */}
+        <DialRow tasks={tasks} nonce={lastSync} />
 
         {/* due pipeline */}
         <DueBar tasks={tasks} />
