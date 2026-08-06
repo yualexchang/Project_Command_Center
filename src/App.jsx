@@ -315,6 +315,12 @@ export default function CommandCenter() {
   const saveTimer = useRef(null);
   const skipNextSave = useRef(false);
 
+  // undo stack — snapshots of {tasks, lastSync} taken before each dashboard edit
+  const history = useRef([]);
+  const prevSnap = useRef(null);
+  const isUndoing = useRef(false);
+  const [undoCount, setUndoCount] = useState(0);
+
   // backup / restore
   const [backupMode, setBackupMode] = useState(null); // null | "export" | "restore"
   const [backupJSON, setBackupJSON] = useState("");
@@ -348,7 +354,23 @@ export default function CommandCenter() {
   // save (debounced) to data/tasks.json via the dev-server API
   useEffect(() => {
     if (!loaded) return;
-    if (skipNextSave.current) { skipNextSave.current = false; return; }
+    if (skipNextSave.current) {
+      // loads (initial, refresh, post-sync) are not edits: reset the baseline, don't save
+      skipNextSave.current = false;
+      prevSnap.current = { tasks, lastSync };
+      return;
+    }
+    if (isUndoing.current) {
+      isUndoing.current = false; // undo itself shouldn't land back on the stack
+      prevSnap.current = { tasks, lastSync };
+    } else if (prevSnap.current) {
+      history.current.push(prevSnap.current);
+      if (history.current.length > 25) history.current.shift();
+      setUndoCount(history.current.length);
+      prevSnap.current = { tasks, lastSync };
+    } else {
+      prevSnap.current = { tasks, lastSync };
+    }
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       try {
@@ -413,6 +435,15 @@ export default function CommandCenter() {
   const remove = (id) => setTasks((prev) => prev.filter((t) => t.id !== id));
   const toggleExpand = (id) =>
     setExpanded((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+  function undo() {
+    const snap = history.current.pop();
+    if (!snap) return;
+    setUndoCount(history.current.length);
+    isUndoing.current = true;
+    setTasks(snap.tasks);
+    setLastSync(snap.lastSync);
+  }
 
   // +1d/+3d stack: each click pushes the current draft deadline further out
   function bumpDeadline(n) {
@@ -768,6 +799,11 @@ export default function CommandCenter() {
             {syncing ? (<><Spinner /> Syncing inbox via Claude…</>) : "↻ Refresh (sync inbox)"}
           </button>
           <button style={btn(false)} onClick={() => setShowAdd(!showAdd)}>+ Task</button>
+          <button style={{ ...btn(false), opacity: undoCount === 0 ? 0.45 : 1, cursor: undoCount === 0 ? "default" : "pointer" }}
+            onClick={undo} disabled={undoCount === 0}
+            title={undoCount === 0 ? "Nothing to undo" : `Reverse the most recent change (${undoCount} step${undoCount > 1 ? "s" : ""} available)`}>
+            ↶ Undo
+          </button>
           <button style={btn(false)} onClick={openExport} title="Export / restore a backup of your list">⇄ Backup</button>
         </div>
 
