@@ -201,8 +201,15 @@ function Spinner({ size = 14, color = "#fff" }) {
   );
 }
 
-function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot = null }) {
-  const size = hero ? 150 : 104;
+// hero = the book total; rail = one per portco; mini = the four non-portco
+// buckets, sized to sit four-across in the narrow left column.
+const GAUGE_SIZE = { hero: 150, rail: 92, mini: 72 };
+const GAUGE_MAXW = { hero: 220, rail: 168, mini: 76 };
+
+function Gauge({ label, done, inProgress = 0, delegated, open, variant = "rail", dot = null }) {
+  const hero = variant === "hero";
+  const mini = variant === "mini";
+  const size = GAUGE_SIZE[variant];
   const strokeW = hero ? 12 : 9;
   const fan = !hero; // small dials render as filled congress-seating fans
   const cx = size / 2;
@@ -240,8 +247,12 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
   const nx = cx + nLen * Math.cos(nRad);
   const ny = cy - nLen * Math.sin(nRad);
 
+  const tallyLong = `${open} open · ${inProgress} in prog · ${delegated} deleg · ${done} done`;
   return (
-    <div style={{ textAlign: "center", padding: "4px 6px", maxWidth: size + 70 }}>
+    <div
+      // the mini dials have no room for a tally line, so it moves to the tooltip
+      title={mini ? `${label} — ${total === 0 ? "no tasks" : tallyLong}` : undefined}
+      style={{ textAlign: "center", padding: mini ? "2px 2px" : "4px 6px", maxWidth: GAUGE_MAXW[variant] }}>
       <svg width={size} height={cy + 8} style={{ display: "block", margin: "0 auto" }}>
         {segs.length === 0 &&
           (fan ? (
@@ -263,22 +274,24 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
           </>
         )}
       </svg>
-      <div style={{ fontSize: hero ? 19 : 14, fontWeight: 700, color: INK, marginTop: 1, lineHeight: 1.1 }}>
+      <div style={{ fontSize: hero ? 19 : mini ? 12 : 14, fontWeight: 700, color: INK, marginTop: 1, lineHeight: 1.1 }}>
         {pct === null ? "—" : `${pct}%`}
       </div>
-      <div style={{ fontFamily: MONO, fontSize: hero ? 10 : 9, letterSpacing: 1, color: SOFT, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-        {dot && <span style={{ width: 7, height: 7, borderRadius: 2, background: dot, display: "inline-block", flexShrink: 0 }} />}
+      <div style={{ fontFamily: MONO, fontSize: hero ? 10 : mini ? 8 : 9, letterSpacing: mini ? 0.3 : 1, color: SOFT, marginTop: 2, display: "flex", alignItems: "center", justifyContent: "center", gap: mini ? 3 : 5 }}>
+        {dot && <span style={{ width: mini ? 6 : 7, height: mini ? 6 : 7, borderRadius: 2, background: dot, display: "inline-block", flexShrink: 0 }} />}
         {label.toUpperCase()}
       </div>
-      {/* Small dials sit in ~145px cells, where the long form wrapped to two
-          ragged lines — they get the abbreviated tally at a smaller size. */}
-      <div style={{ fontSize: hero ? 10 : 9, color: FAINT, marginTop: 1, whiteSpace: "nowrap" }}>
-        {total === 0
-          ? "no tasks"
-          : hero
-          ? `${open} open · ${inProgress} in prog · ${delegated} deleg · ${done} done`
-          : `${open} open · ${inProgress} prog · ${delegated} del · ${done} done`}
-      </div>
+      {/* Rail dials get the abbreviated tally — the long form wrapped to two
+          ragged lines at that width. Mini dials drop it entirely (tooltip). */}
+      {!mini && (
+        <div style={{ fontSize: hero ? 10 : 9, color: FAINT, marginTop: 1, whiteSpace: "nowrap" }}>
+          {total === 0
+            ? "no tasks"
+            : hero
+            ? tallyLong
+            : `${open} open · ${inProgress} prog · ${delegated} del · ${done} done`}
+        </div>
+      )}
     </div>
   );
 }
@@ -288,9 +301,12 @@ function Gauge({ label, done, inProgress = 0, delegated, open, hero = false, dot
 // and demand there is weather-driven; the others just get a clock and a feed.
 // Fixed pitch for the rail. Every row gets this height whether its news box is
 // full or empty, so the four dials line up instead of drifting with content.
-const PORTCO_ROW_H = 138;
-// Reserved on every rail row so the columns align; only IMO fills it.
-const WEATHER_SLOT_W = 138;
+const PORTCO_ROW_H = 112;
+const CLOCK_W = 78;
+// IMO's weather is carved OUT of its news slot rather than added beside it, so
+// every row's clock / dial / context columns line up and the rail's right edge
+// is flush all the way down.
+const WEATHER_W = 116;
 const PORTCO_RAIL = [
   { key: "BravoFit", news: { feed: "bravofit", title: "BRAVOFIT · PLNT", symbol: "PLNT" } },
   { key: "IMO", weather: true, news: { feed: "imo", title: "IMO · UK/DE" } },
@@ -310,9 +326,9 @@ function DialRow({ tasks, nonce }) {
   const byBucket = {};
   BUCKETS.forEach((b) => (byBucket[b.key] = []));
   tasks.forEach((t) => byBucket[bucketFor(t.project, t.bucket).key].push(t));
-  const dial = (key) => {
+  const dial = (key, variant = "rail") => {
     const b = BUCKETS.find((x) => x.key === key);
-    return <Gauge key={key} label={key} dot={b.color} {...tally(byBucket[key])} />;
+    return <Gauge key={key} label={key} variant={variant} dot={b.color} {...tally(byBucket[key])} />;
   };
 
   const chip = (color, text) => (
@@ -341,27 +357,26 @@ function DialRow({ tasks, nonce }) {
           the left block's right edge — cosmetic, and only below ~800px.) */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 18, marginTop: 4, alignItems: "stretch" }}>
         <div style={{
-          // 340 wide so the 2x2 cells clear ~168px and the abbreviated tally
-          // under each small dial fits on one line
-          flex: "1 1 280px", minWidth: 250, maxWidth: 340, display: "flex", flexDirection: "column",
-          borderRight: `2px solid ${LINE}`, paddingRight: 18, boxSizing: "content-box",
+          // narrow: the four mini dials sit four-across in one line rather than
+          // a 2x2, which is where most of the section's height was going
+          flex: "0 1 312px", minWidth: 280, maxWidth: 312, display: "flex", flexDirection: "column",
+          // the left stack is shorter than the four-row rail; centre it so the
+          // slack splits above and below instead of pooling under the minis
+          justifyContent: "center",
+          borderRight: `2px solid ${LINE}`, paddingRight: 14, boxSizing: "content-box",
         }}>
           {/* the book total reads as a summary panel, not a fifth peer dial */}
           <div style={{
             display: "flex", justifyContent: "center",
-            background: "#EDF2F7", border: `1px solid ${LINE}`, borderRadius: 6, padding: "2px 0 6px",
+            background: "#EDF2F7", border: `1px solid ${LINE}`, borderRadius: 6, padding: "2px 0 4px",
           }}>
-            <Gauge label="All Projects" hero {...tally(tasks)} />
+            <Gauge label="All Projects" variant="hero" {...tally(tasks)} />
           </div>
-          {/* flex:1 + space-around spreads the quadrants down the column so the
-              leftover height against the taller rail is distributed, not dumped
-              as one void under the bottom row */}
           <div style={{
-            flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr",
-            alignContent: "space-around", gap: "2px 4px", marginTop: 8,
+            display: "flex", justifyContent: "space-between", gap: 2, marginTop: 8,
           }}>
             {["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map((k) => (
-              <div key={k} style={{ display: "flex", justifyContent: "center" }}>{dial(k)}</div>
+              <div key={k} style={{ display: "flex", justifyContent: "center" }}>{dial(k, "mini")}</div>
             ))}
           </div>
         </div>
@@ -369,20 +384,25 @@ function DialRow({ tasks, nonce }) {
         <div style={{ flex: "2 1 430px", minWidth: 330, display: "flex", flexDirection: "column" }}>
           {PORTCO_RAIL.map((p, i) => (
             <div key={p.key} style={{
-              display: "flex", alignItems: "center", gap: 10,
-              // every portco row is the same height whatever its context holds,
-              // so the four dials sit on an even pitch down the rail
+              // left to right: clock, dial, then the context slot. Every row is
+              // the same height whatever its context holds, so the four dials
+              // sit on an even pitch down the rail.
+              display: "flex", alignItems: "center", gap: 8,
               minHeight: PORTCO_ROW_H,
               borderTop: i ? `1px solid ${LINE}` : "none",
             }}>
-              <div style={{ flexShrink: 0 }}>{dial(p.key)}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
-                <ClockCard portco={p.key} />
-                {/* the weather slot is reserved on every row, not just IMO's, so
-                    the clocks and news boxes line up as columns down the rail */}
-                <div style={{ width: WEATHER_SLOT_W, flexShrink: 0, display: "flex" }}>
-                  {p.weather && <WeatherStrip />}
-                </div>
+              <ClockCard portco={p.key} />
+              <div style={{ flexShrink: 0, width: GAUGE_MAXW.rail, display: "flex", justifyContent: "center" }}>
+                {dial(p.key)}
+              </div>
+              {/* one flex:1 context slot per row, so all four end flush right;
+                  IMO's weather takes a fixed bite out of its news box */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+                {p.weather && (
+                  <div style={{ width: WEATHER_W, flexShrink: 0, display: "flex" }}>
+                    <WeatherStrip />
+                  </div>
+                )}
                 <NewsBox nonce={nonce} compact {...p.news} />
               </div>
             </div>
@@ -410,24 +430,32 @@ const clockFor = (portco) => CLOCK_SPOTS.find((c) => c.portco === portco) || nul
 function ClockCard({ portco }) {
   const [, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 30000); // re-render every 30s
+    const id = setInterval(() => setTick((t) => t + 1), 1000); // seconds are shown, so tick every second
     return () => clearInterval(id);
   }, []);
   const c = clockFor(portco);
   if (!c) return null;
   const now = new Date();
-  const time = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: c.tz });
-  const day = now.toLocaleDateString([], { weekday: "short", timeZone: c.tz });
+  const time = now.toLocaleTimeString("en-GB", {
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: c.tz,
+  });
+  const day = now.toLocaleDateString("en-GB", { weekday: "short", timeZone: c.tz });
   return (
     <div title={`${c.city} local time — ${c.portco}`}
       style={{
-        background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "6px 9px",
-        textAlign: "center", width: 82, flexShrink: 0, boxSizing: "border-box",
+        background: CARD, border: `1px solid ${LINE}`, borderRadius: 6, padding: "5px 6px",
+        textAlign: "center", width: CLOCK_W, flexShrink: 0, boxSizing: "border-box",
         display: "flex", flexDirection: "column", justifyContent: "center",
       }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: INK, lineHeight: 1.15 }}>{time}</div>
-      <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 0.5, color: SOFT, marginTop: 3 }}>
-        {day.toUpperCase()} · {c.city.toUpperCase()}
+      {/* tabular-nums stops the card twitching as the seconds digits change */}
+      <div style={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: INK, lineHeight: 1.15, fontVariantNumeric: "tabular-nums" }}>
+        {time}
+      </div>
+      <div style={{ fontFamily: MONO, fontSize: 8, letterSpacing: 0.3, color: SOFT, marginTop: 2 }}>
+        {day.toUpperCase()}
+      </div>
+      <div style={{ fontFamily: MONO, fontSize: 8, letterSpacing: 0.3, color: FAINT, marginTop: 1 }}>
+        {c.city.toUpperCase()}
       </div>
     </div>
   );
@@ -530,8 +558,8 @@ function WeatherStrip() {
         return (
           <div key={w.label}
             title={`${w.label}: ${look.text}, ${w.temp}°C · Weather factor = month-to-date vs same month over the prior 3 years (dryness + warmth heuristic). 100% = normal; higher = drier/hotter than usual; lower = more rain/storm/snow days. Refreshed daily.`}
-            style={{ display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-            <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: FAINT, width: 24, flexShrink: 0 }}>{w.short}</span>
+            style={{ display: "flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }}>
+            <span style={{ fontFamily: MONO, fontSize: 8.5, fontWeight: 700, color: FAINT, width: 20, flexShrink: 0 }}>{w.short}</span>
             <span style={{ fontSize: 12, lineHeight: 1 }}>{look.icon}</span>
             <span style={{ fontSize: 12, fontWeight: 700, color: INK }}>{w.temp}°</span>
             {w.factor !== null && (
@@ -604,10 +632,13 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null, compact = fals
       // In the rail: minWidth 0 so flexbox can always shrink this rather than
       // overflow the card, and a fixed height so a three-item feed and an empty
       // one leave the rows on the same pitch.
-      ...(compact ? { flex: "1 1 0", height: 118, overflow: "hidden", display: "flex", flexDirection: "column" } : {}),
+      ...(compact ? { flex: "1 1 0", height: 102, overflow: "hidden", display: "flex", flexDirection: "column" } : {}),
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 6 }}>
-        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}>{title}</span>
+        <span style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, color: FAINT }}
+          title={news && news.updatedAt ? `scanned ${fmtTime(news.updatedAt)}` : undefined}>
+          {title}
+        </span>
         <span style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700 }}>
           <span style={{ color: DONE_COLOR }}>▲{pos}</span> <span style={{ color: "#B3382C" }}>▼{neg}</span>
         </span>
@@ -645,7 +676,9 @@ function NewsBox({ nonce, title, feed = "earlyed", symbol = null, compact = fals
           {failed ? "Feed unavailable." : news ? "No matching news this scan." : "Loading…"}
         </div>
       )}
-      {news && news.updatedAt && (
+      {/* the scan timestamp costs a line the shortened rail rows can't spare —
+          in compact it lives on the title's tooltip instead */}
+      {!compact && news && news.updatedAt && (
         <div style={{ fontFamily: MONO, fontSize: 8, color: FAINT, marginTop: 4 }}>
           scanned {fmtTime(news.updatedAt)}
         </div>
