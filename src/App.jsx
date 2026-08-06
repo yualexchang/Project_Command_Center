@@ -135,6 +135,9 @@ const BUCKETS = [
 function bucketFor(project) {
   return BUCKETS.find((b) => b.match && b.match.test(project)) || BUCKETS[BUCKETS.length - 1];
 }
+// display/sort order: portcos first, then live deals, AI, admin, misc
+const BUCKET_ORDER = ["BravoFit", "IMO", "KEP", "Penske", "Live Deals", "AI Projects", "Admin", "Miscellaneous"];
+const bucketRank = (project) => BUCKET_ORDER.indexOf(bucketFor(project).key);
 
 function dialArc(cx, cy, r, a0, a1) {
   // 0deg = left end of the semicircle, 180deg = right end, sweeping over the top
@@ -671,7 +674,8 @@ export default function CommandCenter() {
   const sorters = {
     priority: (a, b) => PRI[a.priority] - PRI[b.priority] || cmpDeadline(a, b),
     deadline: cmpDeadline,
-    project: (a, b) => a.project.localeCompare(b.project) || PRI[a.priority] - PRI[b.priority],
+    // portco buckets in fixed order, subprojects clustered alphabetically within their bucket
+    project: (a, b) => bucketRank(a.project) - bucketRank(b.project) || a.project.localeCompare(b.project) || PRI[a.priority] - PRI[b.priority],
     rank: (a, b) => a.rank - b.rank,
   };
   visible = [...visible].sort(sorters[sortBy]);
@@ -688,8 +692,11 @@ export default function CommandCenter() {
   }
 
   const grouped = sortBy === "project";
+  // group by dial bucket (portcos first); subprojects stay clustered inside each
+  // bucket because `visible` is already bucket->project sorted, and each card's
+  // bottom-right chip names its specific subproject (e.g. "IMO / Sea Lion")
   const groups = grouped
-    ? [...new Set(visible.map((t) => t.project))].map((p) => ({ name: p, items: visible.filter((t) => t.project === p) }))
+    ? BUCKET_ORDER.map((k) => ({ name: k, items: visible.filter((t) => bucketFor(t.project).key === k) })).filter((g) => g.items.length > 0)
     : [{ name: null, items: visible }];
 
   const openCount = tasks.filter((t) => t.status !== "done" && !t.reassignedTo).length;
