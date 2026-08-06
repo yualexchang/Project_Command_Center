@@ -488,7 +488,7 @@ function NewsBox({ nonce }) {
             fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: 0.5, marginLeft: "auto", flexShrink: 0,
             color: SOFT, border: `1px solid ${LINE}`, borderRadius: 3, padding: "0 3px",
           }}>
-            {it.scope || "FED"}
+            {it.scope || "—"}
           </span>
         </a>
       ))}

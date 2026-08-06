@@ -85,14 +85,16 @@ Refresh it on every sync:
    **Search only for news published since the last sync** (the `lastSync` you
    read in step 1) — include the month/year in the query so results are current.
 
-   **Jurisdiction filter — only three scopes count. Drop everything else:**
+   **Jurisdiction filter — only two scopes count. Drop everything else:**
    - `CO` — Colorado (KEP / Ken Caryl / Denver)
    - `UT` — Utah (KEP / SLC)
-   - `FED` — United States federal level
-   
-   State-level news about any *other* state (Iowa, Oregon, Texas…) is out of
-   scope no matter how interesting — do not include it. Tag every item you keep
-   with its `scope`.
+
+   Federal news and news about any *other* state (Iowa, Oregon, Texas…) is out
+   of scope no matter how interesting — do not include it. Tag every item you
+   keep with its `scope`. Federal action belongs here **only** when the story is
+   specifically about its effect in Colorado or Utah (tag it `CO` or `UT`).
+   Scope both search queries to those states, e.g. "Colorado child care
+   legislation <month year>", "Utah early education funding <month year>".
 2. **Date discipline — this is the easy thing to get wrong.** `date` must be the
    date the *article was published*, not the date a policy takes effect and not
    today. Take it from the URL slug (e.g. `/2026/08/03/`) or the page itself. If
@@ -112,7 +114,7 @@ Refresh it on every sync:
   "items": [
     {
       "sentiment": "positive|negative|neutral",
-      "scope": "CO|UT|FED — required; drop the item if it is none of these",
+      "scope": "CO|UT — required; drop the item if it is neither",
       "short": "2-4 words, e.g. 'Head Start deregulation' — this is what the box displays",
       "headline": "<= 90 chars, plain language (shown on hover)",
       "summary": "1 sentence on why it matters to an early-ed operator",

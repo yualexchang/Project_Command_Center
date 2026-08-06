@@ -1,35 +1,55 @@
 {
-  "updatedAt": "2026-08-06T17:35:00.000Z",
+  "updatedAt": "2026-08-06T17:50:00.000Z",
   "items": [
     {
-      "sentiment": "neutral",
-      "scope": "FED",
-      "short": "Head Start deregulation",
-      "headline": "HHS proposes cutting most Head Start regulations, including staff-ratio standards",
-      "summary": "Mixed for private operators: a lower-cost subsidized competitor, but disruption to 700-800k subsidized seats could shift families to private centers. 60-day comment window closes Oct 6.",
-      "source": "HHS / WTOP",
-      "date": "2026-08-06",
-      "url": "https://wtop.com/education/2026/08/trump-administration-moves-forward-with-head-start-overhaul-proposing-to-eliminate-regulations/"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "FED",
-      "short": "Costs strain budgets",
-      "headline": "New Brookings report: child care costs continue to strain family budgets",
-      "summary": "Reinforces a tuition ceiling — families already average ~20% of income on care vs the 7% affordability benchmark.",
-      "source": "Brookings via FFYF",
-      "date": "2026-08-03",
-      "url": "https://www.ffyf.org/2026/08/03/new-brookings-report-child-care-costs-continue-to-strain-family-budgets/"
+      "sentiment": "positive",
+      "scope": "CO",
+      "short": "Paid on enrollment",
+      "headline": "Colorado counties begin paying CCCAP providers on enrollment, not daily attendance, in August 2026",
+      "summary": "Removes absence-driven revenue leakage — subsidy revenue becomes predictable for Colorado centers starting this month.",
+      "source": "Colorado Children's Campaign",
+      "date": "2026-07-23",
+      "url": "https://coloradokids.org/about/news/press-releases/updated-regulations-will-strengthen-the-colorado-child-care-assistance-program-starting-in-august-07-23-26/"
     },
     {
       "sentiment": "positive",
       "scope": "CO",
-      "short": "CO copay cap delayed",
-      "headline": "Colorado pushes 7% family copay cap from Aug 2026 to Aug 2028",
-      "summary": "Two more years before copayments are capped at 7% of income, deferring a revenue constraint for Colorado providers.",
-      "source": "ACF / NAEYC CCDF tracking",
-      "date": "2026-05-12",
-      "url": "https://www.naeyc.org/our-work/public-policy-advocacy/2026-ccdf-final-rule"
+      "short": "CCCAP rules strengthened",
+      "headline": "CDEC adopts new CCCAP rules: financial safeguards plus processes to clear waitlists and lift freezes",
+      "summary": "Creates a path to re-open enrollment where freezes had capped subsidized demand.",
+      "source": "Colorado Children's Campaign / CDEC",
+      "date": "2026-07-23",
+      "url": "https://cdec.colorado.gov/child-care-and-development-fund-ccdf-update"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "CO",
+      "short": "14k on CCCAP waitlists",
+      "headline": "Nearly 14,000 Colorado children on CCCAP waitlists or under enrollment freezes",
+      "summary": "Subsidy rationing suppresses reachable demand in Colorado markets until freezes actually lift.",
+      "source": "Early Milestones Colorado / CPR",
+      "date": "2026-05-04",
+      "url": "https://www.cpr.org/2026/05/04/colorado-budget-markets-child-care/"
+    },
+    {
+      "sentiment": "positive",
+      "scope": "UT",
+      "short": "Employer credit tripled",
+      "headline": "Utah HB 190 raises employer child care tax credit from 10% to 30% for small businesses",
+      "summary": "Employer-sponsored demand becomes materially cheaper in Utah — a corporate-partnership angle for SLC centers.",
+      "source": "Voices for Utah Children",
+      "date": "2026-03-15",
+      "url": "https://utahchildren.org/newsroom/speaking-of-kids-blog/education-and-care-2026-legislative-updates"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "UT",
+      "short": "HB 453 rejected",
+      "headline": "Utah HB 453 early childhood funding account rejected on the floor; no state ECE funding",
+      "summary": "Utah still provides no recurring state early-childhood funding, leaving SLC economics fully private-pay dependent.",
+      "source": "Voices for Utah Children",
+      "date": "2026-03-15",
+      "url": "https://utahchildren.org/newsroom/speaking-of-kids-blog/education-and-care-2026-legislative-updates"
     }
   ]
 }
