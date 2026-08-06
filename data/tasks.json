@@ -1,6 +1,31 @@
 {
   "tasks": [
     {
+      "id": "3iv7uqmdmshmbkdr",
+      "title": "AI",
+      "project": "AI Projects",
+      "priority": "high",
+      "deadline": "2026-08-06",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "David",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Find CapIQ and Factset company codes for FEP investment sphere for GP stake search",
+      "steps": [],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "",
+      "subject": "",
+      "src": "manual",
+      "rank": 1786026931695.6082,
+      "createdAt": "2026-08-06T14:35:31.695Z"
+    },
+    {
       "id": "cbizkep8a",
       "title": "Send CBIZ times for KEP reporting-requirements call",
       "project": "KEP - Ken Caryl",
@@ -616,5 +641,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-06T14:23:22.420Z"
+  "lastSync": "2026-08-06T14:36:58.339Z"
 }
