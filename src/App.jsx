@@ -6,8 +6,8 @@ const PRI_COLOR = { high: "#6E0F0F", medium: "#C63D2F", low: "#D9822B" }; // dar
 const DONE_COLOR = "#2E7D52"; // green = completed
 const PROGRESS_COLOR = "#B58200"; // amber = in progress
 const DELEGATED = "#6B4FA1"; // purple = delegated
-// left-click cycles todo <-> in progress; completing is right-click (see status button)
-const STATUS_NEXT = { todo: "progress", progress: "todo", done: "todo" };
+// left-click advances (todo -> in progress -> done); right-click retreats to todo
+const STATUS_NEXT = { todo: "progress", progress: "done", done: "todo" };
 
 const INK = "#16202B";
 const SOFT = "#5C6B7A";
@@ -568,6 +568,16 @@ export default function CommandCenter() {
       notes: [...t.notes, { id: uid(), date: new Date().toISOString().slice(0, 10), text: "Taken back" }],
     });
   }
+  // set a due date n days from today (used by the +1/+3/+7 buttons on dateless tasks)
+  function setDueIn(t, n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    const key = t.reassignedTo ? "followUpDate" : "deadline";
+    const patch = { [key]: d.toISOString().slice(0, 10) };
+    if (key === "deadline") patch.deadlineType = "explicit";
+    update(t.id, patch);
+  }
+
   // push the task's effective date (follow-up if delegated, else deadline) out one day
   function snooze(t) {
     const key = t.reassignedTo ? "followUpDate" : "deadline";
@@ -974,8 +984,8 @@ export default function CommandCenter() {
                   {/* ---- overview row ---- */}
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px" }}>
                     <button onClick={() => update(t.id, { status: STATUS_NEXT[t.status] })}
-                      onContextMenu={(e) => { e.preventDefault(); update(t.id, { status: t.status === "done" ? "todo" : "done" }); }}
-                      title={t.status === "todo" ? "Click: start (in progress) · Right-click: complete" : t.status === "progress" ? "Click: back to to-do · Right-click: complete" : "Click or right-click: reopen"}
+                      onContextMenu={(e) => { e.preventDefault(); if (t.status !== "todo") update(t.id, { status: "todo" }); }}
+                      title={t.status === "todo" ? "Click: start (in progress)" : t.status === "progress" ? "Click: complete · Right-click: back to to-do" : "Click or right-click: reopen"}
                       style={{
                         width: 22, height: 22, borderRadius: "50%", marginTop: 2, flexShrink: 0, cursor: "pointer",
                         border: `2px solid ${done ? DONE_COLOR : t.status === "progress" ? PROGRESS_COLOR : FAINT}`,
@@ -1010,7 +1020,7 @@ export default function CommandCenter() {
                         )}
                         {dChip && (
                           <span style={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, color: dChip.color, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                            {dChip.text}{!t.reassignedTo && t.deadline ? (t.deadlineType === "explicit" ? " ·E" : " ·I") : ""}
+                            {dChip.text}
                             {!done && (
                               <button title="Snooze: push the date out one day"
                                 onClick={(e) => { e.stopPropagation(); snooze(t); }}
@@ -1018,6 +1028,18 @@ export default function CommandCenter() {
                                 💤+1d
                               </button>
                             )}
+                          </span>
+                        )}
+                        {!dChip && !done && (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: MONO, fontSize: 9, color: FAINT }}>
+                            DUE:
+                            {[1, 3, 7].map((n) => (
+                              <button key={n} title={`Set due date ${n} day${n > 1 ? "s" : ""} from today`}
+                                onClick={(e) => { e.stopPropagation(); setDueIn(t, n); }}
+                                style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 3, cursor: "pointer", fontSize: 9, lineHeight: 1.4, padding: "0 4px", color: SOFT }}>
+                                +{n}d
+                              </button>
+                            ))}
                           </span>
                         )}
                       </div>
@@ -1131,7 +1153,7 @@ export default function CommandCenter() {
         ))}
 
         <div style={{ marginTop: 28, fontSize: 11, color: FAINT, fontFamily: MONO, borderTop: `1px solid ${LINE}`, paddingTop: 10 }}>
-          Inbox sync + per-task research run in Claude Code (/command-center-sync, /command-center-research) · deadlines marked ·E (stated in email) or ·I (inferred) · indigo = delegated, tracked by follow-up date · saved to data/tasks.json, history in git.
+          Inbox sync + per-task research run in Claude Code (/command-center-sync, /command-center-research) · circle: click advances, right-click resets to to-do · purple = delegated, tracked by follow-up date · saved to data/tasks.json, history in git.
         </div>
       </div>
     </div>
