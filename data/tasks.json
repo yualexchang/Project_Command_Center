@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "gpfh8s09tr1",
+      "title": "Broaden GP fund screen to include gas stations",
+      "project": "Project Keystone",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "David O'Donnell wants the CapIQ/FactSet company and sector screen for the GP fund project widened beyond the current list to also cover gas stations, citing MFG as an example. The revised list is what will go to Greg and the HPS team, so it needs updating before it is shared.",
+      "steps": [
+        "Add gas station operators (e.g. MFG) to the screen",
+        "Refresh CapIQ/FactSet company and sector code list",
+        "Send updated list to David before sharing with Greg/HPS"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "RE: GP Fund Project",
+      "src": "email",
+      "rank": 1786044247538,
+      "createdAt": "2026-08-06T19:24:07.538Z"
+    },
+    {
       "id": "kepprofrm1",
       "title": "Send KEP proforma to Joe Brady today",
       "project": "KEP - Ken Caryl",
@@ -863,5 +892,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-06T18:40:17.715Z"
+  "lastSync": "2026-08-06T19:24:07.539Z"
 }
