@@ -47,9 +47,10 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
 | CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
-| CC-31 | Live cross-device sync (iPhone ↔ laptop, both writable) | open | medium | CC-6 gets the phone *reading*; this is both devices editing without clobbering |
-| CC-32 | Change channel — dashboard never learns the file changed under it | open | medium | Prerequisite for CC-31; today only ↻ Refresh or a sync reloads |
-| CC-33 | Per-task `updatedAt` for merge resolution | open | medium | Prerequisite for CC-31 merge; whole-file last-write-wins is all we can do without it |
+| CC-31 | Live cross-device sync (iPhone ↔ laptop, both writable) | open | medium | Two-phase design agreed 2026-08-09 (see section); phase 1 = live tunnel, phase 2 = CC-34 |
+| CC-32 | Change channel — dashboard never learns the file changed under it | open | medium | CC-31 phase 1 step; today only ↻ Refresh or a sync reloads |
+| CC-33 | Per-task `updatedAt` for merge resolution | open | medium | CC-31 phase 2 (CC-34) prerequisite; whole-file last-write-wins is all we can do without it |
+| CC-34 | Offline phone replica + reconnect merge (phase 2 of CC-31) | open | medium | Phone works with the laptop closed; merges when it's back. Needs CC-3 and CC-33 |
 
 ---
 
@@ -107,7 +108,8 @@ project can only ever run via `npm run dev`.
 
 Extract the handlers into a module usable by both `configureServer` and a real host
 (a small Node server, or serverless functions if the UI goes static). Prerequisite for
-CC-6 option B.
+CC-6 option B — and a hard prerequisite for CC-34 (a service worker can't sensibly
+cache the dev server).
 
 ## CC-4 — Stop the dashboard clobbering hand edits to `tasks.json`
 
@@ -323,74 +325,140 @@ mirror to `~\.claude\skills\` (CC-5).
 Asked 2026-08-09: can the dashboard live-sync between the iPhone and the laptop?
 CC-6 is the narrower "get it onto the phone" (reachability). This row is the harder
 half: **both devices open at once, both able to edit, neither silently overwriting
-the other.** Three separate problems, and only the first is about hosting.
+the other.** Two-phase design agreed in the 2026-08-09 session; **build nothing
+yet** was the explicit call — this section is the design of record.
 
-**1. Reachability** — see CC-6/CC-7. Vite has no `server` block at all in
-[vite.config.js](vite.config.js), so it binds localhost only, and all four API
-routes live in `configureServer` (dev-only, CC-3).
+**Why it's more than hosting.** Three separate problems today:
 
-**2. No change channel (CC-32).** Even over a tunnel this would not be *live*.
-`App.jsx` GETs `/api/tasks` once on mount (`loadFromFile`, line ~827) and again only
-on ↻ Refresh or after a sync. Nothing polls. Two devices would each sit on a stale
-snapshot until manually refreshed.
+1. *Reachability* — no `server` block in [vite.config.js](vite.config.js), so Vite
+   binds localhost only (CC-7), and all four API routes are dev-server-only (CC-3).
+2. *No change channel (CC-32)* — `App.jsx` GETs `/api/tasks` once on mount
+   (`loadFromFile`, ~line 827) and again only on ↻ Refresh or after a sync. Nothing
+   polls; even tunneled, two devices sit on stale snapshots.
+3. *Whole-file last-write-wins becomes real data loss (CC-4)* — saves are a 400 ms
+   debounced `PUT` of the *entire* array, `writeFileSync`'d wholesale. With two live
+   devices, every phone edit erases every laptop edit since the phone last loaded,
+   and vice versa. Undo (CC-1) compounds it: restoring a stale snapshot on one
+   device discards the other's work. **CC-4 is a hard prerequisite, not polish.**
 
-**3. Whole-file last-write-wins becomes real data loss (CC-4).** Today's save path is
-a 400 ms-debounced `PUT /api/tasks` carrying the *entire* task array from that
-client's memory, and the server `writeFileSync`s it wholesale. With two live devices
-that is not a race you might lose — every edit on the phone erases every edit made on
-the laptop since the phone last loaded. The undo stack (CC-1) makes it worse: undoing
-on one device restores a snapshot that predates the other device's work. **CC-4 is a
-hard prerequisite for CC-31, not a nice-to-have.**
+### Phase 1 — live tunnel (laptop must be awake; ~a day)
 
-**Recommended path (keeps every feature):** tunnel, not rebuild. Compute stays on the
-PC, so the Sync button, the Egnyte path-finder and the whole Claude bridge keep
-working — they spawn `claude -p` locally and can't move to a static host. Order:
+Tunnel, not rebuild: compute stays on the PC, so the Sync button, Egnyte
+path-finder and the whole Claude bridge keep working — they spawn `claude -p`
+locally and cannot move to a static host. Order matters; one commit per step:
 
-1. CC-2 (auth/origin on the bridge) + Cloudflare Access — **non-negotiable before any
-   tunnel.** `/api/sync` and `/api/find-path` spawn `bypassPermissions` Claude runs.
-2. CC-7 (`server: { host: true }`, plus `allowedHosts` for the tunnel hostname).
-3. CC-4 as a version guard: add a `version` (or mtime) to `tasks.json`, return it on
-   GET, require it on PUT, `409` on mismatch. Client re-GETs and retries on 409.
-4. CC-32 change channel: `GET /api/tasks/stream` as SSE, fired from `fs.watch(DATA)`
-   with the new version. Both devices subscribe; on a version bump they re-GET.
-   Reconnect on focus — iOS Safari suspends background tabs.
-5. CC-24 responsive pass. The portco rail is laid out for ~920px (CC-29); it is not
-   usable on a phone as-is.
+1. **CC-2 bridge auth** — require a custom header (`X-PCC: 1`) *and* an own-origin
+   check on `POST /api/sync`, `POST /api/find-path`, and `PUT /api/tasks`; add the
+   header to the client fetches. The custom header forces a CORS preflight, killing
+   drive-by cross-origin POSTs. **Non-negotiable before any exposure** — these
+   routes spawn `bypassPermissions` Claude runs.
+2. **CC-7 bind** — `server: { host: true, allowedHosts: ["desk.<domain>"] }`.
+   Never lands before step 1.
+3. **CC-4 version guard** — `version` integer in `tasks.json`; GET returns it, PUT
+   must echo it, mismatch → `409` with the current body; success bumps it. Never
+   write defaults over an existing file (closes the CC-8 suspect path). Client
+   tracks the version; on 409 it re-GETs, reapplies the pending edit, retries once
+   (all edits already funnel through the one debounced-save effect). The sync
+   skill must bump `version` too — update its SKILL.md + mirror (CC-5).
+4. **CC-32 SSE change channel** — see that row.
+5. **CC-24 responsive + iOS app feel** — below ~700px stack the portco rail
+   (laid out for ~920px, CC-29), wrap the filter bar, enlarge touch targets;
+   `apple-mobile-web-app-capable` + status-bar metas + `apple-touch-icon` in
+   `index.html` so Add to Home Screen launches full-screen under its own icon.
+6. **Ops (README only)** — portable `cloudflared.exe` in `~\Tools` (no admin, same
+   pattern as node); a *named* tunnel needs a domain in a free Cloudflare account
+   (~$10/yr — quick `trycloudflare.com` tunnels are unacceptable: random URL, no
+   Access gating); Cloudflare Access allowing only Alex's email (PIN login,
+   ~1-month session); two user-level Task Scheduler entries (`npm run dev`,
+   `cloudflared tunnel run`); power settings: never sleep when plugged in.
 
-**Merge policy.** v1 can be simple and still correct: on a remote version bump, adopt
-it if this device has no pending local edit; if it does, that's the 409 path — re-GET,
-reapply the single field the user just touched, PUT. True simultaneous editing needs
-per-task `updatedAt` (CC-33 — tasks currently have no such field, only `createdAt`)
-plus delete tombstones, since "task missing from the array" is otherwise
-indistinguishable from "task deleted".
+*Phase-1 limitations, accepted:* laptop asleep/off ⇒ phone shows an error page, no
+offline; same-field-same-second edits resolve last-write-wins; undo stays
+per-device; the Vite dev server remains the "production" server; traffic transits
+Cloudflare's edge.
+
+*Phase-1 verification:* cross-origin POST rejected while in-app Sync works; two
+browser windows converge within ~1s and a same-task dual edit loses nothing (409
+path); hand-editing `tasks.json` propagates to open windows; real-iPhone test
+through the tunnel (PIN flow, Home Screen, background 10+ min then reopen, kill the
+dev server ⇒ error page).
+
+### Phase 2 — offline replica + merge → CC-34
+
+**Merge policy.** Phase 1 stays simple and correct: on a remote version bump, adopt
+it unless this device has a pending local edit — that's the 409 path (re-GET,
+reapply, retry). True offline divergence needs per-task `updatedAt` (CC-33) plus
+delete tombstones, which is CC-34's job.
 
 **Why not the static-host option** (CC-6 option B, UI on Pages + GitHub API as the
-store): it survives a closed laptop, but it is read-mostly, loses the Sync and
-path-finder buttons, needs CC-3 first, and commit-per-edit gives seconds of latency
-with git-level conflicts. Good as a phone *viewer*; not a live two-way desk.
+store): survives a closed laptop but is read-mostly, loses the Sync and path-finder
+buttons, needs CC-3 first, and commit-per-edit means seconds of latency with
+git-level conflicts. Good as a phone *viewer*; not a live two-way desk.
 
 **Data policy caveat, unchanged from CC-6:** `tasks.json` holds live FEP deal names,
 portfolio companies and colleagues' addresses. A tunnel keeps the data *at rest* on
-the laptop (it only transits Cloudflare); GitHub/cloud hosting moves it off-machine
-and is the version that needs a word with whoever owns FEP data policy. Brandon
-Emmerich's offer of FEP devops infra is the sanctioned path if it ever needs real
-hosting.
+the laptop (it only transits Cloudflare); CC-34 puts a replica on the phone, and
+cloud hosting moves it off-machine entirely — the latter two are the versions that
+need a word with whoever owns FEP data policy. Brandon Emmerich's offer of FEP
+devops infra is the sanctioned path if it ever needs real hosting.
 
 ## CC-32 — Change channel so the dashboard notices external writes
 
-Split out of CC-31, but useful on its own even single-device: the sync skill, a
-`git checkout`, or hand-editing `tasks.json` all leave the open dashboard stale until
-↻ Refresh. `fs.watch(DATA)` in `configureServer` → SSE on `/api/tasks/stream` →
-client re-GETs on a version bump. Also removes the "hit Refresh when the sync
-finishes" step in the README.
+CC-31 phase 1, step 4 — but useful on its own even single-device: the sync skill, a
+`git checkout`, or hand-editing `tasks.json` all leave the open dashboard stale
+until ↻ Refresh. `fs.watch(DATA)` in `configureServer` (debounced ~200ms) → SSE on
+`GET /api/tasks/stream` emitting `{version}` → client re-GETs on a newer version,
+reusing the `skipNextSave` ref so pushed loads don't enter the undo stack.
+Reconnect + refetch on `visibilitychange`/`focus` — iOS Safari suspends background
+tabs, so the wake path matters more than the steady state. Also removes the "hit
+Refresh when the sync finishes" step in the README.
 
 ## CC-33 — Per-task `updatedAt` for merge resolution
 
 Tasks carry `createdAt` but nothing recording last modification, so two divergent
-copies of the array can't be merged field-by-field — the only available policy is
-whole-file last-write-wins. Stamp `updatedAt` in the reducer paths that mutate a task
-and have the sync skill set it on merge. Needed for CC-31's true-concurrent case; also
-makes CC-16 (weekly digest) and CC-10 (done-detection) cheaper.
+copies of the array can't be merged per task — the only available policy is
+whole-file last-write-wins. A `touch()` helper stamped in every mutating handler in
+`App.jsx`; the sync skill stamps tasks it creates or merges. Prerequisite for CC-34;
+also makes CC-16 (weekly digest) and CC-10 (done-detection) cheaper.
+
+## CC-34 — Offline phone replica + reconnect merge (phase 2 of CC-31)
+
+Answers "why can't the phone run on last available data when the laptop is closed,
+and merge when it's back?" It can — at roughly double phase 1's build, with the risk
+concentrated in the merge (merge bugs are silent data loss, the disease being
+cured). ~2–3 days, strictly on top of phase 1's version guard and SSE channel.
+
+1. **CC-3 becomes a hard prerequisite.** A service worker can't sensibly cache the
+   Vite dev server (HMR, unbundled modules). Extract the four API handlers from
+   `configureServer` into a module mounted both by `configureServer` (dev) and a
+   small Node server (prod); the tunnel then fronts `npm run build` + that server.
+2. **CC-33 per-task `updatedAt`** — see that row.
+3. **Delete tombstones** — deletions append `{id, deletedAt}` to a `deleted` array
+   in `tasks.json` (pruned >30 days, aligning with CC-19), so "missing from the
+   array" ≠ "deleted" during merge.
+4. **Local replica** — full `{tasks, version, lastSyncedAt}` mirrored to
+   localStorage (~50KB today, no IndexedDB needed); the app boots from the replica
+   instantly and reconciles when the server answers.
+5. **Service worker** — cache the built app shell so the Home Screen icon opens
+   with the laptop dead. Offline banner: tasks view/edit only — Sync, path-finder,
+   news, weather and the stock quote all grey out (they run on the laptop).
+6. **Reconnect merge** — GET server state; per task, newer `updatedAt` wins; apply
+   tombstones both ways; PUT the merged result under the phase-1 version guard
+   (409 → re-merge → retry). Clear the undo stack on merge — stale snapshots are
+   unsafe across one.
+7. **Access-expiry handling** — a Cloudflare session that expired while offline
+   makes fetches return login HTML; detect non-JSON responses and show "tap to
+   sign in" instead of a parse error.
+
+*Limitations, accepted:* same task edited on both sides during a gap → newer edit
+wins, the other is dropped (git history still has it); deal data now also rests on
+the phone in browser storage — the stronger FEP data-policy case (see CC-31); iOS
+may purge web storage under pressure (the laptop stays authoritative; the phone
+re-downloads).
+
+*Verification:* airplane-mode edit → reconnect → merge matrix (edit/edit,
+edit/delete, sync-run-in-the-middle); storage-purge recovery; Access-expired
+reconnect shows the sign-in prompt.
 
 ## CC-26 — `setDueIn` lands a day late in the evening
 
