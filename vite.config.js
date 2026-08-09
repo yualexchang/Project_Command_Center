@@ -331,4 +331,12 @@ function claudeBridge() {
 
 export default defineConfig({
   plugins: [react(), tasksApi(), newsApi(), stockApi(), claudeBridge()],
+  // CC-7: listen on all interfaces so the Cloudflare tunnel (and only it — the
+  // mutating routes are guarded, CC-2) can reach the app. PCC_TUNNEL_HOST is the
+  // tunnel's hostname, e.g. desk.example.com; unset keeps Vite's localhost-only
+  // host allowlist.
+  server: {
+    host: true,
+    allowedHosts: process.env.PCC_TUNNEL_HOST ? [process.env.PCC_TUNNEL_HOST] : [],
+  },
 });

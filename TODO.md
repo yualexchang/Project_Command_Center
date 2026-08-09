@@ -23,7 +23,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | open | medium | Silent data loss when editing the file while the server is up |
 | CC-5 | Single home for the skills (stop the double copy) | open | medium | Two copies drift; edit one, the other silently wins |
 | CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
-| CC-7 | Bind Vite beyond `::1` | open | low | One-line prerequisite for CC-6 |
+| CC-7 | Bind Vite beyond `::1` | done | low | Shipped: `host: true` + `allowedHosts` from `PCC_TUNNEL_HOST`; landed after CC-2 |
 | CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
 | CC-9 | Scheduled morning sync (Task Scheduler → `claude -p "/command-center-sync"`) | open | high | Desk is fresh before it's opened; removes the last manual step |
 | CC-10 | Done-detection — sync scans Sent Items, flags tasks whose thread Alex replied to | open | high | Tasks only close by hand today; the mailbox already knows |
@@ -165,12 +165,12 @@ colleagues' addresses. Hosting it moves that data off the laptop — worth a wor
 whoever owns FEP data policy. Brandon Emmerich offered FEP devops infra if hosting is
 ever needed; that's the sanctioned path.
 
-## CC-7 — Bind Vite beyond `::1`
+## CC-7 — Bind Vite beyond `::1` — DONE
 
-The dev server currently listens on `::1:5173` (IPv6 localhost only), so nothing else
-can reach it. Add `server: { host: true }` to `vite.config.js`. If Vite then rejects
-the tunnel's hostname, also set `server.allowedHosts`. Only do this alongside CC-2 —
-it is what makes the unauthenticated endpoints reachable.
+Shipped 2026-08-09 (CC-31 phase 1, step 2), after CC-2 landed. `server: { host:
+true }` in [vite.config.js](vite.config.js), with `allowedHosts` fed by the
+`PCC_TUNNEL_HOST` env var (e.g. `desk.example.com`) so the repo stays
+domain-agnostic; unset keeps Vite's localhost-only host check.
 
 ## CC-9 … CC-24 — batch captured 2026-08-06 (improvement brainstorm)
 
