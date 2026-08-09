@@ -58,13 +58,17 @@ inside it).
    Normalize thread subjects (strip Re:/FW:) when comparing — one task per
    thread unless a later message contains a genuinely NEW distinct ask.
    Prepend new tasks to the `tasks` array. Never modify or delete existing
-   tasks. Set top-level `lastSync` to the current UTC time in ISO 8601.
+   tasks. Set top-level `lastSync` to the current UTC time in ISO 8601, and
+   increment the top-level `version` integer (treat a missing `version` as 0)
+   — the dashboard uses it to detect concurrent writes (CC-4) and to pick up
+   your changes live (CC-32).
 
 7. **Write and commit.** Write `data/tasks.json` pretty-printed (2-space indent,
    trailing newline). Then from the repo root:
    `git add data/tasks.json` and commit with message
    `sync: <N> new task(s) (<window>)`. If zero new tasks, still update
-   `lastSync` and commit with `sync: nothing actionable (<window>)`.
+   `lastSync` (and bump `version`) and commit with
+   `sync: nothing actionable (<window>)`.
    If an `origin` remote exists, also `git push`.
 
 8. **Report.** Tell the user: how many emails scanned, how many tasks created

@@ -112,6 +112,26 @@ function migrate(t) {
   return { ...normalizeTask(t, t.src || "manual"), ...t, id: t.id || uid(), notes: t.notes || [], links: t.links || [], steps: t.steps || [] };
 }
 
+// Task-level three-way merge for a 409'd save (CC-4): base = what this client
+// last saw on disk, ours = its current state, theirs = what's on disk now.
+// Tasks we added/edited/removed relative to base win over theirs; every task we
+// didn't touch is taken from theirs. Same-task edits on both sides: ours wins.
+function mergeTasks(base, ours, theirs) {
+  const byId = (arr) => new Map(arr.map((t) => [t.id, t]));
+  const b = byId(base), o = byId(ours), th = byId(theirs);
+  const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+  const merged = [];
+  for (const t of ours) {
+    if (!th.has(t.id) && b.has(t.id) && same(b.get(t.id), t)) continue; // they deleted, we didn't touch
+    if (!b.has(t.id) || !same(b.get(t.id), t)) merged.push(t); // ours: added or edited
+    else merged.push(th.get(t.id)); // untouched by us — take theirs
+  }
+  for (const t of theirs) {
+    if (!o.has(t.id) && !b.has(t.id)) merged.push(t); // theirs: added while we were stale
+  }
+  return merged;
+}
+
 // ---------- logo ----------
 function Logo({ size = 92 }) {
   return (
@@ -809,6 +829,11 @@ export default function CommandCenter() {
   const saveTimer = useRef(null);
   const skipNextSave = useRef(false);
 
+  // CC-4: last state known to be on disk (migrated, so it's comparable to `tasks`)
+  // — the version to echo on PUT and the merge base when a PUT comes back 409.
+  const serverRef = useRef({ tasks: [], lastSync: null, version: 0 });
+  const retriedSave = useRef(false); // one merge-retry per save; a second 409 surfaces as an error
+
   // undo stack — snapshots of {tasks, lastSync} taken before each dashboard edit
   const history = useRef([]);
   const prevSnap = useRef(null);
@@ -828,8 +853,10 @@ export default function CommandCenter() {
     const res = await fetch("/api/tasks");
     if (!res.ok) throw new Error(`API ${res.status}`);
     const d = await res.json();
+    const migrated = (d.tasks || []).map(migrate);
+    serverRef.current = { tasks: migrated, lastSync: d.lastSync || null, version: d.version || 0 };
     skipNextSave.current = true; // loading is not an edit — don't echo it back to disk
-    setTasks((d.tasks || []).map(migrate));
+    setTasks(migrated);
     setLastSync(d.lastSync || null);
   }
 
@@ -867,13 +894,31 @@ export default function CommandCenter() {
     }
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
+      saveTimer.current = null;
       try {
         const res = await fetch("/api/tasks", {
           method: "PUT",
           headers: { "Content-Type": "application/json", "X-PCC": "1" },
-          body: JSON.stringify({ tasks, lastSync }),
+          body: JSON.stringify({ tasks, lastSync, version: serverRef.current.version }),
         });
+        if (res.status === 409) {
+          // Another device (or a sync) wrote first. Merge our changes onto theirs
+          // and let the state change trigger a fresh save at their version.
+          if (retriedSave.current) throw new Error("API 409");
+          retriedSave.current = true;
+          const theirs = await res.json();
+          const theirTasks = (theirs.tasks || []).map(migrate);
+          const base = serverRef.current.tasks;
+          serverRef.current = { tasks: theirTasks, lastSync: theirs.lastSync || null, version: theirs.version || 0 };
+          isUndoing.current = true; // a merge is not a user edit — keep it off the undo stack
+          setTasks((cur) => mergeTasks(base, cur, theirTasks));
+          setLastSync(theirs.lastSync || null);
+          return;
+        }
         if (!res.ok) throw new Error(`API ${res.status}`);
+        const d = await res.json();
+        serverRef.current = { tasks, lastSync, version: d.version };
+        retriedSave.current = false;
       } catch (e) {
         setError("Couldn't save to data/tasks.json — changes may not persist.");
       }

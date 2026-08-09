@@ -20,11 +20,11 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-1 | Undo action in the dashboard | done | high | Shipped: ↶ Undo button, 25-step in-memory stack (commit b088374). Refresh persistence → CC-20; sync-clobber caveat → CC-4 |
 | CC-2 | Auth/origin check on the Claude bridge endpoints | done | high | Shipped: `X-PCC: 1` header (forces preflight) + origin allowlist on all three mutating routes |
 | CC-3 | Make `npm run build` produce a working app | open | medium | Blocks every hosting option; API is dev-server-only |
-| CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | open | medium | Silent data loss when editing the file while the server is up |
+| CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | done | medium | Shipped: `version` echo on PUT, 409 + task-level 3-way merge on the client, empty-wipe guard |
 | CC-5 | Single home for the skills (stop the double copy) | open | medium | Two copies drift; edit one, the other silently wins |
 | CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
 | CC-7 | Bind Vite beyond `::1` | done | low | Shipped: `host: true` + `allowedHosts` from `PCC_TUNNEL_HOST`; landed after CC-2 |
-| CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
+| CC-8 | Find what resets `tasks.json` to the empty default | open | high | Root cause still unfound, but the PUT route now refuses to empty a populated file (CC-4) |
 | CC-9 | Scheduled morning sync (Task Scheduler → `claude -p "/command-center-sync"`) | open | high | Desk is fresh before it's opened; removes the last manual step |
 | CC-10 | Done-detection — sync scans Sent Items, flags tasks whose thread Alex replied to | open | high | Tasks only close by hand today; the mailbox already knows |
 | CC-11 | Per-task 🔍 Research button (bridge endpoint → `/command-center-research`) | open | medium | Skill exists, button missing. Do CC-2 first — it's another bridge route |
@@ -112,15 +112,23 @@ Extract the handlers into a module usable by both `configureServer` and a real h
 CC-6 option B — and a hard prerequisite for CC-34 (a service worker can't sensibly
 cache the dev server).
 
-## CC-4 — Stop the dashboard clobbering hand edits to `tasks.json`
+## CC-4 — Stop the dashboard clobbering hand edits to `tasks.json` — DONE
 
-The dev server `writeFileSync`s the whole file on every dashboard change. Edit
-`tasks.json` in Cursor while the server is up and the next UI action overwrites you,
-silently. (The server has been up continuously since 2026-08-05.) README says "avoid
-editing during a sync" — but the same race applies to hand edits.
+Shipped 2026-08-09 (CC-31 phase 1, step 3). `tasks.json` gained a top-level
+`version` integer (missing = 0, so the old file works unchanged): GET returns it,
+PUT must echo it, a mismatch returns 409 with the current file, and a successful
+write bumps it server-side. The client keeps the last-seen server state in
+`serverRef` and on 409 runs a task-level three-way merge (`mergeTasks` in
+[App.jsx](src/App.jsx)): tasks it added/edited/deleted win, everything else is
+taken from disk, then it retries once at the new version. Merges bypass the undo
+stack (via the existing `isUndoing` ref). The PUT handler also now validates
+`tasks` is an array and refuses to write an empty array over a populated file —
+the CC-8 wipe signature. Both skills' SKILL.mds now bump `version` on write
+(mirror to `~\.claude\skills\` pending, CC-5).
 
-Cheap fix: send the file's mtime with the `PUT` and reject with 409 if it changed
-since the client's last `GET`. Also unblocks safe undo (CC-1).
+**Original problem:** the dev server `writeFileSync`'d the whole file on every
+dashboard change, silently overwriting hand edits and any concurrent writer —
+fatal once two devices are attached (CC-31).
 
 ## CC-5 — Single home for the skills (stop the double copy)
 

@@ -34,7 +34,9 @@ from `data/tasks.json` in the Project Command Center repo (repo root:
      "explicit" if stated, "implicit" if inferred).
 
 4. **Write and commit.** Write `data/tasks.json` pretty-printed (2-space
-   indent, trailing newline). Commit with message
+   indent, trailing newline), incrementing the top-level `version` integer
+   (treat a missing `version` as 0) — the dashboard uses it to detect
+   concurrent writes and pick up your changes live. Commit with message
    `research: <task title, abbreviated>`. If an `origin` remote exists, also
    `git push`.
 

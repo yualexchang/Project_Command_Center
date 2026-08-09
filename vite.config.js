@@ -27,9 +27,17 @@ function guard(req, res) {
   return false;
 }
 
-// Serves data/tasks.json as GET/PUT /api/tasks. Local-only: the dev server
-// binds to localhost and holds no secrets — Claude Code and the dashboard
-// share this file as the single source of truth.
+// Serves data/tasks.json as GET/PUT /api/tasks. Claude Code and the dashboard
+// share this file as the single source of truth; with the tunnel (CC-7) two
+// devices can hold it open at once, so writes are guarded by a version echo
+// (CC-4): PUT must carry the version it last read, a mismatch returns 409 with
+// the current file so the loser can merge instead of clobbering.
+function readTasksFile() {
+  const parsed = JSON.parse(fs.readFileSync(DATA, "utf-8"));
+  if (typeof parsed.version !== "number") parsed.version = 0; // pre-CC-4 file
+  return parsed;
+}
+
 function tasksApi() {
   return {
     name: "tasks-api",
@@ -37,21 +45,42 @@ function tasksApi() {
       server.middlewares.use("/api/tasks", (req, res) => {
         if (req.method === "GET") {
           res.setHeader("Content-Type", "application/json");
-          res.end(fs.readFileSync(DATA, "utf-8"));
+          res.end(JSON.stringify(readTasksFile()));
         } else if (req.method === "PUT") {
           if (!guard(req, res)) return;
           let body = "";
           req.on("data", (c) => (body += c));
           req.on("end", () => {
+            res.setHeader("Content-Type", "application/json");
+            let parsed;
             try {
-              const parsed = JSON.parse(body);
-              fs.writeFileSync(DATA, JSON.stringify(parsed, null, 2) + "\n", "utf-8");
-              res.setHeader("Content-Type", "application/json");
-              res.end('{"ok":true}');
+              parsed = JSON.parse(body);
             } catch (e) {
               res.statusCode = 400;
               res.end('{"error":"invalid json"}');
+              return;
             }
+            if (!Array.isArray(parsed.tasks)) {
+              res.statusCode = 400;
+              res.end('{"error":"tasks must be an array"}');
+              return;
+            }
+            const current = readTasksFile();
+            // The dashboard has no delete-all; an empty array over a populated
+            // file is the CC-8 wipe signature, not an edit.
+            if (parsed.tasks.length === 0 && current.tasks.length > 0) {
+              res.statusCode = 400;
+              res.end('{"error":"refusing to empty tasks.json"}');
+              return;
+            }
+            if (parsed.version !== current.version) {
+              res.statusCode = 409;
+              res.end(JSON.stringify(current));
+              return;
+            }
+            const next = { tasks: parsed.tasks, lastSync: parsed.lastSync ?? null, version: current.version + 1 };
+            fs.writeFileSync(DATA, JSON.stringify(next, null, 2) + "\n", "utf-8");
+            res.end(JSON.stringify({ ok: true, version: next.version }));
           });
         } else {
           res.statusCode = 405;
