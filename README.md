@@ -36,9 +36,10 @@ it's on the user PATH for new terminals.
 
 ## Syncing
 
-Open Claude Code and run `/command-center-sync`. When it finishes, hit
-**↻ Refresh** in the dashboard. Avoid editing tasks in the dashboard while a
-sync is running — last write wins.
+Open Claude Code and run `/command-center-sync` (or hit **Sync** in the
+dashboard). Open dashboards pick the changes up live — the dev server watches
+`data/tasks.json` and pushes updates over `/api/tasks/stream`, and concurrent
+edits are version-guarded and merged per task instead of last-write-wins.
 
 ## Ideas / not yet built
 

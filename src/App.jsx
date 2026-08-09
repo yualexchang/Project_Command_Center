@@ -833,6 +833,7 @@ export default function CommandCenter() {
   // — the version to echo on PUT and the merge base when a PUT comes back 409.
   const serverRef = useRef({ tasks: [], lastSync: null, version: 0 });
   const retriedSave = useRef(false); // one merge-retry per save; a second 409 surfaces as an error
+  const savingNow = useRef(false); // PUT in flight — SSE reloads hold off (the 409 path covers divergence)
 
   // undo stack — snapshots of {tasks, lastSync} taken before each dashboard edit
   const history = useRef([]);
@@ -872,6 +873,41 @@ export default function CommandCenter() {
     })();
   }, []);
 
+  // CC-32: live-follow disk changes pushed by the dev server (another device,
+  // a sync run, a hand edit). Reload only when idle — with an edit pending or a
+  // PUT in flight, the save's 409 merge is the safer path for local changes.
+  useEffect(() => {
+    if (!loaded) return;
+    let es = null;
+    const maybeReload = (v) => {
+      if (v > serverRef.current.version && !saveTimer.current && !savingNow.current) {
+        loadFromFile().catch(() => {}); // transient — the next event or focus retries
+      }
+    };
+    const connect = () => {
+      if (es && es.readyState !== EventSource.CLOSED) return;
+      es = new EventSource("/api/tasks/stream");
+      es.onmessage = (e) => {
+        try { maybeReload(JSON.parse(e.data).version); } catch (err) {}
+      };
+    };
+    connect();
+    // iOS Safari kills the stream (and timers) in background tabs — on wake,
+    // reconnect and refetch unconditionally rather than trust a stale stream.
+    const wake = () => {
+      if (document.visibilityState !== "visible") return;
+      connect();
+      maybeReload(Infinity);
+    };
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("focus", wake);
+    return () => {
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("focus", wake);
+      if (es) es.close();
+    };
+  }, [loaded]);
+
   // save (debounced) to data/tasks.json via the dev-server API
   useEffect(() => {
     if (!loaded) return;
@@ -895,6 +931,7 @@ export default function CommandCenter() {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       saveTimer.current = null;
+      savingNow.current = true;
       try {
         const res = await fetch("/api/tasks", {
           method: "PUT",
@@ -921,6 +958,8 @@ export default function CommandCenter() {
         retriedSave.current = false;
       } catch (e) {
         setError("Couldn't save to data/tasks.json — changes may not persist.");
+      } finally {
+        savingNow.current = false;
       }
     }, 400);
     return () => clearTimeout(saveTimer.current);

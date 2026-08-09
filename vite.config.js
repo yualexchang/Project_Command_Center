@@ -42,6 +42,40 @@ function tasksApi() {
   return {
     name: "tasks-api",
     configureServer(server) {
+      // CC-32: push the file's version to every open dashboard whenever
+      // tasks.json changes on disk — whoever wrote it (the PUT route, a sync
+      // run, a hand edit, git). Watches the directory, not the file: editors
+      // and git replace the inode, which silently kills a file watch on Linux.
+      // Registered before /api/tasks — connect matches by prefix, so the
+      // shorter route would otherwise swallow /api/tasks/stream.
+      const sseClients = new Set();
+      const broadcast = () => {
+        let v;
+        try { v = readTasksFile().version; } catch (e) { return; } // mid-write partial read — the next event carries it
+        for (const c of sseClients) c.write(`data: {"version":${v}}\n\n`);
+      };
+      let watchTimer = null;
+      const watcher = fs.watch(path.dirname(DATA), (event, filename) => {
+        if (filename && filename !== path.basename(DATA)) return;
+        clearTimeout(watchTimer); // Windows fires duplicate events — debounce
+        watchTimer = setTimeout(broadcast, 200);
+      });
+      const heartbeat = setInterval(() => {
+        for (const c of sseClients) c.write(":hb\n\n"); // keeps proxies from closing idle streams
+      }, 25000);
+      server.httpServer?.on("close", () => { clearInterval(heartbeat); watcher.close(); });
+
+      server.middlewares.use("/api/tasks/stream", (req, res) => {
+        res.writeHead(200, {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        });
+        try { res.write(`data: {"version":${readTasksFile().version}}\n\n`); } catch (e) {}
+        sseClients.add(res);
+        req.on("close", () => sseClients.delete(res));
+      });
+
       server.middlewares.use("/api/tasks", (req, res) => {
         if (req.method === "GET") {
           res.setHeader("Content-Type", "application/json");

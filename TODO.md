@@ -48,7 +48,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
 | CC-31 | Live cross-device sync (iPhone ↔ laptop, both writable) | open | medium | Two-phase design agreed 2026-08-09 (see section); phase 1 = live tunnel, phase 2 = CC-34 |
-| CC-32 | Change channel — dashboard never learns the file changed under it | open | medium | CC-31 phase 1 step; today only ↻ Refresh or a sync reloads |
+| CC-32 | Change channel — dashboard never learns the file changed under it | done | medium | Shipped: dir-watch → SSE `/api/tasks/stream`; clients reload when idle, wake on focus |
 | CC-33 | Per-task `updatedAt` for merge resolution | open | medium | CC-31 phase 2 (CC-34) prerequisite; whole-file last-write-wins is all we can do without it |
 | CC-34 | Offline phone replica + reconnect merge (phase 2 of CC-31) | open | medium | Phone works with the laptop closed; merges when it's back. Needs CC-3 and CC-33 |
 
@@ -411,16 +411,19 @@ cloud hosting moves it off-machine entirely — the latter two are the versions 
 need a word with whoever owns FEP data policy. Brandon Emmerich's offer of FEP
 devops infra is the sanctioned path if it ever needs real hosting.
 
-## CC-32 — Change channel so the dashboard notices external writes
+## CC-32 — Change channel so the dashboard notices external writes — DONE
 
-CC-31 phase 1, step 4 — but useful on its own even single-device: the sync skill, a
-`git checkout`, or hand-editing `tasks.json` all leave the open dashboard stale
-until ↻ Refresh. `fs.watch(DATA)` in `configureServer` (debounced ~200ms) → SSE on
-`GET /api/tasks/stream` emitting `{version}` → client re-GETs on a newer version,
-reusing the `skipNextSave` ref so pushed loads don't enter the undo stack.
-Reconnect + refetch on `visibilitychange`/`focus` — iOS Safari suspends background
-tabs, so the wake path matters more than the steady state. Also removes the "hit
-Refresh when the sync finishes" step in the README.
+Shipped 2026-08-09 (CC-31 phase 1, step 4). The dev server watches the `data/`
+directory (not the file — editors and git replace the inode, which kills a file
+watch on Linux), debounces 200ms, and broadcasts the file's `version` over SSE at
+`GET /api/tasks/stream` (25s heartbeat so proxies keep it open; registered before
+`/api/tasks`, which would otherwise swallow it by prefix match). The client
+subscribes once loaded and re-GETs when a newer version arrives **and** it is idle
+— with an edit pending or a PUT in flight, the CC-4 409-merge is the safer path.
+On `visibilitychange`/`focus` it reconnects and refetches unconditionally, since
+iOS Safari kills streams in background tabs. Pushed loads reuse `skipNextSave`, so
+they stay off the undo stack. The README's "hit ↻ Refresh after a sync" step and
+the research skill's Refresh reminder are retired.
 
 ## CC-33 — Per-task `updatedAt` for merge resolution
 

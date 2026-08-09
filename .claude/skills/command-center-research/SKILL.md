@@ -40,5 +40,5 @@ from `data/tasks.json` in the Project Command Center repo (repo root:
    `research: <task title, abbreviated>`. If an `origin` remote exists, also
    `git push`.
 
-5. **Report.** Summarize what you learned and the game plan in chat, and
-   remind the user to hit Refresh in the dashboard.
+5. **Report.** Summarize what you learned and the game plan in chat. An open
+   dashboard picks the change up live — no Refresh needed.
