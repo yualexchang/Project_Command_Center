@@ -47,6 +47,9 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
 | CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
+| CC-31 | Live cross-device sync (iPhone ↔ laptop, both writable) | open | medium | CC-6 gets the phone *reading*; this is both devices editing without clobbering |
+| CC-32 | Change channel — dashboard never learns the file changed under it | open | medium | Prerequisite for CC-31; today only ↻ Refresh or a sync reloads |
+| CC-33 | Per-task `updatedAt` for merge resolution | open | medium | Prerequisite for CC-31 merge; whole-file last-write-wins is all we can do without it |
 
 ---
 
@@ -314,6 +317,80 @@ assumptions from the repo, to confirm before writing:
 Once confirmed, add Feed C and Feed D to
 `.claude/skills/command-center-sync/SKILL.md` in the same shape as Feed B, and
 mirror to `~\.claude\skills\` (CC-5).
+
+## CC-31 — Live cross-device sync (iPhone ↔ laptop, both writable)
+
+Asked 2026-08-09: can the dashboard live-sync between the iPhone and the laptop?
+CC-6 is the narrower "get it onto the phone" (reachability). This row is the harder
+half: **both devices open at once, both able to edit, neither silently overwriting
+the other.** Three separate problems, and only the first is about hosting.
+
+**1. Reachability** — see CC-6/CC-7. Vite has no `server` block at all in
+[vite.config.js](vite.config.js), so it binds localhost only, and all four API
+routes live in `configureServer` (dev-only, CC-3).
+
+**2. No change channel (CC-32).** Even over a tunnel this would not be *live*.
+`App.jsx` GETs `/api/tasks` once on mount (`loadFromFile`, line ~827) and again only
+on ↻ Refresh or after a sync. Nothing polls. Two devices would each sit on a stale
+snapshot until manually refreshed.
+
+**3. Whole-file last-write-wins becomes real data loss (CC-4).** Today's save path is
+a 400 ms-debounced `PUT /api/tasks` carrying the *entire* task array from that
+client's memory, and the server `writeFileSync`s it wholesale. With two live devices
+that is not a race you might lose — every edit on the phone erases every edit made on
+the laptop since the phone last loaded. The undo stack (CC-1) makes it worse: undoing
+on one device restores a snapshot that predates the other device's work. **CC-4 is a
+hard prerequisite for CC-31, not a nice-to-have.**
+
+**Recommended path (keeps every feature):** tunnel, not rebuild. Compute stays on the
+PC, so the Sync button, the Egnyte path-finder and the whole Claude bridge keep
+working — they spawn `claude -p` locally and can't move to a static host. Order:
+
+1. CC-2 (auth/origin on the bridge) + Cloudflare Access — **non-negotiable before any
+   tunnel.** `/api/sync` and `/api/find-path` spawn `bypassPermissions` Claude runs.
+2. CC-7 (`server: { host: true }`, plus `allowedHosts` for the tunnel hostname).
+3. CC-4 as a version guard: add a `version` (or mtime) to `tasks.json`, return it on
+   GET, require it on PUT, `409` on mismatch. Client re-GETs and retries on 409.
+4. CC-32 change channel: `GET /api/tasks/stream` as SSE, fired from `fs.watch(DATA)`
+   with the new version. Both devices subscribe; on a version bump they re-GET.
+   Reconnect on focus — iOS Safari suspends background tabs.
+5. CC-24 responsive pass. The portco rail is laid out for ~920px (CC-29); it is not
+   usable on a phone as-is.
+
+**Merge policy.** v1 can be simple and still correct: on a remote version bump, adopt
+it if this device has no pending local edit; if it does, that's the 409 path — re-GET,
+reapply the single field the user just touched, PUT. True simultaneous editing needs
+per-task `updatedAt` (CC-33 — tasks currently have no such field, only `createdAt`)
+plus delete tombstones, since "task missing from the array" is otherwise
+indistinguishable from "task deleted".
+
+**Why not the static-host option** (CC-6 option B, UI on Pages + GitHub API as the
+store): it survives a closed laptop, but it is read-mostly, loses the Sync and
+path-finder buttons, needs CC-3 first, and commit-per-edit gives seconds of latency
+with git-level conflicts. Good as a phone *viewer*; not a live two-way desk.
+
+**Data policy caveat, unchanged from CC-6:** `tasks.json` holds live FEP deal names,
+portfolio companies and colleagues' addresses. A tunnel keeps the data *at rest* on
+the laptop (it only transits Cloudflare); GitHub/cloud hosting moves it off-machine
+and is the version that needs a word with whoever owns FEP data policy. Brandon
+Emmerich's offer of FEP devops infra is the sanctioned path if it ever needs real
+hosting.
+
+## CC-32 — Change channel so the dashboard notices external writes
+
+Split out of CC-31, but useful on its own even single-device: the sync skill, a
+`git checkout`, or hand-editing `tasks.json` all leave the open dashboard stale until
+↻ Refresh. `fs.watch(DATA)` in `configureServer` → SSE on `/api/tasks/stream` →
+client re-GETs on a version bump. Also removes the "hit Refresh when the sync
+finishes" step in the README.
+
+## CC-33 — Per-task `updatedAt` for merge resolution
+
+Tasks carry `createdAt` but nothing recording last modification, so two divergent
+copies of the array can't be merged field-by-field — the only available policy is
+whole-file last-write-wins. Stamp `updatedAt` in the reducer paths that mutate a task
+and have the sync skill set it on merge. Needed for CC-31's true-concurrent case; also
+makes CC-16 (weekly digest) and CC-10 (done-detection) cheaper.
 
 ## CC-26 — `setDueIn` lands a day late in the evening
 
