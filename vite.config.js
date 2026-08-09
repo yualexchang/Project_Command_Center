@@ -9,6 +9,24 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const DATA = path.join(here, "data", "tasks.json");
 const PROGRESS = path.join(here, "data", "sync-progress.json"); // written by the sync skill, read by the dashboard
 
+// CC-2: every mutating route must carry the app's own header (its presence forces
+// a CORS preflight, so a random web page can't fire a "simple" cross-origin POST
+// at the Claude bridge) and, when the browser sends an Origin, it must be ours.
+const ALLOWED_ORIGINS = new Set(
+  ["http://localhost:5173", "http://127.0.0.1:5173"].concat(
+    process.env.PCC_TUNNEL_HOST ? [`https://${process.env.PCC_TUNNEL_HOST}`] : []
+  )
+);
+
+function guard(req, res) {
+  const origin = req.headers.origin;
+  if (req.headers["x-pcc"] === "1" && (!origin || ALLOWED_ORIGINS.has(origin))) return true;
+  res.statusCode = 403;
+  res.setHeader("Content-Type", "application/json");
+  res.end('{"error":"forbidden"}');
+  return false;
+}
+
 // Serves data/tasks.json as GET/PUT /api/tasks. Local-only: the dev server
 // binds to localhost and holds no secrets — Claude Code and the dashboard
 // share this file as the single source of truth.
@@ -21,6 +39,7 @@ function tasksApi() {
           res.setHeader("Content-Type", "application/json");
           res.end(fs.readFileSync(DATA, "utf-8"));
         } else if (req.method === "PUT") {
+          if (!guard(req, res)) return;
           let body = "";
           req.on("data", (c) => (body += c));
           req.on("end", () => {
@@ -219,6 +238,7 @@ function claudeBridge() {
       server.middlewares.use("/api/sync", (req, res) => {
         res.setHeader("Content-Type", "application/json");
         if (req.method === "POST") {
+          if (!guard(req, res)) return;
           if (sync.running) {
             res.statusCode = 409;
             res.end(JSON.stringify({ error: "sync already running" }));
@@ -274,6 +294,7 @@ function claudeBridge() {
           res.end();
           return;
         }
+        if (!guard(req, res)) return;
         let info = {};
         try {
           info = JSON.parse(await readBody(req));

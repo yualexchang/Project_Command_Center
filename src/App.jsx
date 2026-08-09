@@ -870,7 +870,7 @@ export default function CommandCenter() {
       try {
         const res = await fetch("/api/tasks", {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-PCC": "1" },
           body: JSON.stringify({ tasks, lastSync }),
         });
         if (!res.ok) throw new Error(`API ${res.status}`);
@@ -887,7 +887,7 @@ export default function CommandCenter() {
     setSyncing(true); setError(""); setSyncNote("");
     const before = tasks.length;
     try {
-      const r = await fetch("/api/sync", { method: "POST" });
+      const r = await fetch("/api/sync", { method: "POST", headers: { "X-PCC": "1" } });
       if (!r.ok && r.status !== 409) throw new Error(`API ${r.status}`);
       for (;;) {
         await new Promise((s) => setTimeout(s, 900));
@@ -940,7 +940,7 @@ export default function CommandCenter() {
     try {
       const r = await fetch("/api/find-path", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-PCC": "1" },
         body: JSON.stringify({ title: draft.title, project: draft.project, blurb: draft.emailBlurb, bucket: bucketFor(draft.project).key }),
       });
       const d = await r.json();

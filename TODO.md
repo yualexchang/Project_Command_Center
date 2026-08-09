@@ -18,7 +18,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | ID | Idea | Status | Priority | Why it matters |
 |---|---|---|---|---|
 | CC-1 | Undo action in the dashboard | done | high | Shipped: ↶ Undo button, 25-step in-memory stack (commit b088374). Refresh persistence → CC-20; sync-clobber caveat → CC-4 |
-| CC-2 | Auth/origin check on the Claude bridge endpoints | open | high | Any web page you visit can trigger a `bypassPermissions` Claude run |
+| CC-2 | Auth/origin check on the Claude bridge endpoints | done | high | Shipped: `X-PCC: 1` header (forces preflight) + origin allowlist on all three mutating routes |
 | CC-3 | Make `npm run build` produce a working app | open | medium | Blocks every hosting option; API is dev-server-only |
 | CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | open | medium | Silent data loss when editing the file while the server is up |
 | CC-5 | Single home for the skills (stop the double copy) | open | medium | Two copies drift; edit one, the other silently wins |
@@ -85,20 +85,21 @@ Claude writes to `tasks.json` while a stale array sits in the undo buffer, resto
 it silently discards the synced tasks. Related to CC-4. At minimum, re-GET before
 restoring and warn if the file changed underneath.
 
-## CC-2 — Auth/origin check on the Claude bridge endpoints
+## CC-2 — Auth/origin check on the Claude bridge endpoints — DONE
 
-`POST /api/sync` and `POST /api/find-path` ([vite.config.js](vite.config.js)) spawn
-`claude -p … --permission-mode bypassPermissions` with no auth, no CSRF token, and no
-origin check. Both are "simple" cross-origin POSTs, so **no CORS preflight fires** —
-any page open in your browser can kick off a permission-bypassed Claude Code run on
-the machine, and `/api/find-path`'s body reaches the prompt. `PUT /api/tasks` is
-incidentally safe (PUT forces a preflight).
+Shipped 2026-08-09 (CC-31 phase 1, step 1). `guard()` in
+[vite.config.js](vite.config.js) protects `PUT /api/tasks`, `POST /api/sync` and
+`POST /api/find-path`: requests must carry `X-PCC: 1` (a custom header forces a
+CORS preflight, so a random web page can't fire a "simple" cross-origin POST at the
+bridge), and any `Origin` present must be localhost:5173 / 127.0.0.1:5173 /
+`https://$PCC_TUNNEL_HOST`. The dashboard's three mutating fetches send the header.
+GETs stay open — same-origin reads with no side effects.
 
-Localhost binding is the only thing containing this today, and CC-6/CC-7 remove that.
-**Do this before any tunnel or hosting.**
-
-Fix: reject requests whose `Origin` isn't `http://localhost:5173`, and require a
-custom header on both routes (a custom header alone forces a preflight).
+**Original problem:** both bridge POSTs spawn `claude -p … --permission-mode
+bypassPermissions` with no auth, and as "simple" POSTs no preflight fired — any page
+open in the browser could kick off a permission-bypassed Claude run, with
+`/api/find-path`'s body reaching the prompt. Localhost binding was the only
+containment, and CC-7 removes that.
 
 ## CC-3 — Make `npm run build` produce a working app
 
