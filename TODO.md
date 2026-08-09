@@ -47,7 +47,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
 | CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
-| CC-31 | Live cross-device sync (iPhone ↔ laptop, both writable) | open | medium | Two-phase design agreed 2026-08-09 (see section); phase 1 = live tunnel, phase 2 = CC-34 |
+| CC-31 | Live cross-device sync (iPhone ↔ laptop, both writable) | wip | medium | Phase-1 code shipped 2026-08-09 (CC-2/4/7/24/32); remaining: laptop-side ops (domain, tunnel, Access) — see README |
 | CC-32 | Change channel — dashboard never learns the file changed under it | done | medium | Shipped: dir-watch → SSE `/api/tasks/stream`; clients reload when idle, wake on focus |
 | CC-33 | Per-task `updatedAt` for merge resolution | open | medium | CC-31 phase 2 (CC-34) prerequisite; whole-file last-write-wins is all we can do without it |
 | CC-34 | Offline phone replica + reconnect merge (phase 2 of CC-31) | open | medium | Phone works with the laptop closed; merges when it's back. Needs CC-3 and CC-33 |
@@ -334,8 +334,15 @@ mirror to `~\.claude\skills\` (CC-5).
 Asked 2026-08-09: can the dashboard live-sync between the iPhone and the laptop?
 CC-6 is the narrower "get it onto the phone" (reachability). This row is the harder
 half: **both devices open at once, both able to edit, neither silently overwriting
-the other.** Two-phase design agreed in the 2026-08-09 session; **build nothing
-yet** was the explicit call — this section is the design of record.
+the other.** Two-phase design agreed in the 2026-08-09 session.
+
+**Status: phase-1 code shipped 2026-08-09** — CC-2 (bridge auth), CC-7 (bind),
+CC-4 (version guard + 409 merge), CC-32 (SSE change channel), CC-24 (phone layout
++ iOS home-screen metas/icon). Remaining before this row is `done`: the
+laptop-side ops in the README's "Phone access" section (domain, cloudflared
+tunnel, Cloudflare Access policy, `PCC_TUNNEL_HOST`, Task Scheduler, power
+settings) and re-mirroring the two edited SKILL.mds to `~\.claude\skills\`
+(CC-5). Phase 2 (offline replica) is CC-34.
 
 **Why it's more than hosting.** Three separate problems today:
 
