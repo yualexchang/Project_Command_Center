@@ -40,7 +40,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-21 | Verify Penske bucket regex when the first Penske task lands | open | low | Silent misbucketing risk; `/penske/i` is unproven against real naming |
 | CC-22 | Pin per-deal Egnyte folders in `data/egnyte-roots.json` as deals spin up | open | low | Recurring upkeep; keeps path lookups fast as deal count grows |
 | CC-23 | Keyboard shortcuts (j/k move, space advance, u undo) | open | low | Speed for a daily-driver tool |
-| CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | open | low | Pairs with CC-6 (phone access) |
+| CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | done | low | Shipped: `useIsNarrow(700)` hook — stacked dials, wrapped rail rows, bigger touch targets, iOS home-screen metas + icon |
 | CC-25 | Due pipeline on calendar weeks, not a rolling 7/14-day window | done | medium | Shipped: buckets now cut off at the coming Sunday; also fixed the off-by-one in `daysUntil` |
 | CC-26 | `setDueIn` lands a day late when used after ~20:00 local | open | medium | The +1/+3/+7 buttons silently set the wrong date in the evening |
 | CC-27 | Group every sort under headers; split Ingested into FIFO/LIFO | done | medium | Shipped: deadline/priority/FIFO/LIFO all group; due pipeline gained a "this month" bucket |

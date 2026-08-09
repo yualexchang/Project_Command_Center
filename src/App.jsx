@@ -132,6 +132,21 @@ function mergeTasks(base, ours, theirs) {
   return merged;
 }
 
+// CC-24: the one phone breakpoint. Styles here are all inline objects, so
+// responsiveness is a hook, not a media query.
+function useIsNarrow(px = 700) {
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(`(max-width: ${px}px)`).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${px}px)`);
+    const onChange = (e) => setNarrow(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [px]);
+  return narrow;
+}
+
 // ---------- logo ----------
 function Logo({ size = 92 }) {
   return (
@@ -335,6 +350,7 @@ const PORTCO_RAIL = [
 ];
 
 function DialRow({ tasks, nonce }) {
+  const narrow = useIsNarrow();
   const cat = (t) =>
     t.status === "done" ? "done" : t.reassignedTo ? "delegated" : t.status === "progress" ? "inProgress" : "open";
   const tally = (list) => {
@@ -379,11 +395,15 @@ function DialRow({ tasks, nonce }) {
         <div style={{
           // narrow: the four mini dials sit four-across in one line rather than
           // a 2x2, which is where most of the section's height was going
-          flex: "0 1 312px", minWidth: 280, maxWidth: 312, display: "flex", flexDirection: "column",
+          flex: narrow ? "1 1 100%" : "0 1 312px", minWidth: 280, maxWidth: narrow ? undefined : 312,
+          display: "flex", flexDirection: "column",
           // the left stack is shorter than the four-row rail; centre it so the
           // slack splits above and below instead of pooling under the minis
           justifyContent: "center",
-          borderRight: `2px solid ${LINE}`, paddingRight: 14, boxSizing: "content-box",
+          // stacked (phone), the column divider moves from the right edge to the bottom
+          borderRight: narrow ? "none" : `2px solid ${LINE}`, paddingRight: narrow ? 0 : 14,
+          borderBottom: narrow ? `2px solid ${LINE}` : "none", paddingBottom: narrow ? 12 : 0,
+          boxSizing: "content-box",
         }}>
           {/* the book total reads as a summary panel, not a fifth peer dial */}
           <div style={{
@@ -410,6 +430,8 @@ function DialRow({ tasks, nonce }) {
               display: "flex", alignItems: "center", gap: 8,
               minHeight: PORTCO_ROW_H,
               borderTop: i ? `1px solid ${LINE}` : "none",
+              // phone: the context slot drops to its own line under clock+dial
+              flexWrap: narrow ? "wrap" : undefined,
             }}>
               <ClockCard portco={p.key} />
               <div style={{ flexShrink: 0, width: GAUGE_MAXW.rail, display: "flex", justifyContent: "center" }}>
@@ -417,7 +439,7 @@ function DialRow({ tasks, nonce }) {
               </div>
               {/* one flex:1 context slot per row, so all four end flush right;
                   IMO's weather takes a fixed bite out of its news box */}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: narrow ? 220 : 0 }}>
                 {p.weather && (
                   <div style={{ width: WEATHER_W, flexShrink: 0, display: "flex" }}>
                     <WeatherStrip />
@@ -798,6 +820,7 @@ function DueBar({ tasks }) {
 
 // ---------- component ----------
 export default function CommandCenter() {
+  const narrow = useIsNarrow();
   const [tasks, setTasks] = useState([]);
   const [lastSync, setLastSync] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -1292,12 +1315,12 @@ export default function CommandCenter() {
 
   // ---------- styles ----------
   const btn = (primary) => ({
-    fontFamily: SANS, fontSize: 13, fontWeight: 600, padding: "8px 14px", borderRadius: 4,
+    fontFamily: SANS, fontSize: 13, fontWeight: 600, padding: narrow ? "10px 16px" : "8px 14px", borderRadius: 4,
     cursor: "pointer", border: `1px solid ${primary ? INK : LINE}`,
     background: primary ? INK : CARD, color: primary ? "#fff" : INK,
   });
   const sel = {
-    fontFamily: SANS, fontSize: 12, padding: "4px 6px", border: `1px solid ${LINE}`,
+    fontFamily: SANS, fontSize: 12, padding: narrow ? "8px 6px" : "4px 6px", border: `1px solid ${LINE}`,
     borderRadius: 4, background: CARD, color: INK,
   };
   const tag = (color, filled) => ({
@@ -1483,7 +1506,7 @@ export default function CommandCenter() {
 
       {/* widened from 920 so the IMO row (clock + two weather cards + news) fits
           on one line instead of wrapping and making that row taller than its peers */}
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 20px 80px" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: narrow ? "16px 10px 60px" : "28px 20px 80px" }}>
 
         {/* masthead */}
         <div style={{ borderBottom: `2px solid ${INK}`, paddingBottom: 14, marginBottom: 6 }}>
@@ -1732,10 +1755,12 @@ export default function CommandCenter() {
                       onContextMenu={(e) => { e.preventDefault(); if (t.status !== "todo") update(t.id, { status: "todo" }); }}
                       title={t.status === "todo" ? "Click: start (in progress)" : t.status === "progress" ? "Click: complete · Right-click: back to to-do" : "Click or right-click: reopen"}
                       style={{
-                        width: 22, height: 22, borderRadius: "50%", marginTop: 2, flexShrink: 0, cursor: "pointer",
+                        // the circle is the most-tapped control — phone gets a real touch target
+                        width: narrow ? 30 : 22, height: narrow ? 30 : 22,
+                        borderRadius: "50%", marginTop: 2, flexShrink: 0, cursor: "pointer",
                         border: `2px solid ${done ? DONE_COLOR : t.status === "progress" ? PROGRESS_COLOR : FAINT}`,
                         background: done ? DONE_COLOR : t.status === "progress" ? `linear-gradient(90deg,${PROGRESS_COLOR} 50%,transparent 50%)` : "transparent",
-                        color: "#fff", fontSize: 13, lineHeight: "18px", padding: 0,
+                        color: "#fff", fontSize: narrow ? 15 : 13, lineHeight: narrow ? "26px" : "18px", padding: 0,
                       }}>
                       {done ? "✓" : ""}
                     </button>
