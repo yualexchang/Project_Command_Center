@@ -49,6 +49,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | done | high | Shipped: Feeds C and D written; both businesses confirmed from live mail, and the TODO's Penske assumption was wrong |
 | CC-31 | Completed pipeline bar under the due pipeline | done | medium | Shipped: `completedAt` added to the model, 51 done tasks backfilled from git history |
 | CC-32 | `ageOf` reads the UTC date, so FIFO/LIFO groups skew after ~20:00 | open | medium | Same class as CC-26; a task ingested late evening groups a day early |
+| CC-33 | Only `sync-tick.ps1` takes the sync lock — the skill itself doesn't | open | high | Two syncs ran together on 2026-08-11 and duplicated the whole scan; a manual sync is invisible to the schedule |
 
 ---
 
@@ -236,11 +237,12 @@ this session's Claude MCP connectors, which need the logged-on user context.
 `StartWhenAvailable` is false — catch-up runs after a wake are pointless at this
 cadence.
 
-**The lock is belt and braces.** IgnoreNew covers scheduled-vs-scheduled; the
-lockfile also covers the dashboard's own Sync button, which Task Scheduler knows
-nothing about. It reclaims itself after 15 minutes so a crashed run cannot wedge the
-schedule permanently. The dashboard's Sync button does **not** take the lock — that
-gap is real and worth closing if manual syncs ever collide with ticks.
+**The lock only covers scheduled-vs-scheduled.** IgnoreNew stops one tick joining
+another, and the lockfile is a second guard on the same case that reclaims itself
+after 15 minutes so a crashed run cannot wedge the schedule permanently. But
+`sync-tick.ps1` is the only thing that takes it — neither `/api/sync` nor the skill
+does — so nothing stops a manual sync running straight through a tick. That
+collision stopped being hypothetical on 2026-08-11; it is now **CC-33**.
 
 **Two changes to the sync skill were forced by this cadence** (both shipped under
 CC-30): an 8-hour throttle on news scans, and no commit when nothing changed.
@@ -467,3 +469,37 @@ the write path rather than the read path.
 `snooze` is *not* affected — it anchors at `T12:00:00` local, and noon survives
 the UTC conversion. Fix `setDueIn` the same way: build the date at local noon
 before serializing, or format from the local components directly.
+
+## CC-33 — the sync lock is held by the wrapper, not by the sync
+
+`scripts/sync-tick.ps1` takes `data/.sync.lock` around its `claude -p` call, and
+CC-9 claims "the lockfile also covers the dashboard's own Sync button". It does
+not. `.sync.lock` appears in `sync-tick.ps1` and nowhere else — not in
+`vite.config.js`, so `/api/sync` never checks it, and not in the skill, so a
+`/command-center-sync` typed into a Claude Code session takes no lock either.
+Task Scheduler's `IgnoreNew` only ever covered scheduled-vs-scheduled.
+
+Observed 2026-08-11 ~20:53-21:05Z: an interactive sync and a scheduled tick ran
+concurrently. Both scanned the inbox, both triaged the same mail, and both wrote
+`data/tasks.json`. Nothing was lost, but only by luck and by re-reading the file
+immediately before each write — the interactive run's task landed in the *tick's*
+commit, and the tick's `lastSync` (20:58Z) would have been rolled back to 20:56Z
+had the write not taken a `max()`. The duplicated work was the real cost: two full
+inbox scans and two rounds of web searches minutes apart, and the tick's news
+refresh reset every feed's `updatedAt`, which silently re-armed the 8-hour throttle
+against the interactive run's already-completed searches.
+
+The fix is to move the lock down to where the writing happens rather than adding a
+third copy of it:
+
+- Have the skill itself acquire `data/.sync.lock` (same 15-minute stale reclaim)
+  as its first step and release it at the end, so every entry point is covered —
+  scheduled, dashboard button, and hand-typed alike.
+- Then `sync-tick.ps1`'s own lock becomes redundant and should be dropped, so
+  there is exactly one owner of the file.
+- Decide the losing behaviour deliberately: a scheduled tick should skip (it runs
+  again in 10 minutes), but a hand-typed sync should probably say "a sync is
+  already running, started 2m ago" rather than exit silently.
+
+Related: CC-4 (whole-file `writeFileSync`), CC-9 (the schedule), and the CC-9
+prose above, which needs its lock claim corrected in the same commit.

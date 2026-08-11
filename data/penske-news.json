@@ -1,6 +1,26 @@
 {
-  "updatedAt": "2026-08-11T21:05:00.000Z",
+  "updatedAt": "2026-08-11T21:12:00.000Z",
   "items": [
+    {
+      "sentiment": "neutral",
+      "scope": "US",
+      "short": "F&I carries the gross",
+      "headline": "F&I office becomes the profit centre as front-end margins compress and rates stay elevated",
+      "summary": "F&I per unit hit $1,727 in Q1 on 6.9% new and 10.4% used financing rates, shifting dealer economics toward finance-office structuring.",
+      "source": "Digital Dealer",
+      "date": "2026-08-10",
+      "url": "https://digitaldealer.com/news/the-post-gross-era-why-dealership-profit-now-runs-through-the-finance-office/172683"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "US",
+      "short": "Lithia new GPU -11%",
+      "headline": "Lithia posts record Q2 revenue but new-vehicle gross profit per unit falls 11.1%",
+      "summary": "A public comp, not the portco: record top line masking front-end margin compression is the same squeeze a SoCal franchised group faces.",
+      "source": "WardsAuto",
+      "date": "2026-08-04",
+      "url": "https://www.wardsauto.com/news/despite-record-revenues-lithia-works-behind-the-scenes-on-customer-afforda/826861/"
+    },
     {
       "sentiment": "negative",
       "scope": "US",
@@ -14,12 +34,12 @@
     {
       "sentiment": "neutral",
       "scope": "US",
-      "short": "F&I carries the gross",
-      "headline": "F&I office becomes the profit centre as front-end margins compress and rates stay elevated",
-      "summary": "F&I per unit hit $1,727 in Q1 on 6.9% new and 10.4% used financing rates, shifting dealer economics toward finance-office structuring.",
-      "source": "Digital Dealer",
-      "date": "2026-08-10",
-      "url": "https://digitaldealer.com/news/the-post-gross-era-why-dealership-profit-now-runs-through-the-finance-office/172683"
+      "short": "July SAAR 16.3M",
+      "headline": "July new-vehicle sales hit 16.3M SAAR, strongest of 2026 but below forecast",
+      "summary": "Volume is holding up on affluent buyers while missing forecast and slipping 1.8% year over year, so demand is stable but not improving.",
+      "source": "Cox Automotive",
+      "date": "2026-07-27",
+      "url": "https://www.coxautoinc.com/insights/cox-automotive-forecast-july-2026-us-auto-sales-forecast/"
     }
   ]
 }

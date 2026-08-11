@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T21:05:00.000Z",
+  "updatedAt": "2026-08-11T21:12:00.000Z",
   "items": [
     {
       "sentiment": "neutral",
@@ -10,6 +10,36 @@
       "source": "Water Industry Hub",
       "date": "2026-08-08",
       "url": "https://www.waterindustryhub.com/intelligence-uk-hosepipe-bans-water-conservation-summer-2026.html"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "DE",
+      "short": "German water curbs spread",
+      "headline": "More than 100 German cities and districts impose water-use restrictions in drought",
+      "summary": "Restrictions are now widespread across a core IMO market, raising the odds German sites face throttled or suspended washing.",
+      "source": "The Local Germany",
+      "date": "2026-08-07",
+      "url": "https://www.thelocal.de/20260807/maps-where-water-scarcity-is-disrupting-life-in-germany"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "UK",
+      "short": "Business wash ban sought",
+      "headline": "Southern Water applies for drought order that would ban mechanical vehicle washing",
+      "summary": "A non-essential use ban would close commercial car washes outright in Hampshire and the Isle of Wight, not merely restrict hosepipes.",
+      "source": "ITV News Meridian",
+      "date": "2026-08-03",
+      "url": "https://www.itv.com/news/meridian/2026-08-03/further-water-restrictions-possible-as-southern-water-applies-for-drought-order"
+    },
+    {
+      "sentiment": "positive",
+      "scope": "UK",
+      "short": "Car washes stay open",
+      "headline": "UK car washes allowed to keep trading through hosepipe restrictions",
+      "summary": "Temporary use bans hit domestic washing but carve out commercial sites, which can push drivers from driveways onto forecourts.",
+      "source": "CarwashPro",
+      "date": "2026-07-27",
+      "url": "https://www.carwashpro.com/inside-the-industry/2026/07/27/uk-car-washes-allowed-to-remain-open-during-water-restrictions/"
     },
     {
       "sentiment": "positive",
