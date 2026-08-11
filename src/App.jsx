@@ -68,6 +68,19 @@ function chipFor(dstr, prefix) {
   if (n <= 3) return { text: `${prefix} ${weekdayOf(dstr)} (${n}d)`, color: "#9A6B00" };
   return { text: `${prefix} ${weekdayOf(dstr)} ${dstr}`, color: FAINT };
 }
+// Whole calendar days since an ISO instant, in LOCAL days: 0 = today, 1 = yesterday.
+// Deliberately NOT `iso.slice(0,10)` — that reads the UTC date, so anything finished
+// after ~20:00 EDT would be filed under tomorrow. Same UTC-vs-local skew as CC-26.
+// Math.round absorbs the 23/25-hour days at a DST boundary.
+function daysAgo(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  d.setHours(0, 0, 0, 0); // local midnight of the day it actually happened
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((today - d) / 86400000);
+}
 function fmtTime(iso) {
   if (!iso) return "never";
   const d = new Date(iso);
@@ -89,6 +102,9 @@ function normalizeTask(raw, source) {
     deadline: raw.deadline && /^\d{4}-\d{2}-\d{2}$/.test(raw.deadline) ? raw.deadline : null,
     deadlineType: ["explicit", "implicit"].includes(raw.deadlineType) ? raw.deadlineType : raw.deadline ? "implicit" : null,
     status: "todo",
+    // stamped when a task is marked done (see setStatus) — the only record of
+    // WHEN work finished, and what the completed pipeline is built on
+    completedAt: raw.completedAt || null,
     assignedBy: String(raw.assignedBy || raw.sender || ""),
     addressedTo: String(raw.addressedTo || "You"),
     askType: ["external", "internal"].includes(raw.askType) ? raw.askType : "internal",
@@ -776,6 +792,69 @@ function DueBar({ tasks }) {
   );
 }
 
+// ---------- completed pipeline ----------
+// Horizons for finished work: dueSegments() pointed backwards, on the same Mon-Sun
+// week and calendar-month boundaries as ingestSegments(), so "this week" reaches
+// back to the Monday just gone rather than a rolling 7 days. Newest first, so the
+// bar reads left to right from freshest to oldest.
+// Anchoring "this month" at `> sinceMonday` and opening "earlier" at the further of
+// the two boundaries keeps the set disjoint with no day falling through the gap —
+// the same arrangement verified for the due pipeline in CC-27.
+function completedSegments() {
+  const sinceMonday = 6 - daysToWeekEnd(); // Mon = 0 … Sun = 6
+  const sinceMonthStart = new Date().getDate() - 1;
+  const beyond = Math.max(sinceMonday, sinceMonthStart);
+  return [
+    { key: "today", label: "completed today", color: "#14532D", test: (a) => a !== null && a <= 0 },
+    { key: "week", label: "this week", color: "#2E7D52", test: (a) => a !== null && a >= 1 && a <= sinceMonday },
+    { key: "month", label: "this month", color: "#4F9B73", test: (a) => a !== null && a > sinceMonday && a <= sinceMonthStart },
+    { key: "earlier", label: "earlier", color: "#7FB79A", test: (a) => a !== null && a > beyond },
+    // only reachable for tasks completed before completedAt existed and not
+    // backfilled from git history
+    { key: "none", label: "date unknown", color: "#C7D0D9", test: (a) => a === null },
+  ];
+}
+
+// The mirror of DueBar — what has landed rather than what is coming — in the same
+// stacked-bar grammar so the two read as a pair sitting one above the other.
+// The ramp is a single green sequenced dark = most recent, because recency is an
+// ordered quantity, not a set of categories. Its faintest step falls under 3:1 on
+// white, so every non-empty segment is also named in the labelled legend above.
+function CompletedBar({ tasks }) {
+  const done = tasks.filter((t) => t.status === "done");
+  const counts = completedSegments().map((s) => ({ ...s, n: done.filter((t) => s.test(daysAgo(t.completedAt))).length }));
+  const total = done.length;
+  const shown = counts.filter((c) => c.n > 0);
+  const thisWeek = counts.filter((c) => c.key === "today" || c.key === "week").reduce((s, c) => s + c.n, 0);
+  return (
+    <div style={{ background: CARD, border: `1px solid ${LINE}`, borderRadius: 8, padding: "8px 12px", marginTop: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: FAINT }}>
+          COMPLETED PIPELINE · {thisWeek} THIS WEEK · {total} ALL TIME
+        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {shown.map((c) => (
+            <span key={c.key} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: SOFT }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: c.color, display: "inline-block" }} />
+              {c.n} {c.label}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", height: 10, borderRadius: 5, overflow: "hidden", marginTop: 6, background: BG }}>
+        {total > 0 &&
+          shown.map((c, i) => (
+            <div key={c.key} title={`${c.n} ${c.label}`}
+              style={{ width: `${(c.n / total) * 100}%`, background: c.color, marginRight: i < shown.length - 1 ? 2 : 0 }} />
+          ))}
+      </div>
+      {total === 0 && (
+        <div style={{ fontSize: 10, color: FAINT, marginTop: 5 }}>Nothing completed yet — tick a task's circle to close it.</div>
+      )}
+    </div>
+  );
+}
+
 // ---------- component ----------
 export default function CommandCenter() {
   const [tasks, setTasks] = useState([]);
@@ -957,6 +1036,15 @@ export default function CommandCenter() {
   // ---------- mutations ----------
   const update = (id, patch) => setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
   const remove = (id) => setTasks((prev) => prev.filter((t) => t.id !== id));
+  // Every status change goes through here so `completedAt` is stamped with the
+  // transition rather than at the call sites, where it would eventually be missed.
+  // Reopening clears it, so a task finished twice is dated by its latest completion.
+  function setStatus(t, next) {
+    const patch = { status: next };
+    if (next === "done" && t.status !== "done") patch.completedAt = new Date().toISOString();
+    if (next !== "done" && t.status === "done") patch.completedAt = null;
+    update(t.id, patch);
+  }
   const toggleExpand = (id) =>
     setExpanded((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
@@ -1427,8 +1515,9 @@ export default function CommandCenter() {
         {/* speed dials — clocks, weather and news now ride in the portco rail */}
         <DialRow tasks={tasks} nonce={lastSync} />
 
-        {/* due pipeline */}
+        {/* due pipeline — what's coming, then what's landed */}
         <DueBar tasks={tasks} />
+        <CompletedBar tasks={tasks} />
 
         {/* action bar */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", justifyContent: "center", marginTop: 10 }}>
@@ -1644,8 +1733,8 @@ export default function CommandCenter() {
                 }}>
                   {/* ---- overview row ---- */}
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px" }}>
-                    <button onClick={() => update(t.id, { status: STATUS_NEXT[t.status] })}
-                      onContextMenu={(e) => { e.preventDefault(); if (t.status !== "todo") update(t.id, { status: "todo" }); }}
+                    <button onClick={() => setStatus(t, STATUS_NEXT[t.status])}
+                      onContextMenu={(e) => { e.preventDefault(); if (t.status !== "todo") setStatus(t, "todo"); }}
                       title={t.status === "todo" ? "Click: start (in progress)" : t.status === "progress" ? "Click: complete · Right-click: back to to-do" : "Click or right-click: reopen"}
                       style={{
                         width: 22, height: 22, borderRadius: "50%", marginTop: 2, flexShrink: 0, cursor: "pointer",

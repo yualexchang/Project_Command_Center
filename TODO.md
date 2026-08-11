@@ -47,6 +47,8 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
 | CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
+| CC-31 | Completed pipeline bar under the due pipeline | done | medium | Shipped: `completedAt` added to the model, 51 done tasks backfilled from git history |
+| CC-32 | `ageOf` reads the UTC date, so FIFO/LIFO groups skew after ~20:00 | open | medium | Same class as CC-26; a task ingested late evening groups a day early |
 
 ---
 
@@ -314,6 +316,40 @@ assumptions from the repo, to confirm before writing:
 Once confirmed, add Feed C and Feed D to
 `.claude/skills/command-center-sync/SKILL.md` in the same shape as Feed B, and
 mirror to `~\.claude\skills\` (CC-5).
+
+## CC-31 — Completed pipeline — DONE
+
+Shipped 2026-08-11. A `CompletedBar` sits directly under `DueBar` in the same
+stacked-bar grammar, so the pair reads as "what's coming" over "what's landed".
+Buckets are `completedSegments()` — the due horizons pointed backwards, on the
+same Mon-Sun week and calendar-month boundaries as `ingestSegments()`.
+
+**The model had no completion date.** `status` was only `todo|progress|done`, so
+nothing recorded *when* work finished. Added `completedAt`, stamped by a new
+`setStatus(t, next)` that both circle-button handlers now call — centralised
+precisely so a future call site can't forget it. Reopening a task clears the
+stamp, so a task finished twice is dated by its latest completion.
+
+**The 51 already-done tasks were backfilled from git history** — for each, the
+first commit in which it appeared as `done` (34 commits, Aug 5 onward). Four had
+been ticked in the dashboard since the last commit and were dated today, which is
+sound rather than a guess: every sync commits and the last one was that
+afternoon. Caveat worth remembering: a backfilled date is *commit* time, not
+click time, so a task ticked Monday evening and committed Tuesday reads as
+Tuesday. Everything from here on is stamped at the click.
+
+`daysAgo()` deliberately does **not** slice the UTC string the way `ageOf` does —
+that would file anything completed after ~20:00 EDT under tomorrow. It pins both
+sides to local midnight, same fix as CC-25. `ageOf` still has the old skew: CC-32.
+
+Colour is a single green ramp sequenced dark = most recent (`#14532D` → `#7FB79A`),
+because recency is an ordered quantity, not a set of categories. The faintest step
+falls under 3:1 on white, so every non-empty segment is also named in the legend
+above the bar rather than relying on the fill alone.
+
+Verified: 87,668 (weekday × day-of-month × age) combinations each land in exactly
+one bucket, and the week cuts at the Monday just gone. **Not** verified visually —
+no browser tooling in this repo.
 
 ## CC-26 — `setDueIn` lands a day late in the evening
 

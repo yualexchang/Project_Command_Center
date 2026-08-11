@@ -4,6 +4,7 @@
       "id": "qf5n4b5rk",
       "title": "Clarify Tim Miller's IMO pay terms for David",
       "project": "IMO / Sea Lion",
+      "bucket": null,
       "priority": "medium",
       "deadline": "2026-08-17",
       "deadlineType": "implicit",
@@ -33,10 +34,11 @@
       "id": "jrp6i77aq",
       "title": "Fix France locked box per Kabir's model comments",
       "project": "IMO / Sea Lion",
+      "bucket": null,
       "priority": "high",
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "done",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You",
       "askType": "internal",
@@ -56,16 +58,18 @@
       "subject": "RE: France Locked Box",
       "src": "email",
       "rank": 1786470000003,
-      "createdAt": "2026-08-11T17:40:00.000Z"
+      "createdAt": "2026-08-11T17:40:00.000Z",
+      "completedAt": "2026-08-11T20:19:09.314Z"
     },
     {
       "id": "8vw24rbhx",
       "title": "Clear IMO Q2 covenant report for Aug 14 submission",
       "project": "IMO / Sea Lion",
+      "bucket": null,
       "priority": "high",
       "deadline": "2026-08-14",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "done",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You",
       "askType": "internal",
@@ -85,12 +89,14 @@
       "subject": "RE: [External] - IMO Covenant Compliance Reporting - Q2",
       "src": "email",
       "rank": 1786470000002,
-      "createdAt": "2026-08-11T17:40:00.000Z"
+      "createdAt": "2026-08-11T17:40:00.000Z",
+      "completedAt": "2026-08-11T20:19:09.314Z"
     },
     {
       "id": "5r7w016is",
       "title": "Reply to Frank DeVivo on next-week lunch",
       "project": "Admin",
+      "bucket": null,
       "priority": "low",
       "deadline": "2026-08-18",
       "deadlineType": "implicit",
@@ -170,7 +176,8 @@
       "subject": "RE: Sea Lion - locked box etc. [SIMS-L_LIVE_EMEA1.151495.151495-00001.FID3726343]",
       "src": "email",
       "rank": 1786459650100,
-      "createdAt": "2026-08-11T14:47:30.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "9p7zg9ucyq2",
@@ -200,7 +207,8 @@
       "subject": "Sarku Final Project Review",
       "src": "email",
       "rank": 1786459650099,
-      "createdAt": "2026-08-11T14:47:30.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "rkrsb42xpmo",
@@ -230,7 +238,8 @@
       "subject": "RE: Kindling Education Partners - Littleton Joinder/Acquisition",
       "src": "email",
       "rank": 1786459650098,
-      "createdAt": "2026-08-11T14:47:30.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "bn55z3fag60",
@@ -260,7 +269,8 @@
       "subject": "Re: BOTINKIT - US JV Opportunity",
       "src": "email",
       "rank": 1786459650097,
-      "createdAt": "2026-08-11T14:47:30.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "hp1cbw6kzgw",
@@ -320,7 +330,8 @@
       "subject": "RE: Quarterly Valuation Checklist",
       "src": "email",
       "rank": 1786459650095,
-      "createdAt": "2026-08-11T14:47:30.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "gm7o2hudfht",
@@ -440,7 +451,8 @@
       "subject": "FW: Ken Caryl / FEP Follow Up Call",
       "src": "email",
       "rank": 1786373375259,
-      "createdAt": "2026-08-10T14:49:35.258Z"
+      "createdAt": "2026-08-10T14:49:35.258Z",
+      "completedAt": "2026-08-11T14:47:20.000Z"
     },
     {
       "id": "marcmot8a10",
@@ -470,7 +482,8 @@
       "subject": "Marc Motors",
       "src": "email",
       "rank": 1786373375260,
-      "createdAt": "2026-08-10T14:49:35.258Z"
+      "createdAt": "2026-08-10T14:49:35.258Z",
+      "completedAt": "2026-08-11T14:47:20.000Z"
     },
     {
       "id": "kepdevdeck810",
@@ -500,7 +513,8 @@
       "subject": "FW: Development Deck",
       "src": "email",
       "rank": 1786373375261,
-      "createdAt": "2026-08-10T14:49:35.258Z"
+      "createdAt": "2026-08-10T14:49:35.258Z",
+      "completedAt": "2026-08-11T14:47:20.000Z"
     },
     {
       "id": "kepscorecard810",
@@ -530,7 +544,8 @@
       "subject": "Re: EA data + scorecard questions related to board deck",
       "src": "email",
       "rank": 1786373375262,
-      "createdAt": "2026-08-10T14:49:35.258Z"
+      "createdAt": "2026-08-10T14:49:35.258Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "atlasstamp810",
@@ -560,7 +575,8 @@
       "subject": "FW: Atlas - VIC Letter [HW-ACTIVE.FID5618569]",
       "src": "email",
       "rank": 1786373375263,
-      "createdAt": "2026-08-10T14:49:35.258Z"
+      "createdAt": "2026-08-10T14:49:35.258Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "imofrlockbox810",
@@ -590,7 +606,8 @@
       "subject": "Re: 9:30AM ET / 14:30 BST | IMO France Divestiture Lock Box Walkthrough",
       "src": "email",
       "rank": 1786373375264,
-      "createdAt": "2026-08-10T14:49:35.258Z"
+      "createdAt": "2026-08-10T14:49:35.258Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "hpsscreen810",
@@ -694,7 +711,7 @@
       "priority": "high",
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
-      "status": "progress",
+      "status": "done",
       "assignedBy": "Robert",
       "addressedTo": "You",
       "askType": "internal",
@@ -710,7 +727,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786373265420.6453,
-      "createdAt": "2026-08-10T14:47:45.420Z"
+      "createdAt": "2026-08-10T14:47:45.420Z",
+      "completedAt": "2026-08-11T20:19:09.314Z"
     },
     {
       "id": "nxmqtrgzmsnchkfh",
@@ -720,7 +738,7 @@
       "priority": "high",
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "progress",
       "assignedBy": "Myself",
       "addressedTo": "Brandon",
       "askType": "internal",
@@ -762,7 +780,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786373129001.8176,
-      "createdAt": "2026-08-10T14:45:29.001Z"
+      "createdAt": "2026-08-10T14:45:29.001Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "x968141emsnceztq",
@@ -788,7 +807,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786373092574.6528,
-      "createdAt": "2026-08-10T14:44:52.574Z"
+      "createdAt": "2026-08-10T14:44:52.574Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "kmqjqwwwmsnce5ly",
@@ -850,7 +870,8 @@
       "subject": "RE: Neptune",
       "src": "email",
       "rank": 1786124946382,
-      "createdAt": "2026-08-07T17:49:06.380Z"
+      "createdAt": "2026-08-07T17:49:06.380Z",
+      "completedAt": "2026-08-10T14:49:35.000Z"
     },
     {
       "id": "kndlga2026",
@@ -916,7 +937,8 @@
       "subject": "Updated KEP Deck",
       "src": "email",
       "rank": 1786124946384,
-      "createdAt": "2026-08-07T17:49:06.380Z"
+      "createdAt": "2026-08-07T17:49:06.380Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "atlasmip01",
@@ -946,7 +968,8 @@
       "subject": "RE: Atlas Management MIP Plans",
       "src": "email",
       "rank": 1786055700000,
-      "createdAt": "2026-08-06T22:35:00.000Z"
+      "createdAt": "2026-08-06T22:35:00.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "kndlhdi9x2",
@@ -1006,7 +1029,8 @@
       "subject": "Mark Motors Rider",
       "src": "email",
       "rank": 1786053120001,
-      "createdAt": "2026-08-06T21:52:00.000Z"
+      "createdAt": "2026-08-06T21:52:00.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "kepslc7f2a",
@@ -1036,7 +1060,8 @@
       "subject": "KEP_SLC_Executive_Summary_ 8-4-26 (002).pptx",
       "src": "email",
       "rank": 1786051705098.2612,
-      "createdAt": "2026-08-06T21:30:12.882Z"
+      "createdAt": "2026-08-06T21:30:12.882Z",
+      "completedAt": "2026-08-07T17:49:10.000Z"
     },
     {
       "id": "om4gifkpmsi12iw2",
@@ -1062,7 +1087,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786051704098.2612,
-      "createdAt": "2026-08-06T21:28:24.098Z"
+      "createdAt": "2026-08-06T21:28:24.098Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "weo59ukdmsi11qs2",
@@ -1150,7 +1176,8 @@
       "subject": "Re: Ken Caryl / FEP Follow Up Call",
       "src": "email",
       "rank": 1786047744184,
-      "createdAt": "2026-08-06T20:22:24.170Z"
+      "createdAt": "2026-08-06T20:22:24.170Z",
+      "completedAt": "2026-08-11T14:47:20.000Z"
     },
     {
       "id": "cartadocs8q",
@@ -1160,7 +1187,7 @@
       "priority": "high",
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "done",
       "assignedBy": "Adam Masur",
       "addressedTo": "You + Riad + John",
       "askType": "internal",
@@ -1180,7 +1207,8 @@
       "subject": "Carta documents",
       "src": "email",
       "rank": 1786047744185,
-      "createdAt": "2026-08-06T20:22:24.170Z"
+      "createdAt": "2026-08-06T20:22:24.170Z",
+      "completedAt": "2026-08-11T20:19:09.314Z"
     },
     {
       "id": "0mxxd1z1mshwxuoh",
@@ -1242,7 +1270,8 @@
       "subject": "RE: GP Fund Project",
       "src": "email",
       "rank": 1786044247538,
-      "createdAt": "2026-08-06T19:24:07.538Z"
+      "createdAt": "2026-08-06T19:24:07.538Z",
+      "completedAt": "2026-08-06T21:52:00.000Z"
     },
     {
       "id": "kepprofrm1",
@@ -1278,7 +1307,8 @@
       "subject": "KEP Proforma / Board",
       "src": "email",
       "rank": 1786041617723,
-      "createdAt": "2026-08-06T18:40:17.715Z"
+      "createdAt": "2026-08-06T18:40:17.715Z",
+      "completedAt": "2026-08-11T14:47:20.000Z"
     },
     {
       "id": "aesstatus1",
@@ -1308,7 +1338,8 @@
       "subject": "RE: Intro",
       "src": "email",
       "rank": 1786041617724,
-      "createdAt": "2026-08-06T18:40:17.715Z"
+      "createdAt": "2026-08-06T18:40:17.715Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "zalesheads1",
@@ -1338,7 +1369,8 @@
       "subject": "Re: Ken Caryl / FEP Follow Up Call",
       "src": "email",
       "rank": 1786041617725,
-      "createdAt": "2026-08-06T18:40:17.715Z"
+      "createdAt": "2026-08-06T18:40:17.715Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "wkflow0807",
@@ -1368,7 +1400,8 @@
       "subject": "Reminder: Update Weekly Workflow file 8.7.26",
       "src": "email",
       "rank": 1786041617726,
-      "createdAt": "2026-08-06T18:40:17.715Z"
+      "createdAt": "2026-08-06T18:40:17.715Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "la4dhuu7mshow2ez",
@@ -1394,7 +1427,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786031247419.445,
-      "createdAt": "2026-08-06T15:47:27.419Z"
+      "createdAt": "2026-08-06T15:47:27.419Z",
+      "completedAt": "2026-08-06T18:40:52.000Z"
     },
     {
       "id": "3xqa8e7omshoviy6",
@@ -1420,7 +1454,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786031222190.0103,
-      "createdAt": "2026-08-06T15:47:02.190Z"
+      "createdAt": "2026-08-06T15:47:02.190Z",
+      "completedAt": "2026-08-07T17:49:10.000Z"
     },
     {
       "id": "iv6ox4ydmshoqytg",
@@ -1472,7 +1507,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786029553183.8708,
-      "createdAt": "2026-08-06T15:19:13.183Z"
+      "createdAt": "2026-08-06T15:19:13.183Z",
+      "completedAt": "2026-08-07T17:49:10.000Z"
     },
     {
       "id": "3iv7uqmdmshmbkdr",
@@ -1498,7 +1534,8 @@
       "subject": "",
       "src": "manual",
       "rank": 1786026931695.6082,
-      "createdAt": "2026-08-06T14:35:31.695Z"
+      "createdAt": "2026-08-06T14:35:31.695Z",
+      "completedAt": "2026-08-06T21:26:54.000Z"
     },
     {
       "id": "cbizkep8a",
@@ -1528,7 +1565,8 @@
       "subject": "FEP Future State Reporting Requirements",
       "src": "email",
       "rank": 1786025100005,
-      "createdAt": "2026-08-06T14:05:00.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "imocovq2r",
@@ -1558,7 +1596,8 @@
       "subject": "Re: [External] - IMO Covenant Compliance Reporting - Q2",
       "src": "email",
       "rank": 1786025100004,
-      "createdAt": "2026-08-06T14:05:00.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z",
+      "completedAt": "2026-08-10T14:49:35.000Z"
     },
     {
       "id": "bfvelixo1",
@@ -1568,7 +1607,7 @@
       "priority": "high",
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "progress",
       "assignedBy": "Jake Lewis",
       "addressedTo": "Deal team",
       "askType": "external",
@@ -1629,7 +1668,8 @@
       "subject": "Re: [EXTERNAL]FW: Marks Auto Group",
       "src": "email",
       "rank": 1786025100002,
-      "createdAt": "2026-08-06T14:05:00.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "sarkudeck1",
@@ -1659,7 +1699,8 @@
       "subject": "Sarku Materials",
       "src": "email",
       "rank": 1786025100001,
-      "createdAt": "2026-08-06T14:05:00.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "keystone01",
@@ -1689,7 +1730,8 @@
       "subject": "GP project- Keystone",
       "src": "email",
       "rank": 1785974206696,
-      "createdAt": "2026-08-05T23:56:46.695Z"
+      "createdAt": "2026-08-05T23:56:46.695Z",
+      "completedAt": "2026-08-06T00:03:28.000Z"
     },
     {
       "id": "aiusecase1",
@@ -1719,7 +1761,8 @@
       "subject": "AI Use Case Brainstorm + Survey",
       "src": "email",
       "rank": 1785974206697,
-      "createdAt": "2026-08-05T23:56:46.695Z"
+      "createdAt": "2026-08-05T23:56:46.695Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "fundcap01a",
@@ -1749,7 +1792,8 @@
       "subject": "Capacity - fund project",
       "src": "email",
       "rank": 1785962400001,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-05T23:43:25.000Z"
     },
     {
       "id": "bravomip02",
@@ -1779,7 +1823,8 @@
       "subject": "Follow up on Bravo Fit MIP Plan",
       "src": "email",
       "rank": 1785962400002,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "stampdut03",
@@ -1815,7 +1860,8 @@
       "subject": "Stamp Duty holdback / Escrow Amounts",
       "src": "email",
       "rank": 1785962400004,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-11T14:47:20.000Z"
     },
     {
       "id": "kindflash4",
@@ -1875,7 +1921,8 @@
       "subject": "Aon Risk & Insurance Diligence Report - Project Caryl",
       "src": "email",
       "rank": 1785962400005,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T01:50:01.000Z"
     },
     {
       "id": "dwtsched06",
@@ -1905,7 +1952,8 @@
       "subject": "KEP - Ken Caryl - Disclosure Schedules",
       "src": "email",
       "rank": 1785962400006,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T01:50:01.000Z"
     },
     {
       "id": "ftedeck07a",
@@ -1935,7 +1983,8 @@
       "subject": "FTE KC View",
       "src": "email",
       "rank": 1785962400007,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T21:52:00.000Z"
     },
     {
       "id": "kepsumm08a",
@@ -1965,7 +2014,8 @@
       "subject": "KEP summary",
       "src": "email",
       "rank": 1785962400008,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "botinkit09",
@@ -1995,7 +2045,8 @@
       "subject": "BOTINKIT - US JV Opportunity",
       "src": "email",
       "rank": 1785962400009,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T20:23:20.000Z"
     },
     {
       "id": "imosteps10",
@@ -2055,7 +2106,8 @@
       "subject": "Project Fit - Payroll Diligence Fee Update",
       "src": "email",
       "rank": 1785962400011,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-11T17:40:22.000Z"
     },
     {
       "id": "bravotax12",
@@ -2085,7 +2137,8 @@
       "subject": "Bravo Fit Holdings Pty Ltd - December 2025 Income Tax Return Information Request",
       "src": "email",
       "rank": 1785962400012,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T00:01:09.000Z"
     },
     {
       "id": "cybertrn13",
@@ -2115,7 +2168,8 @@
       "subject": "Abacus Cybersecurity Training Reminder",
       "src": "email",
       "rank": 1785962400013,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-06T01:50:01.000Z"
     },
     {
       "id": "dealdesk14",
@@ -2145,7 +2199,8 @@
       "subject": "Some other ways to do an application",
       "src": "email",
       "rank": 1785962400014,
-      "createdAt": "2026-08-05T20:50:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z",
+      "completedAt": "2026-08-05T23:55:52.000Z"
     }
   ],
   "lastSync": "2026-08-11T17:40:00.000Z"
