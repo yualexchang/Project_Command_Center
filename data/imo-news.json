@@ -1,4 +1,25 @@
 {
-  "updatedAt": null,
-  "items": []
+  "updatedAt": "2026-08-11T21:05:00.000Z",
+  "items": [
+    {
+      "sentiment": "neutral",
+      "scope": "UK",
+      "short": "Nine hosepipe bans",
+      "headline": "Nine UK hosepipe bans in force; Southern Water consults on wider non-essential use ban",
+      "summary": "Home-washing bans push volume to commercial sites, but a Southern Water non-essential use ban could restrict business vehicle washing outright.",
+      "source": "Water Industry Hub",
+      "date": "2026-08-08",
+      "url": "https://www.waterindustryhub.com/intelligence-uk-hosepipe-bans-water-conservation-summer-2026.html"
+    },
+    {
+      "sentiment": "positive",
+      "scope": "DE",
+      "short": "Munich home-wash ban",
+      "headline": "Munich decree bans washing cars at home, permits commercial washes, fines up to EUR 50,000",
+      "summary": "Drought rules across Munich and seven neighbouring municipalities route car washing to professional sites only — direct volume tailwind for German estates.",
+      "source": "The Local Germany",
+      "date": "2026-07-15",
+      "url": "https://www.thelocal.de/20260715/no-filling-pools-or-watering-lawns-munich-issues-decree-to-save-water"
+    }
+  ]
 }

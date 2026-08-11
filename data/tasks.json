@@ -1,6 +1,122 @@
 {
   "tasks": [
     {
+      "id": "cbz8ka3n",
+      "title": "Get CBIZ the KEP billing and payment detail",
+      "project": "Kindling (KEP)",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Stephanie Das (CBIZ)",
+      "addressedTo": "You + Adam Masur",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Following today's data-alignment call, CBIZ listed exactly what they need from KEP: billing split by payer type, billing split by revenue type, and payment data keyed to invoices. They need it to build AR and deferred revenue properly, and sent a March 2026 sample to show the format.",
+      "steps": [
+        "Confirm with Adam who pulls each of the three extracts",
+        "Check ProCare can export payer type and invoice IDs",
+        "Send CBIZ a sample extract and a delivery date"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "stephanie.das@CBIZ.com",
+      "subject": "RE: KEP data alignment",
+      "src": "email",
+      "rank": 1786517760001,
+      "createdAt": "2026-08-11T20:56:00.000Z"
+    },
+    {
+      "id": "b7f626773b",
+      "title": "Respond to DWT on Ken Caryl seller pencils-down",
+      "project": "KEP - Ken Caryl",
+      "priority": "high",
+      "deadline": "2026-08-12",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Ellie Pakzad (DWT)",
+      "addressedTo": "You + Katie Haverty",
+      "askType": "external",
+      "needsCall": true,
+      "emailBlurb": "Seller's counsel has told DWT to stop all work on Ken Caryl until his client speaks with KEP directly, and DWT wants to know whether you already knew and whether to convene a call. Everything downstream — payoff letters, lien releases, the SBA loan documentation still missing — is frozen until someone reopens the seller channel.",
+      "steps": [
+        "Confirm with Katie who owns the seller call",
+        "Reply to Ellie with status and call preference",
+        "Get KEP to reach the seller directly"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "ElliePakzad@dwt.com",
+      "subject": "KEP - Ken Caryl - Deal Status",
+      "src": "email",
+      "rank": 1786481880000,
+      "createdAt": "2026-08-11T20:58:00.000Z"
+    },
+    {
+      "id": "cec246f0d6",
+      "title": "Fill 13-week cash inflow template for your portcos",
+      "project": "Admin",
+      "priority": "high",
+      "deadline": "2026-08-12",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "Isaac Strulowitz",
+      "addressedTo": "You + deal leads",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Finance is standardizing how portfolio cash receipts into FEP get forecast, and Isaac wants each owner to fill in weekly expected inflows for their own portfolio companies across Aug 10 to Nov 6. He also needs to know if any line is assigned to the wrong owner or if a company or cash source is missing entirely.",
+      "steps": [
+        "Check which portco lines are assigned to you",
+        "Enter weekly USD receipts, note FX assumptions",
+        "Send completed file to FEPFinance by Wed EOD"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "isaac.strulowitz@fep-us.com",
+      "subject": "13 WEEK CF FORECASTING - INFLOWS",
+      "src": "email",
+      "rank": 1786481880001,
+      "createdAt": "2026-08-11T20:58:00.000Z"
+    },
+    {
+      "id": "10767fc337",
+      "title": "Send Ken Caryl add-on question list to Stacey and Jeneane",
+      "project": "KEP - Ken Caryl",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "You (pending Katie Haverty)",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "You sent Katie the follow-up question list for the Ken Caryl add-on and asked her to flag anything to add before it goes out. Once she signs off, the list needs to go to Stacey and Jeneane, so this sits on you to close out.",
+      "steps": [
+        "Chase Katie for sign-off on the list",
+        "Fold in any questions she adds",
+        "Send the final list to Stacey and Jeneane"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "alex.chang@fep-us.com",
+      "subject": "Re: Ken Caryl Add On Followup Question List",
+      "src": "email",
+      "rank": 1786481880002,
+      "createdAt": "2026-08-11T20:58:00.000Z"
+    },
+    {
       "id": "i3o9plz5msp4kbpv",
       "title": "Ask david for Q2 KEP board meeting transcripts",
       "project": "Kindling (KEP)",
@@ -2255,5 +2371,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-11T17:40:00.000Z"
+  "lastSync": "2026-08-11T20:58:00.000Z"
 }

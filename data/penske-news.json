@@ -1,4 +1,25 @@
 {
-  "updatedAt": null,
-  "items": []
+  "updatedAt": "2026-08-11T21:05:00.000Z",
+  "items": [
+    {
+      "sentiment": "negative",
+      "scope": "US",
+      "short": "New GPU down 13.5%",
+      "headline": "Q2 2026 franchised dealer profit falls: new GPU $1,840, used $1,409, net pretax down 11.8%",
+      "summary": "Sector-wide Presidio-NCM data shows front-end margin compression continuing, with fixed ops now carrying 52.8% of total dealership gross.",
+      "source": "Digital Dealer",
+      "date": "2026-08-04",
+      "url": "https://digitaldealer.com/news/average-dealership-profit-is-down-but-the-floor-may-be-in-sight/172689"
+    },
+    {
+      "sentiment": "neutral",
+      "scope": "US",
+      "short": "F&I carries the gross",
+      "headline": "F&I office becomes the profit centre as front-end margins compress and rates stay elevated",
+      "summary": "F&I per unit hit $1,727 in Q1 on 6.9% new and 10.4% used financing rates, shifting dealer economics toward finance-office structuring.",
+      "source": "Digital Dealer",
+      "date": "2026-08-10",
+      "url": "https://digitaldealer.com/news/the-post-gross-era-why-dealership-profit-now-runs-through-the-finance-office/172683"
+    }
+  ]
 }
