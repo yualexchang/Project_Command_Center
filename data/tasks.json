@@ -1,6 +1,33 @@
 {
   "tasks": [
     {
+      "id": "i3o9plz5msp4kbpv",
+      "title": "Ask david for Q2 KEP board meeting transcripts",
+      "project": "Kindling (KEP)",
+      "bucket": "KEP",
+      "priority": "high",
+      "deadline": "2026-08-11",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "completedAt": null,
+      "assignedBy": "Myself",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "",
+      "steps": [],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "",
+      "subject": "",
+      "src": "manual",
+      "rank": 1786480836691.1443,
+      "createdAt": "2026-08-11T20:40:36.691Z"
+    },
+    {
       "id": "qf5n4b5rk",
       "title": "Clarify Tim Miller's IMO pay terms for David",
       "project": "IMO / Sea Lion",
@@ -9,6 +36,7 @@
       "deadline": "2026-08-17",
       "deadlineType": "implicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Kabir",
       "askType": "internal",
@@ -39,6 +67,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T20:19:09.314Z",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You",
       "askType": "internal",
@@ -58,8 +87,7 @@
       "subject": "RE: France Locked Box",
       "src": "email",
       "rank": 1786470000003,
-      "createdAt": "2026-08-11T17:40:00.000Z",
-      "completedAt": "2026-08-11T20:19:09.314Z"
+      "createdAt": "2026-08-11T17:40:00.000Z"
     },
     {
       "id": "8vw24rbhx",
@@ -70,6 +98,7 @@
       "deadline": "2026-08-14",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T20:19:09.314Z",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You",
       "askType": "internal",
@@ -89,8 +118,7 @@
       "subject": "RE: [External] - IMO Covenant Compliance Reporting - Q2",
       "src": "email",
       "rank": 1786470000002,
-      "createdAt": "2026-08-11T17:40:00.000Z",
-      "completedAt": "2026-08-11T20:19:09.314Z"
+      "createdAt": "2026-08-11T17:40:00.000Z"
     },
     {
       "id": "5r7w016is",
@@ -101,6 +129,7 @@
       "deadline": "2026-08-18",
       "deadlineType": "implicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "Frank DeVivo",
       "addressedTo": "You",
       "askType": "external",
@@ -131,6 +160,7 @@
       "deadline": "2026-08-14",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "Biddi and Rhea",
       "askType": "internal",
@@ -157,6 +187,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Kabir Mundkur / Thomas Mawson",
       "addressedTo": "You + Simon Quince",
       "askType": "external",
@@ -176,8 +207,7 @@
       "subject": "RE: Sea Lion - locked box etc. [SIMS-L_LIVE_EMEA1.151495.151495-00001.FID3726343]",
       "src": "email",
       "rank": 1786459650100,
-      "createdAt": "2026-08-11T14:47:30.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z"
     },
     {
       "id": "9p7zg9ucyq2",
@@ -188,6 +218,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Nicholas Hornbostel",
       "addressedTo": "You + Matt",
       "askType": "internal",
@@ -207,8 +238,7 @@
       "subject": "Sarku Final Project Review",
       "src": "email",
       "rank": 1786459650099,
-      "createdAt": "2026-08-11T14:47:30.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z"
     },
     {
       "id": "rkrsb42xpmo",
@@ -219,6 +249,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Ronald Law / Doug Best",
       "addressedTo": "Deal team",
       "askType": "external",
@@ -238,8 +269,7 @@
       "subject": "RE: Kindling Education Partners - Littleton Joinder/Acquisition",
       "src": "email",
       "rank": 1786459650098,
-      "createdAt": "2026-08-11T14:47:30.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z"
     },
     {
       "id": "bn55z3fag60",
@@ -250,6 +280,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Scott Romanoff",
       "addressedTo": "You",
       "askType": "internal",
@@ -269,8 +300,7 @@
       "subject": "Re: BOTINKIT - US JV Opportunity",
       "src": "email",
       "rank": 1786459650097,
-      "createdAt": "2026-08-11T14:47:30.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z"
     },
     {
       "id": "hp1cbw6kzgw",
@@ -280,18 +310,23 @@
       "priority": "medium",
       "deadline": "2026-08-14",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "progress",
+      "completedAt": null,
       "assignedBy": "Nik Saluja",
       "addressedTo": "Deal team",
       "askType": "external",
       "needsCall": true,
-      "emailBlurb": "Nik has loaded the requested Saddle Rock diligence documents into the VDR and asked the FEP team to review and come back with follow-ups. There is no recent real estate appraisal, but he has his own view of what the building is worth, so property value needs a conversation rather than a document.",
+      "emailBlurb": "Nik Saluja uploaded his responses to FEP's August 4 preliminary information request into the OneHub VDR and asked the team to review and come back with questions or a view on taking it further. He flagged one gap up front: there is no recent appraisal on the Saddle Rock building, though he has his own number in mind, so property value has to be negotiated rather than documented. Alex acknowledged on August 11 and committed to reviewing and circling back with an update. Biddi Solomon, Katie Haverty, John Straley and Andrea Vargas (KEP CEO) are all on the thread.",
       "steps": [
-        "Pull the new VDR files and review",
-        "List gaps versus the information request",
-        "Get Nik on a call re building value"
+        "Download the OneHub uploads and tick them off line-by-line against Biddi's Aug 4 'Early Ed Preliminary Information Request': tuition history by age group, monthly FT enrollment L3Y + YTD, max occupancy, classrooms by age group, L3Y + YTD P&L, personal costs / add-backs, balance sheet, staffing model, LLC/S Corp structure, and 12-month Listen360 responses",
+        "Re-request in Excel anything that came through as PDF - the request list explicitly asked for Excel on the P&Ls and balance sheet, and the model needs it that way",
+        "Have Biddi spread the P&L and build a first EBITDA bridge, testing Nik's July 29 call claims: 140+ filled seats against a 154 true operable max (164 licensed), plus add-backs for owner comp, bookkeeping, IT and local marketing",
+        "Set FEP's own view on the building before talking numbers - ask Nik for build cost and the county assessment, then value off market rent and a cap rate using the same approach as the KEP Q2 Board real estate package and Katie's Shannan valuation work",
+        "Pin down deal structure: Nik wants a full exit on both the real estate LLC and the operating S Corp, and the low 2021-rate mortgage may anchor his equity expectation high - decide whether KEP buys the building or buys ops and leases back",
+        "Get the call with Nik on the calendar (nothing scheduled yet) to walk the follow-up list and hear his number on the building; per Beth Deasy's caution, do not reveal KEP's multiple",
+        "Send the consolidated follow-up list back on the thread to Nik, cc Biddi, Katie, John Straley and Andrea, closing out Alex's Aug 11 promise to revert with an update"
       ],
-      "context": "",
+      "context": "Nik cold-emailed Alex on July 24 off a referral from another Colorado Primrose owner; the NDA was signed August 3-4 and Biddi sent the information request list plus a OneHub VDR the same day. On the July 29 call Nik said he owns 100% of the real estate (LLC) and 100% of operations (S Corp) and wants a full exit on both, the school runs 85-90% occupancy with a long-tenured director team, and the building sits on a very low 2021-rate mortgage. Beth Deasy warned that Nik has himself been an active Primrose acquirer and may be fishing for KEP's multiple, so no specifics should go out ahead of his financials.",
       "reassignedTo": null,
       "followUpDate": null,
       "notes": [],
@@ -311,6 +346,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Julia Armani",
       "addressedTo": "You",
       "askType": "internal",
@@ -330,8 +366,7 @@
       "subject": "RE: Quarterly Valuation Checklist",
       "src": "email",
       "rank": 1786459650095,
-      "createdAt": "2026-08-11T14:47:30.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-11T14:47:30.000Z"
     },
     {
       "id": "gm7o2hudfht",
@@ -341,7 +376,8 @@
       "priority": "medium",
       "deadline": "2026-08-14",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "done",
+      "completedAt": "2026-08-11T20:37:57.095Z",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "Deal team",
       "askType": "internal",
@@ -371,7 +407,8 @@
       "priority": "medium",
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "done",
+      "completedAt": "2026-08-11T20:37:44.240Z",
       "assignedBy": "John Straley",
       "addressedTo": "You + Preston",
       "askType": "internal",
@@ -401,7 +438,8 @@
       "priority": "medium",
       "deadline": "2026-08-13",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "progress",
+      "completedAt": null,
       "assignedBy": "Andrea Vargas",
       "addressedTo": "You",
       "askType": "external",
@@ -432,6 +470,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T14:47:20.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Katie",
       "askType": "internal",
@@ -451,8 +490,7 @@
       "subject": "FW: Ken Caryl / FEP Follow Up Call",
       "src": "email",
       "rank": 1786373375259,
-      "createdAt": "2026-08-10T14:49:35.258Z",
-      "completedAt": "2026-08-11T14:47:20.000Z"
+      "createdAt": "2026-08-10T14:49:35.258Z"
     },
     {
       "id": "marcmot8a10",
@@ -463,6 +501,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T14:47:20.000Z",
       "assignedBy": "Don Reese",
       "addressedTo": "You",
       "askType": "internal",
@@ -482,8 +521,7 @@
       "subject": "Marc Motors",
       "src": "email",
       "rank": 1786373375260,
-      "createdAt": "2026-08-10T14:49:35.258Z",
-      "completedAt": "2026-08-11T14:47:20.000Z"
+      "createdAt": "2026-08-10T14:49:35.258Z"
     },
     {
       "id": "kepdevdeck810",
@@ -494,6 +532,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T14:47:20.000Z",
       "assignedBy": "Katie Haverty",
       "addressedTo": "You",
       "askType": "internal",
@@ -513,8 +552,7 @@
       "subject": "FW: Development Deck",
       "src": "email",
       "rank": 1786373375261,
-      "createdAt": "2026-08-10T14:49:35.258Z",
-      "completedAt": "2026-08-11T14:47:20.000Z"
+      "createdAt": "2026-08-10T14:49:35.258Z"
     },
     {
       "id": "kepscorecard810",
@@ -525,6 +563,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Brandon Emmerich",
       "addressedTo": "You",
       "askType": "internal",
@@ -544,8 +583,7 @@
       "subject": "Re: EA data + scorecard questions related to board deck",
       "src": "email",
       "rank": 1786373375262,
-      "createdAt": "2026-08-10T14:49:35.258Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-10T14:49:35.258Z"
     },
     {
       "id": "atlasstamp810",
@@ -556,6 +594,7 @@
       "deadline": "2026-08-14",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Preston + John",
       "askType": "internal",
@@ -575,8 +614,7 @@
       "subject": "FW: Atlas - VIC Letter [HW-ACTIVE.FID5618569]",
       "src": "email",
       "rank": 1786373375263,
-      "createdAt": "2026-08-10T14:49:35.258Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-10T14:49:35.258Z"
     },
     {
       "id": "imofrlockbox810",
@@ -587,6 +625,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Simon Quince",
       "addressedTo": "You",
       "askType": "external",
@@ -606,8 +645,7 @@
       "subject": "Re: 9:30AM ET / 14:30 BST | IMO France Divestiture Lock Box Walkthrough",
       "src": "email",
       "rank": 1786373375264,
-      "createdAt": "2026-08-10T14:49:35.258Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-10T14:49:35.258Z"
     },
     {
       "id": "hpsscreen810",
@@ -618,6 +656,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "David O'Donnell",
       "addressedTo": "You",
       "askType": "internal",
@@ -648,6 +687,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "Preston John",
       "askType": "internal",
@@ -680,6 +720,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "Biddi John",
       "askType": "internal",
@@ -712,6 +753,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T20:19:09.314Z",
       "assignedBy": "Robert",
       "addressedTo": "You",
       "askType": "internal",
@@ -727,8 +769,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786373265420.6453,
-      "createdAt": "2026-08-10T14:47:45.420Z",
-      "completedAt": "2026-08-11T20:19:09.314Z"
+      "createdAt": "2026-08-10T14:47:45.420Z"
     },
     {
       "id": "nxmqtrgzmsnchkfh",
@@ -739,6 +780,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "Brandon",
       "askType": "internal",
@@ -765,6 +807,7 @@
       "deadline": "2026-08-16",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Kabir",
       "addressedTo": "You",
       "askType": "external",
@@ -780,8 +823,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786373129001.8176,
-      "createdAt": "2026-08-10T14:45:29.001Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-10T14:45:29.001Z"
     },
     {
       "id": "x968141emsnceztq",
@@ -792,6 +834,7 @@
       "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Kabir",
       "addressedTo": "You",
       "askType": "external",
@@ -807,8 +850,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786373092574.6528,
-      "createdAt": "2026-08-10T14:44:52.574Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-10T14:44:52.574Z"
     },
     {
       "id": "kmqjqwwwmsnce5ly",
@@ -819,6 +861,7 @@
       "deadline": "2026-08-16",
       "deadlineType": "implicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "Preston and john",
       "askType": "external",
@@ -851,6 +894,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-10T14:49:35.000Z",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You",
       "askType": "internal",
@@ -870,8 +914,7 @@
       "subject": "RE: Neptune",
       "src": "email",
       "rank": 1786124946382,
-      "createdAt": "2026-08-07T17:49:06.380Z",
-      "completedAt": "2026-08-10T14:49:35.000Z"
+      "createdAt": "2026-08-07T17:49:06.380Z"
     },
     {
       "id": "kndlga2026",
@@ -882,6 +925,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "Andrea Vargas",
       "addressedTo": "You + Katie",
       "askType": "external",
@@ -918,6 +962,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "John Straley",
       "addressedTo": "You + Biddi",
       "askType": "internal",
@@ -937,8 +982,7 @@
       "subject": "Updated KEP Deck",
       "src": "email",
       "rank": 1786124946384,
-      "createdAt": "2026-08-07T17:49:06.380Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-07T17:49:06.380Z"
     },
     {
       "id": "atlasmip01",
@@ -949,6 +993,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Brayden Koslowsky (DWT)",
       "addressedTo": "You + David",
       "askType": "external",
@@ -968,8 +1013,7 @@
       "subject": "RE: Atlas Management MIP Plans",
       "src": "email",
       "rank": 1786055700000,
-      "createdAt": "2026-08-06T22:35:00.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-06T22:35:00.000Z"
     },
     {
       "id": "kndlhdi9x2",
@@ -980,6 +1024,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Mike Esposito",
       "addressedTo": "You + Katie + David",
       "askType": "internal",
@@ -1010,6 +1055,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "John Straley",
       "addressedTo": "You",
       "askType": "internal",
@@ -1029,8 +1075,7 @@
       "subject": "Mark Motors Rider",
       "src": "email",
       "rank": 1786053120001,
-      "createdAt": "2026-08-06T21:52:00.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-06T21:52:00.000Z"
     },
     {
       "id": "kepslc7f2a",
@@ -1041,6 +1086,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-07T17:49:10.000Z",
       "assignedBy": "Katie Haverty",
       "addressedTo": "You + Biddi + John Straley",
       "askType": "internal",
@@ -1060,8 +1106,7 @@
       "subject": "KEP_SLC_Executive_Summary_ 8-4-26 (002).pptx",
       "src": "email",
       "rank": 1786051705098.2612,
-      "createdAt": "2026-08-06T21:30:12.882Z",
-      "completedAt": "2026-08-07T17:49:10.000Z"
+      "createdAt": "2026-08-06T21:30:12.882Z"
     },
     {
       "id": "om4gifkpmsi12iw2",
@@ -1072,6 +1117,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Myself",
       "addressedTo": "Isaac",
       "askType": "internal",
@@ -1087,8 +1133,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786051704098.2612,
-      "createdAt": "2026-08-06T21:28:24.098Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-06T21:28:24.098Z"
     },
     {
       "id": "weo59ukdmsi11qs2",
@@ -1099,6 +1144,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "You",
       "askType": "internal",
@@ -1125,6 +1171,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "John and Rhea",
       "askType": "internal",
@@ -1133,7 +1180,7 @@
       "steps": [],
       "context": "",
       "reassignedTo": "john and rhea",
-      "followUpDate": "2026-08-09",
+      "followUpDate": "2026-08-11",
       "notes": [
         {
           "id": "nvsut3wlmsi10qne",
@@ -1157,6 +1204,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T14:47:20.000Z",
       "assignedBy": "Brian Zales",
       "addressedTo": "You",
       "askType": "external",
@@ -1176,8 +1224,7 @@
       "subject": "Re: Ken Caryl / FEP Follow Up Call",
       "src": "email",
       "rank": 1786047744184,
-      "createdAt": "2026-08-06T20:22:24.170Z",
-      "completedAt": "2026-08-11T14:47:20.000Z"
+      "createdAt": "2026-08-06T20:22:24.170Z"
     },
     {
       "id": "cartadocs8q",
@@ -1188,6 +1235,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T20:19:09.314Z",
       "assignedBy": "Adam Masur",
       "addressedTo": "You + Riad + John",
       "askType": "internal",
@@ -1207,8 +1255,7 @@
       "subject": "Carta documents",
       "src": "email",
       "rank": 1786047744185,
-      "createdAt": "2026-08-06T20:22:24.170Z",
-      "completedAt": "2026-08-11T20:19:09.314Z"
+      "createdAt": "2026-08-06T20:22:24.170Z"
     },
     {
       "id": "0mxxd1z1mshwxuoh",
@@ -1219,6 +1266,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "explicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "Myself",
       "addressedTo": "Biddi and Rhea",
       "askType": "internal",
@@ -1251,6 +1299,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T21:52:00.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You",
       "askType": "internal",
@@ -1270,8 +1319,7 @@
       "subject": "RE: GP Fund Project",
       "src": "email",
       "rank": 1786044247538,
-      "createdAt": "2026-08-06T19:24:07.538Z",
-      "completedAt": "2026-08-06T21:52:00.000Z"
+      "createdAt": "2026-08-06T19:24:07.538Z"
     },
     {
       "id": "kepprofrm1",
@@ -1282,6 +1330,7 @@
       "deadline": "2026-08-06",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T14:47:20.000Z",
       "assignedBy": "Joe Brady",
       "addressedTo": "You",
       "askType": "internal",
@@ -1307,8 +1356,7 @@
       "subject": "KEP Proforma / Board",
       "src": "email",
       "rank": 1786041617723,
-      "createdAt": "2026-08-06T18:40:17.715Z",
-      "completedAt": "2026-08-11T14:47:20.000Z"
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
       "id": "aesstatus1",
@@ -1319,6 +1367,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Luke Prifogle (AES CFO)",
       "addressedTo": "You + Justin",
       "askType": "external",
@@ -1338,8 +1387,7 @@
       "subject": "RE: Intro",
       "src": "email",
       "rank": 1786041617724,
-      "createdAt": "2026-08-06T18:40:17.715Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
       "id": "zalesheads1",
@@ -1350,6 +1398,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Brian Zales",
       "addressedTo": "You",
       "askType": "external",
@@ -1369,8 +1418,7 @@
       "subject": "Re: Ken Caryl / FEP Follow Up Call",
       "src": "email",
       "rank": 1786041617725,
-      "createdAt": "2026-08-06T18:40:17.715Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
       "id": "wkflow0807",
@@ -1381,6 +1429,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Kelsey Rearden",
       "addressedTo": "You",
       "askType": "internal",
@@ -1400,8 +1449,7 @@
       "subject": "Reminder: Update Weekly Workflow file 8.7.26",
       "src": "email",
       "rank": 1786041617726,
-      "createdAt": "2026-08-06T18:40:17.715Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-06T18:40:17.715Z"
     },
     {
       "id": "la4dhuu7mshow2ez",
@@ -1412,6 +1460,7 @@
       "deadline": "2026-08-06",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-06T18:40:52.000Z",
       "assignedBy": "David Katie",
       "addressedTo": "You",
       "askType": "internal",
@@ -1427,8 +1476,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786031247419.445,
-      "createdAt": "2026-08-06T15:47:27.419Z",
-      "completedAt": "2026-08-06T18:40:52.000Z"
+      "createdAt": "2026-08-06T15:47:27.419Z"
     },
     {
       "id": "3xqa8e7omshoviy6",
@@ -1439,6 +1487,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-07T17:49:10.000Z",
       "assignedBy": "Katie",
       "addressedTo": "You",
       "askType": "internal",
@@ -1454,8 +1503,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786031222190.0103,
-      "createdAt": "2026-08-06T15:47:02.190Z",
-      "completedAt": "2026-08-07T17:49:10.000Z"
+      "createdAt": "2026-08-06T15:47:02.190Z"
     },
     {
       "id": "iv6ox4ydmshoqytg",
@@ -1466,6 +1514,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Kabir",
       "addressedTo": "You",
       "askType": "internal",
@@ -1492,6 +1541,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-07T17:49:10.000Z",
       "assignedBy": "David",
       "addressedTo": "You",
       "askType": "internal",
@@ -1507,8 +1557,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786029553183.8708,
-      "createdAt": "2026-08-06T15:19:13.183Z",
-      "completedAt": "2026-08-07T17:49:10.000Z"
+      "createdAt": "2026-08-06T15:19:13.183Z"
     },
     {
       "id": "3iv7uqmdmshmbkdr",
@@ -1519,6 +1568,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-06T21:26:54.000Z",
       "assignedBy": "David",
       "addressedTo": "You",
       "askType": "external",
@@ -1534,8 +1584,7 @@
       "subject": "",
       "src": "manual",
       "rank": 1786026931695.6082,
-      "createdAt": "2026-08-06T14:35:31.695Z",
-      "completedAt": "2026-08-06T21:26:54.000Z"
+      "createdAt": "2026-08-06T14:35:31.695Z"
     },
     {
       "id": "cbizkep8a",
@@ -1546,6 +1595,7 @@
       "deadline": "2026-08-07",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Stephanie Das",
       "addressedTo": "You + Katie",
       "askType": "external",
@@ -1565,8 +1615,7 @@
       "subject": "FEP Future State Reporting Requirements",
       "src": "email",
       "rank": 1786025100005,
-      "createdAt": "2026-08-06T14:05:00.000Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z"
     },
     {
       "id": "imocovq2r",
@@ -1577,6 +1626,7 @@
       "deadline": "2026-08-14",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-10T14:49:35.000Z",
       "assignedBy": "Malcolm Healey",
       "addressedTo": "You + Kabir",
       "askType": "external",
@@ -1596,8 +1646,7 @@
       "subject": "Re: [External] - IMO Covenant Compliance Reporting - Q2",
       "src": "email",
       "rank": 1786025100004,
-      "createdAt": "2026-08-06T14:05:00.000Z",
-      "completedAt": "2026-08-10T14:49:35.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z"
     },
     {
       "id": "bfvelixo1",
@@ -1608,6 +1657,7 @@
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Jake Lewis",
       "addressedTo": "Deal team",
       "askType": "external",
@@ -1649,6 +1699,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Marc (Marks Auto Group)",
       "addressedTo": "You",
       "askType": "external",
@@ -1668,8 +1719,7 @@
       "subject": "Re: [EXTERNAL]FW: Marks Auto Group",
       "src": "email",
       "rank": 1786025100002,
-      "createdAt": "2026-08-06T14:05:00.000Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z"
     },
     {
       "id": "sarkudeck1",
@@ -1680,6 +1730,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Nicholas Hornbostel",
       "addressedTo": "You",
       "askType": "internal",
@@ -1699,8 +1750,7 @@
       "subject": "Sarku Materials",
       "src": "email",
       "rank": 1786025100001,
-      "createdAt": "2026-08-06T14:05:00.000Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-06T14:05:00.000Z"
     },
     {
       "id": "keystone01",
@@ -1711,6 +1761,7 @@
       "deadline": "2026-08-06",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-06T00:03:28.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + David",
       "askType": "internal",
@@ -1730,8 +1781,7 @@
       "subject": "GP project- Keystone",
       "src": "email",
       "rank": 1785974206696,
-      "createdAt": "2026-08-05T23:56:46.695Z",
-      "completedAt": "2026-08-06T00:03:28.000Z"
+      "createdAt": "2026-08-05T23:56:46.695Z"
     },
     {
       "id": "aiusecase1",
@@ -1742,6 +1792,7 @@
       "deadline": "2026-08-13",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Brandon Emmerich",
       "addressedTo": "You",
       "askType": "internal",
@@ -1761,8 +1812,7 @@
       "subject": "AI Use Case Brainstorm + Survey",
       "src": "email",
       "rank": 1785974206697,
-      "createdAt": "2026-08-05T23:56:46.695Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-05T23:56:46.695Z"
     },
     {
       "id": "fundcap01a",
@@ -1773,6 +1823,7 @@
       "deadline": "2026-08-05",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-05T23:43:25.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Riad + John",
       "askType": "internal",
@@ -1792,8 +1843,7 @@
       "subject": "Capacity - fund project",
       "src": "email",
       "rank": 1785962400001,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-05T23:43:25.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "bravomip02",
@@ -1804,6 +1854,7 @@
       "deadline": "2026-08-08",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Daryl (PwC)",
       "askType": "internal",
@@ -1823,8 +1874,7 @@
       "subject": "Follow up on Bravo Fit MIP Plan",
       "src": "email",
       "rank": 1785962400002,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "stampdut03",
@@ -1835,6 +1885,7 @@
       "deadline": "2026-08-06",
       "deadlineType": "implicit",
       "status": "done",
+      "completedAt": "2026-08-11T14:47:20.000Z",
       "assignedBy": "Dan Afrasiabi",
       "addressedTo": "You",
       "askType": "external",
@@ -1860,8 +1911,7 @@
       "subject": "Stamp Duty holdback / Escrow Amounts",
       "src": "email",
       "rank": 1785962400004,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-11T14:47:20.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "kindflash4",
@@ -1872,6 +1922,7 @@
       "deadline": "2026-08-13",
       "deadlineType": "implicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Andrea Vargas",
       "addressedTo": "You",
       "askType": "external",
@@ -1902,6 +1953,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T01:50:01.000Z",
       "assignedBy": "Davis Zangerle",
       "addressedTo": "You + Biddi",
       "askType": "external",
@@ -1921,8 +1973,7 @@
       "subject": "Aon Risk & Insurance Diligence Report - Project Caryl",
       "src": "email",
       "rank": 1785962400005,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T01:50:01.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "dwtsched06",
@@ -1933,6 +1984,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T01:50:01.000Z",
       "assignedBy": "Ellie Pakzad (DWT)",
       "addressedTo": "You + Katie",
       "askType": "external",
@@ -1952,8 +2004,7 @@
       "subject": "KEP - Ken Caryl - Disclosure Schedules",
       "src": "email",
       "rank": 1785962400006,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T01:50:01.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "ftedeck07a",
@@ -1964,6 +2015,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T21:52:00.000Z",
       "assignedBy": "John Straley",
       "addressedTo": "You",
       "askType": "internal",
@@ -1983,8 +2035,7 @@
       "subject": "FTE KC View",
       "src": "email",
       "rank": 1785962400007,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T21:52:00.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "kepsumm08a",
@@ -1995,6 +2046,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "Biddi Solomon",
       "addressedTo": "You",
       "askType": "internal",
@@ -2014,8 +2066,7 @@
       "subject": "KEP summary",
       "src": "email",
       "rank": 1785962400008,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "botinkit09",
@@ -2026,6 +2077,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T20:23:20.000Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You",
       "askType": "internal",
@@ -2045,8 +2097,7 @@
       "subject": "BOTINKIT - US JV Opportunity",
       "src": "email",
       "rank": 1785962400009,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T20:23:20.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "imosteps10",
@@ -2054,9 +2105,10 @@
       "project": "IMO / Sea Lion",
       "bucket": null,
       "priority": "medium",
-      "deadline": "2026-08-08",
+      "deadline": "2026-08-11",
       "deadlineType": "explicit",
       "status": "progress",
+      "completedAt": null,
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You + Luke + Justin",
       "askType": "internal",
@@ -2087,6 +2139,7 @@
       "deadline": "2026-08-10",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-11T17:40:22.000Z",
       "assignedBy": "Phil Strauss (PwC)",
       "addressedTo": "You + David",
       "askType": "external",
@@ -2106,8 +2159,7 @@
       "subject": "Project Fit - Payroll Diligence Fee Update",
       "src": "email",
       "rank": 1785962400011,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-11T17:40:22.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "bravotax12",
@@ -2118,6 +2170,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-06T00:01:09.000Z",
       "assignedBy": "Phil Strauss (PwC)",
       "addressedTo": "You",
       "askType": "external",
@@ -2137,8 +2190,7 @@
       "subject": "Bravo Fit Holdings Pty Ltd - December 2025 Income Tax Return Information Request",
       "src": "email",
       "rank": 1785962400012,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T00:01:09.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "cybertrn13",
@@ -2149,6 +2201,7 @@
       "deadline": "2026-08-09",
       "deadlineType": "explicit",
       "status": "done",
+      "completedAt": "2026-08-06T01:50:01.000Z",
       "assignedBy": "Abacus Technology",
       "addressedTo": "You",
       "askType": "internal",
@@ -2168,8 +2221,7 @@
       "subject": "Abacus Cybersecurity Training Reminder",
       "src": "email",
       "rank": 1785962400013,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-06T01:50:01.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     },
     {
       "id": "dealdesk14",
@@ -2180,6 +2232,7 @@
       "deadline": null,
       "deadlineType": null,
       "status": "done",
+      "completedAt": "2026-08-05T23:55:52.000Z",
       "assignedBy": "Brandon Emmerich",
       "addressedTo": "You",
       "askType": "internal",
@@ -2199,8 +2252,7 @@
       "subject": "Some other ways to do an application",
       "src": "email",
       "rank": 1785962400014,
-      "createdAt": "2026-08-05T20:50:00.000Z",
-      "completedAt": "2026-08-05T23:55:52.000Z"
+      "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
   "lastSync": "2026-08-11T17:40:00.000Z"
