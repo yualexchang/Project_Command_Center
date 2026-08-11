@@ -138,6 +138,30 @@ const research = { proc: null, running: false, taskId: null, title: null, exitCo
 // one without a preflight, and this server answers no preflight. The Origin check
 // is the second lock rather than the only one, since Origin is absent on some
 // same-origin requests and forgeable outside a browser.
+// CC-33. data/.sync.lock is the cross-PROCESS interlock between the three things
+// that rewrite data/tasks.json: the scheduled tick (scripts/sync-tick.ps1), the
+// Refresh button and the Research button. Task Scheduler's IgnoreNew only stops a
+// tick colliding with another tick; the in-process `sync.running` flag only stops
+// two button presses. Neither sees the other — proven live on 2026-08-11, when a
+// scheduled tick and a dashboard sync ran together and re-scanned the same inbox.
+// Stale locks are reclaimed after 15 minutes so a crashed run cannot wedge the
+// dashboard permanently; sync-tick.ps1 uses the same file and the same window.
+const LOCK = path.join(here, "data", ".sync.lock");
+const LOCK_STALE_MS = 15 * 60 * 1000;
+function lockHeldFor() {
+  try {
+    const age = Date.now() - fs.statSync(LOCK).mtimeMs;
+    if (age < LOCK_STALE_MS) return Math.round(age / 1000);
+  } catch (e) {}
+  return null; // absent, unreadable, or stale — free to take
+}
+function takeLock() {
+  try { fs.writeFileSync(LOCK, String(process.pid)); } catch (e) {}
+}
+function releaseLock() {
+  try { fs.unlinkSync(LOCK); } catch (e) {}
+}
+
 const BRIDGE_HEADER = "x-pcc-bridge";
 const ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
 function guarded(req, res) {
@@ -250,11 +274,21 @@ function claudeBridge() {
         res.setHeader("Content-Type", "application/json");
         if (!guarded(req, res)) return;
         if (req.method === "POST") {
+          // `mine` tells the dashboard whether this is a run it can poll: a sync
+          // this server started, or one owned by the scheduled task, which it
+          // cannot see the progress of.
           if (sync.running) {
             res.statusCode = 409;
-            res.end(JSON.stringify({ error: "sync already running" }));
+            res.end(JSON.stringify({ error: "sync already running", mine: true }));
             return;
           }
+          const held = lockHeldFor();
+          if (held !== null) {
+            res.statusCode = 409;
+            res.end(JSON.stringify({ error: `the scheduled sync is running (started ${held}s ago) — it will finish on its own`, mine: false }));
+            return;
+          }
+          takeLock();
           sync.running = true;
           sync.exitCode = null;
           sync.startedAt = Date.now();
@@ -271,6 +305,7 @@ function claudeBridge() {
               sync.exitCode = code;
               sync.log = (out || "").slice(-2000);
               sync.proc = null;
+              releaseLock();
             },
             15 * 60 * 1000,
             (line) => noteEvent(sync, line)
@@ -327,6 +362,15 @@ function claudeBridge() {
           res.end(JSON.stringify({ error: `already researching "${research.title}"` }));
           return;
         }
+        // research rewrites the whole of tasks.json too, so it queues behind a
+        // running sync rather than merging into one (CC-33)
+        const busyFor = lockHeldFor();
+        if (busyFor !== null) {
+          res.statusCode = 409;
+          res.end(JSON.stringify({ error: `a sync is running (started ${busyFor}s ago) — try again when it finishes` }));
+          return;
+        }
+        takeLock();
         let info = {};
         try {
           info = JSON.parse(await readBody(req));
@@ -355,6 +399,7 @@ function claudeBridge() {
             research.exitCode = code;
             research.log = (out || "").slice(-2000);
             research.proc = null;
+            releaseLock();
           },
           10 * 60 * 1000,
           (line) => noteEvent(research, line)

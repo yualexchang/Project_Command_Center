@@ -975,7 +975,19 @@ export default function CommandCenter() {
     const before = tasks.length;
     try {
       const r = await fetch("/api/sync", { method: "POST", headers: BRIDGE });
-      if (!r.ok && r.status !== 409) throw new Error(`API ${r.status}`);
+      if (r.status === 409) {
+        // A 409 with mine:false is the scheduled tick holding the lock (CC-33).
+        // There is no progress to attach to — say so and stop, rather than polling
+        // this server's idle state and reporting a phantom failure.
+        const d = await r.json().catch(() => ({}));
+        if (d.mine === false) {
+          await loadFromFile();
+          setSyncNote(d.error || "A scheduled sync is already running.");
+          return;
+        }
+      } else if (!r.ok) {
+        throw new Error(`API ${r.status}`);
+      }
       for (;;) {
         await new Promise((s) => setTimeout(s, 900));
         const st = await (await fetch("/api/sync", { headers: BRIDGE })).json();

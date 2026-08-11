@@ -25,7 +25,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
 | CC-7 | Bind Vite beyond `::1` | open | low | One-line prerequisite for CC-6 |
 | CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
-| CC-9 | Scheduled sync every 10 min, Mon-Fri business hours | wip | high | Scripts written and verified; Task Scheduler registration still needs to be run by Alex |
+| CC-9 | Scheduled sync every 10 min, Mon-Fri business hours | done | high | Registered and proven live: exit=0 in 407s, committed `d81fb5c`, and the M365 connector works from a scheduled session |
 | CC-10 | Done-detection — sync scans Sent Items, flags tasks whose thread Alex replied to | open | high | Tasks only close by hand today; the mailbox already knows |
 | CC-11 | Per-task 🔍 Research button (bridge endpoint → `/command-center-research`) | done | medium | Shipped: `POST/GET /api/research` + a button on every card, behind the CC-2 guard |
 | CC-12 | ✉️ Draft-reply button — Claude drafts the reply into Outlook Drafts via M365 MCP | open | medium | Turns triage into throughput; review beats writing from scratch |
@@ -49,7 +49,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | done | high | Shipped: Feeds C and D written; both businesses confirmed from live mail, and the TODO's Penske assumption was wrong |
 | CC-31 | Completed pipeline bar under the due pipeline | done | medium | Shipped: `completedAt` added to the model, 51 done tasks backfilled from git history |
 | CC-32 | `ageOf` reads the UTC date, so FIFO/LIFO groups skew after ~20:00 | open | medium | Same class as CC-26; a task ingested late evening groups a day early |
-| CC-33 | Only `sync-tick.ps1` takes the sync lock — the skill itself doesn't | open | high | Two syncs ran together on 2026-08-11 and duplicated the whole scan; a manual sync is invisible to the schedule |
+| CC-33 | Only `sync-tick.ps1` takes the sync lock — the bridge routes don't | done | high | Shipped: `/api/sync` and `/api/research` now take the same lockfile, so a tick and a button press can no longer interleave |
 
 ---
 
@@ -202,7 +202,40 @@ Short notes; promote to a full section when one goes `next`.
 - **CC-21/CC-22 are recurring upkeep,** not builds — revisit when the trigger event
   happens (first Penske task; each new live deal folder).
 
-## CC-9 — Scheduled sync every 10 minutes, Mon-Fri business hours — WIP
+## CC-33 — The bridge routes didn't take the sync lock — DONE
+
+Found and fixed 2026-08-11, within minutes of CC-9 going live — this row was filed
+by a sync run itself, then closed the same afternoon.
+
+`scripts/sync-tick.ps1` took `data/.sync.lock`, but the dev server's bridge routes
+did not. Three writers of `data/tasks.json` existed with three separate,
+mutually-blind guards:
+
+| Writer | Guarded by | Sees |
+|---|---|---|
+| scheduled tick | Task Scheduler `IgnoreNew` + lockfile | other ticks |
+| ↻ Refresh button | in-process `sync.running` | other button presses |
+| 🔍 Research button | in-process `research.running` | other research runs |
+
+So a tick and a button press could run together, and did: the 16:52 scheduled run
+logged *"a second sync was running concurrently — it rewrote sync-progress.json
+mid-run and created its own task"*. Nothing was lost, but only because that run
+happened to re-read `tasks.json` before merging. That is luck, not a guarantee.
+
+Fix: `lockHeldFor()` / `takeLock()` / `releaseLock()` in
+[vite.config.js](vite.config.js), on the same file and the same 15-minute staleness
+window as the PowerShell side. Both `POST /api/sync` and `POST /api/research` now
+refuse with 409 while the lock is held, and release it when the child exits.
+
+The 409 body carries `mine: true|false`. `true` is this server's own run, which the
+dashboard can attach to and poll as before; `false` is the scheduled tick, whose
+progress this server cannot see — the dashboard says so and stops, instead of
+polling its own idle state and reporting a phantom failure.
+
+Verified live: with a scheduled tick holding the lock, `POST /api/sync` returned
+`409 the scheduled sync is running (started 185s ago)`.
+
+## CC-9 — Scheduled sync every 10 minutes, Mon-Fri business hours — DONE
 
 Scope changed 2026-08-11 from "morning sync" to **every 10 minutes, Mon-Fri,
 08:00-18:00**, at Alex's request. Two files, both written and verified:
@@ -212,13 +245,22 @@ Scope changed 2026-08-11 from "morning sync" to **every 10 minutes, Mon-Fri,
   one line to `logs/sync-<month>.log`, releases the lock.
 - `scripts/install-sync-task.ps1` — registers the Task Scheduler entry from XML.
 
-**Not yet registered.** The `schtasks /Create` call was blocked by the permission
-classifier, correctly — it is a persistent machine-level change. Alex runs it
-himself:
+**Registered and proven 2026-08-11.** Alex ran the installer himself (the
+`schtasks /Create` call was blocked by the permission classifier, correctly — it is
+a persistent machine-level change):
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install-sync-task.ps1
 ```
+
+**The open risk is closed: the M365 connector works from a scheduled session.** The
+first run exited 0 in 407s and committed `d81fb5c sync: 3 new task(s)`, having
+searched the mailbox and refreshed the news feeds. This was the thing worth testing
+before trusting the desk, and it passed.
+
+The same run also exposed CC-33 — the bridge routes were not taking the lock — which
+is now fixed. Watch `logs/sync-<month>.log`: one line per run, and the "skip: a sync
+has been running for Nm" lines are the lock doing its job, not an error.
 
 **Why XML instead of a `schtasks` one-liner.** Four settings that matter here are
 not reachable from the CLI flags:
