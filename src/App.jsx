@@ -28,6 +28,12 @@ const SANS = "-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
+// Sent on every /api/sync, /api/research and /api/find-path call. Those routes
+// spawn permission-bypassed Claude runs, so the dev server rejects any request
+// without this header — a cross-origin page can't set one without a preflight
+// the server never answers (CC-2, guarded() in vite.config.js).
+const BRIDGE = { "x-pcc-bridge": "1" };
+
 // ---------- date helpers ----------
 // whole calendar days from today to dstr: 0 = today, 1 = tomorrow, -1 = yesterday.
 // Both sides are pinned to local midnight so the answer never depends on the time
@@ -874,6 +880,8 @@ export default function CommandCenter() {
   const [syncPct, setSyncPct] = useState(0); // animated bar width
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [findingPath, setFindingPath] = useState(false);
+  const [researchingId, setResearchingId] = useState(null); // task currently being researched
+  const [researchAct, setResearchAct] = useState(null); // {tools, tool, text} — live from Claude
   const [expanded, setExpanded] = useState(new Set());
 
   const [showAdd, setShowAdd] = useState(false);
@@ -966,14 +974,21 @@ export default function CommandCenter() {
     setSyncing(true); setError(""); setSyncNote("");
     const before = tasks.length;
     try {
-      const r = await fetch("/api/sync", { method: "POST" });
+      const r = await fetch("/api/sync", { method: "POST", headers: BRIDGE });
       if (!r.ok && r.status !== 409) throw new Error(`API ${r.status}`);
       for (;;) {
         await new Promise((s) => setTimeout(s, 900));
-        const st = await (await fetch("/api/sync")).json();
+        const st = await (await fetch("/api/sync", { headers: BRIDGE })).json();
         if (st.progress) setSyncProgress(st.progress);
         if (st.activity) setSyncActivity(st.activity);
         if (!st.running) {
+          // same restart case as runResearch — the sync commits its own work, so a
+          // lost outcome is not a failure
+          if (st.exitCode === null) {
+            await loadFromFile();
+            setSyncNote("Lost track of that sync — the dev server restarted. Reloaded from disk.");
+            return;
+          }
           if (st.exitCode !== 0) throw new Error(`Claude sync exited ${st.exitCode} — ${st.tail ? st.tail.slice(-180) : "no output (is the claude CLI on PATH?)"}`);
           break;
         }
@@ -1014,12 +1029,59 @@ export default function CommandCenter() {
     return () => clearInterval(id);
   }, [syncing]);
 
+  // CC-11. Run /command-center-research for one task: Claude pulls that email
+  // thread plus older threads on the same project and rewrites the task's blurb,
+  // context and game plan in data/tasks.json, then commits. We poll, then reload
+  // the file — the skill is the writer, this is only the trigger and the refresh.
+  async function runResearch(t) {
+    setResearchingId(t.id); setError(""); setSyncNote("");
+    try {
+      const r = await fetch("/api/research", {
+        method: "POST",
+        headers: { ...BRIDGE, "Content-Type": "application/json" },
+        body: JSON.stringify({ id: t.id, title: t.title }),
+      });
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}));
+        throw new Error(d.error || `API ${r.status}`);
+      }
+      for (;;) {
+        await new Promise((s) => setTimeout(s, 1200));
+        const st = await (await fetch("/api/research", { headers: BRIDGE })).json();
+        if (st.activity) setResearchAct(st.activity);
+        if (!st.running) {
+          // exitCode null with running false means the dev server restarted and took
+          // the run's outcome with it (editing vite.config.js does exactly this).
+          // The skill commits its own work, so reload and let the file answer —
+          // claiming failure here would be wrong more often than right.
+          if (st.exitCode === null) {
+            await loadFromFile();
+            setSyncNote("Lost track of that research run — the dev server restarted. Reloaded from disk; check the card.");
+            return;
+          }
+          if (st.exitCode !== 0) {
+            throw new Error(`Claude exited ${st.exitCode} — ${st.tail ? st.tail.slice(-180) : "no output"}`);
+          }
+          break;
+        }
+      }
+      await loadFromFile();
+      // keep the card open — the rewritten plan is the whole point of the run
+      setExpanded((prev) => new Set(prev).add(t.id));
+      setSyncNote(`Research complete — "${t.title}" now has a fuller brief and game plan.`);
+    } catch (e) {
+      setError(`Research failed: ${e.message}`);
+    } finally {
+      setResearchingId(null); setResearchAct(null);
+    }
+  }
+
   async function findPath() {
     setFindingPath(true); setError("");
     try {
       const r = await fetch("/api/find-path", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...BRIDGE, "Content-Type": "application/json" },
         body: JSON.stringify({ title: draft.title, project: draft.project, blurb: draft.emailBlurb, bucket: bucketFor(draft.project).key }),
       });
       const d = await r.json();
@@ -1897,6 +1959,15 @@ export default function CommandCenter() {
 
                       {/* actions */}
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          style={{ ...btn(false), fontSize: 12, padding: "6px 10px", opacity: researchingId && researchingId !== t.id ? 0.45 : 1 }}
+                          onClick={() => runResearch(t)}
+                          disabled={!!researchingId}
+                          title={researchingId && researchingId !== t.id
+                            ? "Another task is being researched — one at a time"
+                            : "Claude reads this email thread and older threads on the same deal, then rewrites the brief, context and game plan below"}>
+                          {researchingId === t.id ? (<><Spinner color={INK} /> Researching…</>) : "🔍 Research"}
+                        </button>
                         {t.reassignedTo
                           ? <button style={{ ...btn(false), fontSize: 12, padding: "6px 10px", borderColor: "#C9CAE8", color: DELEGATED }} onClick={() => takeBack(t)}>↩ Take back</button>
                           : <button style={{ ...btn(false), fontSize: 12, padding: "6px 10px" }} onClick={() => reassign(t)}>→ Reassign</button>}
@@ -1904,6 +1975,23 @@ export default function CommandCenter() {
                         <button style={{ ...btn(false), fontSize: 12, padding: "6px 10px" }} onClick={() => addLink(t)}>+ Link / file path</button>
                         <button style={{ ...btn(false), fontSize: 12, padding: "6px 10px", color: "#8C3226" }} onClick={() => remove(t.id)}>Delete</button>
                       </div>
+
+                      {/* live tool labels off Claude's stream, same source as the sync bar */}
+                      {researchingId === t.id && (
+                        <div style={{ marginTop: 10, background: "#EDF2F7", border: `1px solid ${LINE}`, borderRadius: 4, padding: "8px 12px" }}>
+                          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: INK }}>
+                            {(researchAct && researchAct.tool) || "Starting Claude & connecting to Outlook"}
+                            <span style={{ animation: "pccPulse 1.2s ease-in-out infinite" }}>…</span>
+                            {researchAct && researchAct.tools ? (
+                              <span style={{ fontWeight: 400, color: SOFT }}> · {researchAct.tools} steps</span>
+                            ) : null}
+                          </div>
+                          <div style={{ fontSize: 10.5, color: SOFT, marginTop: 4, lineHeight: 1.3 }}>
+                            {(researchAct && researchAct.text) ||
+                              "Reading this thread and older threads on the same deal. This rewrites the brief and plan above — it does not send anything."}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

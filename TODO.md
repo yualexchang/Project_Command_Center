@@ -18,16 +18,16 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | ID | Idea | Status | Priority | Why it matters |
 |---|---|---|---|---|
 | CC-1 | Undo action in the dashboard | done | high | Shipped: ↶ Undo button, 25-step in-memory stack (commit b088374). Refresh persistence → CC-20; sync-clobber caveat → CC-4 |
-| CC-2 | Auth/origin check on the Claude bridge endpoints | open | high | Any web page you visit can trigger a `bypassPermissions` Claude run |
+| CC-2 | Auth/origin check on the Claude bridge endpoints | done | high | Shipped with CC-11: `guarded()` requires `x-pcc-bridge` + an allowed Origin on all three bridge routes |
 | CC-3 | Make `npm run build` produce a working app | open | medium | Blocks every hosting option; API is dev-server-only |
 | CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | open | medium | Silent data loss when editing the file while the server is up |
 | CC-5 | Single home for the skills (stop the double copy) | open | medium | Two copies drift; edit one, the other silently wins |
 | CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
 | CC-7 | Bind Vite beyond `::1` | open | low | One-line prerequisite for CC-6 |
 | CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
-| CC-9 | Scheduled morning sync (Task Scheduler → `claude -p "/command-center-sync"`) | open | high | Desk is fresh before it's opened; removes the last manual step |
+| CC-9 | Scheduled sync every 10 min, Mon-Fri business hours | wip | high | Scripts written and verified; Task Scheduler registration still needs to be run by Alex |
 | CC-10 | Done-detection — sync scans Sent Items, flags tasks whose thread Alex replied to | open | high | Tasks only close by hand today; the mailbox already knows |
-| CC-11 | Per-task 🔍 Research button (bridge endpoint → `/command-center-research`) | open | medium | Skill exists, button missing. Do CC-2 first — it's another bridge route |
+| CC-11 | Per-task 🔍 Research button (bridge endpoint → `/command-center-research`) | done | medium | Shipped: `POST/GET /api/research` + a button on every card, behind the CC-2 guard |
 | CC-12 | ✉️ Draft-reply button — Claude drafts the reply into Outlook Drafts via M365 MCP | open | medium | Turns triage into throughput; review beats writing from scratch |
 | CC-13 | Delegation chasers — on follow-up date, sync drafts the nudge email to the delegate | open | medium | Delegated work is where things silently die |
 | CC-14 | Search box over title/blurb/context/sender | open | medium | List already at 30+ tasks and growing weekly |
@@ -46,7 +46,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-27 | Group every sort under headers; split Ingested into FIFO/LIFO | done | medium | Shipped: deadline/priority/FIFO/LIFO all group; due pipeline gained a "this month" bucket |
 | CC-28 | Overdue tasks are labelled "due today" in both the bar and the list | open | medium | The red segment conflates "today" with "three weeks late" |
 | CC-29 | Mission dials re-laid out: all-projects + 2x2 left, portco rail right | done | medium | Shipped: clocks/weather/news moved out of the masthead into each portco's row |
-| CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | open | high | Their boxes render but stay empty every sync until the rules exist |
+| CC-30 | IMO and Penske news feeds have no scan rules in the sync skill | done | high | Shipped: Feeds C and D written; both businesses confirmed from live mail, and the TODO's Penske assumption was wrong |
 | CC-31 | Completed pipeline bar under the due pipeline | done | medium | Shipped: `completedAt` added to the model, 51 done tasks backfilled from git history |
 | CC-32 | `ageOf` reads the UTC date, so FIFO/LIFO groups skew after ~20:00 | open | medium | Same class as CC-26; a task ingested late evening groups a day early |
 
@@ -83,20 +83,30 @@ Claude writes to `tasks.json` while a stale array sits in the undo buffer, resto
 it silently discards the synced tasks. Related to CC-4. At minimum, re-GET before
 restoring and warn if the file changed underneath.
 
-## CC-2 — Auth/origin check on the Claude bridge endpoints
+## CC-2 — Auth/origin check on the Claude bridge endpoints — DONE
 
-`POST /api/sync` and `POST /api/find-path` ([vite.config.js](vite.config.js)) spawn
-`claude -p … --permission-mode bypassPermissions` with no auth, no CSRF token, and no
-origin check. Both are "simple" cross-origin POSTs, so **no CORS preflight fires** —
-any page open in your browser can kick off a permission-bypassed Claude Code run on
-the machine, and `/api/find-path`'s body reaches the prompt. `PUT /api/tasks` is
-incidentally safe (PUT forces a preflight).
+Shipped 2026-08-11 alongside CC-11, which was blocked on it — a third
+`bypassPermissions` route was not going in unguarded.
 
-Localhost binding is the only thing containing this today, and CC-6/CC-7 remove that.
-**Do this before any tunnel or hosting.**
+`guarded(req, res)` in [vite.config.js](vite.config.js) now fronts all three bridge
+routes (`/api/sync`, `/api/research`, `/api/find-path`). Two checks:
 
-Fix: reject requests whose `Origin` isn't `http://localhost:5173`, and require a
-custom header on both routes (a custom header alone forces a preflight).
+- the request must carry `x-pcc-bridge: 1`;
+- if it carries an `Origin`, it must be `localhost:5173` or `127.0.0.1:5173`.
+
+**The header is the lock; the origin check is the second one.** A cross-origin page
+cannot set a custom header without a CORS preflight, and this server answers no
+preflight, so the request never leaves the browser. Origin alone would not do:
+it is absent on some same-origin requests and trivially forged outside a browser.
+`PUT /api/tasks` stays unguarded — it writes data but spawns nothing, and PUT
+already forces a preflight.
+
+Verified by probe: every bridge route returns 403 with no header, 200 with it, and
+403 for `Origin: http://evil.example` even when the header is present.
+
+**Still not enough for hosting.** This stops a drive-by page on your own browser; it
+is not authentication. Anything reachable from another machine (CC-6/CC-7) needs a
+real secret, because the header is a constant sitting in client-side source.
 
 ## CC-3 — Make `npm run build` produce a working app
 
@@ -172,17 +182,16 @@ it is what makes the unauthenticated endpoints reachable.
 
 Short notes; promote to a full section when one goes `next`.
 
-- **CC-9 scheduled sync:** Windows Task Scheduler can run a user-level task without
-  admin: `schtasks /Create /SC DAILY /ST 07:00 /TN CommandCenterSync /TR "claude -p
-  \"/command-center-sync\" ..."` with cwd at the repo. Test M365 connector
-  availability from a scheduled (non-interactive login) context before trusting it.
 - **CC-10 done-detection:** extend the sync skill — after triaging inbound, search
   Sent Items for replies matching open tasks' `subject`/`sender`; list "likely
   complete" candidates in the sync report rather than auto-completing (false
   positives: a reply isn't always resolution).
-- **CC-11/CC-12/CC-13/CC-15:** all are new headless-bridge routes or skill steps that
-  act on the mailbox. CC-2 (bridge auth) is a prerequisite for any new bridge route.
-  Drafts only — never auto-send.
+- **CC-12/CC-13/CC-15:** all are new headless-bridge routes or skill steps that act
+  on the mailbox. CC-2 is now done, so the guard exists to put them behind. Drafts
+  only — never auto-send. **All three are blocked on IT**: the M365 connection is
+  read-only, so `outlook_create_draft` returns 403 and no Teams send tool is even
+  exposed. Needs `Mail.ReadWrite`, `Mail.Send`, `Chat.ReadWrite`, `ChatMessage.Send`
+  granted before any of this is worth building.
 - **CC-14 search:** client-side filter over title+blurb+context+sender; add to the
   filter bar with its own ✕.
 - **CC-16 digest:** `git log --follow -p data/tasks.json` diffing week-over-week gives
@@ -191,6 +200,81 @@ Short notes; promote to a full section when one goes `next`.
   `data/archive.json`; dashboard shows a count link. Restore = move back.
 - **CC-21/CC-22 are recurring upkeep,** not builds — revisit when the trigger event
   happens (first Penske task; each new live deal folder).
+
+## CC-9 — Scheduled sync every 10 minutes, Mon-Fri business hours — WIP
+
+Scope changed 2026-08-11 from "morning sync" to **every 10 minutes, Mon-Fri,
+08:00-18:00**, at Alex's request. Two files, both written and verified:
+
+- `scripts/sync-tick.ps1` — one tick. Takes a lock, runs
+  `claude -p "/command-center-sync" --permission-mode bypassPermissions`, appends
+  one line to `logs/sync-<month>.log`, releases the lock.
+- `scripts/install-sync-task.ps1` — registers the Task Scheduler entry from XML.
+
+**Not yet registered.** The `schtasks /Create` call was blocked by the permission
+classifier, correctly — it is a persistent machine-level change. Alex runs it
+himself:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install-sync-task.ps1
+```
+
+**Why XML instead of a `schtasks` one-liner.** Four settings that matter here are
+not reachable from the CLI flags:
+
+- `MultipleInstancesPolicy = IgnoreNew` — a sync takes minutes and the tick is 10,
+  so overlapping runs are a live risk, and both would write the whole of
+  `tasks.json` with the loser's edits lost (CC-4).
+- `DisallowStartIfOnBatteries = false` — the CLI default is **true**, which would
+  silently skip every run on battery. Fatal for a laptop tool, and it fails quietly.
+- `StopIfGoingOnBatteries = false` — same trap, mid-run.
+- `ExecutionTimeLimit = PT9M` — a wedged run is killed before the next tick rather
+  than blocking the schedule for hours.
+
+`LogonType` is `InteractiveToken`, not S4U, because the sync reaches Outlook through
+this session's Claude MCP connectors, which need the logged-on user context.
+`StartWhenAvailable` is false — catch-up runs after a wake are pointless at this
+cadence.
+
+**The lock is belt and braces.** IgnoreNew covers scheduled-vs-scheduled; the
+lockfile also covers the dashboard's own Sync button, which Task Scheduler knows
+nothing about. It reclaims itself after 15 minutes so a crashed run cannot wedge the
+schedule permanently. The dashboard's Sync button does **not** take the lock — that
+gap is real and worth closing if manual syncs ever collide with ticks.
+
+**Two changes to the sync skill were forced by this cadence** (both shipped under
+CC-30): an 8-hour throttle on news scans, and no commit when nothing changed.
+Without them, 48 runs a day means 192 web scans and 48 empty commits.
+
+**Still unproven: the M365 connector from a scheduled context.** The original row
+flagged this and it remains the real risk — a scheduled run gets a different session
+than an interactive one, and if the connector is unavailable the sync will fail
+quietly every 10 minutes. `logs/sync-<month>.log` is where that shows up. Check it
+after the first business day before trusting the desk to be current.
+
+## CC-11 — Per-task Research button — DONE
+
+Shipped 2026-08-11. A 🔍 Research button on every expanded task card runs
+`/command-center-research` for that task: Claude pulls the email thread plus older
+threads on the same deal and rewrites the task's `emailBlurb`, `context` and `steps`
+in place, then commits. The dashboard reloads the file when the run finishes and
+keeps the card open, since the rewritten plan is the point.
+
+`POST/GET /api/research` in [vite.config.js](vite.config.js) mirrors `/api/sync`:
+POST starts, GET polls, and the same `--output-format stream-json` parse drives live
+tool labels ("Searching the inbox", "Reading an email") inside the card. `noteSyncEvent`
+was generalised to `noteEvent(state, line)` so both runs share it.
+
+**One at a time**, enforced with a 409: two concurrent runs would each write the
+whole of `tasks.json` and the loser's rewrite would vanish. Every other card's
+button greys out while one is running.
+
+The task title is interpolated into the prompt, so quotes, backticks and newlines
+are stripped and the length capped — otherwise a title could break out of the
+argument and append its own instructions.
+
+**CC-2 was done first**, as this row instructed: the guard went in before this route
+existed, not after.
 
 ## CC-25 — Due pipeline on calendar weeks — DONE
 
@@ -295,27 +379,48 @@ browser tooling in this repo, so the proportions are reasoned, not seen. The IMO
 row is the tallest: clock + two weather cards + news exceeds the rail width at
 920px, so its news box wraps to a second line by design.
 
-## CC-30 — IMO and Penske news feeds have no scan rules
+## CC-30 — IMO and Penske news scan rules — DONE
 
-`data/imo-news.json` and `data/penske-news.json` exist and are wired to the
-dashboard, but the sync skill's news section only defines Feed A (early ed) and
-Feed B (BravoFit). Until Feeds C and D are written, both boxes render "No
-matching news this scan" forever.
+Shipped 2026-08-11. Feeds C and D are written into
+`.claude/skills/command-center-sync/SKILL.md` and mirrored to `~\.claude\skills\`.
 
-Blocked on confirming what each business actually is, because a wrong sector
-definition sends every weekly sync down the wrong search path. Working
-assumptions from the repo, to confirm before writing:
+**Both businesses were confirmed from live mail first, and the working assumption
+for Penske was wrong** — which is exactly why this row said not to guess:
 
-- **IMO** — European car wash operator. UK and Germany are the two markets the
-  dashboard already tracks weather for (wash volumes track dry days, which is
-  why weather sits on this row), and `IMO Belux and France PF Sale Impact` and
-  `IMO Q2 covenant compliance` appear in live tasks. Likely scopes `UK`/`DE`/`EU`.
-- **Penske** — automotive retail / dealership group; `Penske July Reporting` is
-  the only live task. Likely scopes `US`/`OEM`.
+- **IMO** — confirmed. Counterparties write from `@icwg.com`: IMO is the retail
+  brand of **International Car Wash Group**. Tasks reference "Weather Model 2.0"
+  and weather-adjusted EBITDA, and the team agenda lists "IMO FR/BLUX sale". Core
+  markets UK and Germany; France and Belux are being divested under Sea Lion.
+  Scopes `UK` / `DE` / `EU`.
+- **Penske** — **not** what this row assumed. It is the **SoCal Penske Dealer
+  Group**, a private franchised dealership group in City of Industry, CA (CFO Paul
+  Bialy, `socalpenske.com`). It is *not* Penske Automotive Group, Penske Truck
+  Leasing, or Team Penske. PAG appears in FEP's weekly comps packets as a **public
+  comp**, which is a different role entirely. Scopes `SOCAL` / `US` / `OEM`.
 
-Once confirmed, add Feed C and Feed D to
-`.claude/skills/command-center-sync/SKILL.md` in the same shape as Feed B, and
-mirror to `~\.claude\skills\` (CC-5).
+Two search traps are written into the skill because each would have quietly
+poisoned every future scan:
+
+- **"IMO" returns the International Maritime Organization** — shipping emissions,
+  sulphur caps — and would have swamped the feed. The skill now requires searching
+  `"IMO Car Wash"` / `"International Car Wash Group"` or market-plus-sector, never
+  the bare acronym.
+- **"Penske" returns PAG, trucking and motorsport.** The group is private and will
+  rarely be in the news itself, so Feed D is mostly a *sector* feed, and public
+  comps must be tagged and described as comps rather than written up as the portco.
+
+Also added while in there, both forced by the 10-minute cadence in CC-9:
+
+- **An 8-hour throttle per feed.** Scanning the web four times an hour for sectors
+  that turn over weekly is pure waste; a feed scanned under 8 hours ago is skipped
+  and named in the report.
+- **No more empty commits.** Step 7 now writes `tasks.json` every run but commits
+  only when a task was created or a news file refreshed. At 48 runs a day the old
+  "commit `nothing actionable` every time" would have buried the archive — and the
+  git history of that file *is* the archive.
+
+Not yet proven against live search results: the feeds populate on the first
+unthrottled sync. Watch the first IMO scan specifically for maritime bleed-through.
 
 ## CC-31 — Completed pipeline — DONE
 

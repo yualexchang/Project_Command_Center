@@ -60,12 +60,18 @@ inside it).
    Prepend new tasks to the `tasks` array. Never modify or delete existing
    tasks. Set top-level `lastSync` to the current UTC time in ISO 8601.
 
-7. **Write and commit.** Write `data/tasks.json` pretty-printed (2-space indent,
-   trailing newline). Then from the repo root:
-   `git add data/tasks.json` and commit with message
-   `sync: <N> new task(s) (<window>)`. If zero new tasks, still update
-   `lastSync` and commit with `sync: nothing actionable (<window>)`.
-   If an `origin` remote exists, also `git push`.
+7. **Write always; commit only if something changed.** Write `data/tasks.json`
+   pretty-printed (2-space indent, trailing newline) every run, so `lastSync`
+   advances. Then from the repo root, **only if this run created at least one task
+   or refreshed at least one news file**: `git add` the data files you changed,
+   commit with `sync: <N> new task(s) (<window>)`, and `git push` if an `origin`
+   remote exists.
+
+   **If nothing changed, do not commit.** The sync runs every 10 minutes during
+   business hours (CC-9), so most runs find nothing; committing each one would bury
+   the real history — and the git history of `data/tasks.json` **is** the task
+   archive, so keeping it signal-only matters. An uncommitted `lastSync` bump costs
+   nothing: the next run that does find something commits that too.
 
 8. **Report.** Tell the user: how many emails scanned, how many tasks created
    (with one-line titles), and remind them to hit Refresh in the dashboard.
@@ -73,11 +79,27 @@ inside it).
    server is running and you are unsure, mention that a Refresh will pick up
    the changes.
 
-## News scans (run once per sync, after the tasks are written)
+## News scans (after the tasks are written)
 
-Two boxes on the dashboard are fed by two files. Refresh **both** every sync,
-using the same rules (recency since last sync, publication-date discipline,
-`short` summaries, merge-don't-replace, max 5 items).
+Four boxes on the dashboard are fed by four files, one per portco rail row:
+
+| Feed | File | Subject |
+|---|---|---|
+| A | `data/industry-news.json` | Early education / childcare (KEP) |
+| B | `data/bravofit-news.json` | BravoFit / Planet Fitness AU |
+| C | `data/imo-news.json` | IMO — European car wash |
+| D | `data/penske-news.json` | Penske — US franchised auto retail |
+
+All four follow the same rules: recency since the last scan, publication-date
+discipline, `short` summaries, merge-don't-replace, max 5 items. They share one
+JSON shape, defined under Feed A below — only the `scope` values differ per feed.
+
+**Throttle — check this before searching anything.** Read each file's `updatedAt`
+and **skip that feed entirely if it was scanned less than 8 hours ago.** The sync
+runs every 10 minutes during business hours (CC-9); scanning the web four times an
+hour would burn searches for no benefit, because none of these sectors turns over
+that fast. Say in the report which feeds you skipped and which you refreshed. If
+all four are throttled, do no news work at all this run.
 
 ### Feed B — BravoFit (`data/bravofit-news.json`)
 
@@ -92,6 +114,78 @@ out of scope — with one exception: **PLNT corporate results, guidance, franchi
 economics, or leadership changes** count, since they set the terms Bravo Fit
 operates under. Tag those `PLNT`; tag Bravo-Fit-specific items `BRAVO`.
 The PLNT share price is fetched live by the dashboard — do not put it in this file.
+
+### Feed C — IMO (`data/imo-news.json`)
+
+IMO is the retail brand of **International Car Wash Group** (ICWG) — a European
+conveyor and rollover car wash operator. FEP's live workstreams sit in the **UK and
+Germany**; France and Belux are being **divested under Project Sea Lion**, so news
+about those two markets counts only where it bears on that sale.
+
+**The acronym trap — read this before searching.** "IMO" overwhelmingly returns the
+**International Maritime Organization**: shipping emissions, sulphur caps, maritime
+treaties. None of it is this company. Search `"IMO Car Wash"`, `"International Car
+Wash Group"`, or the market plus the sector ("UK car wash market <month year>") —
+never the bare acronym. Discard any maritime result on sight.
+
+Scopes — tag every item, drop anything that is none of these:
+
+- `UK` — United Kingdom
+- `DE` — Germany
+- `EU` — pan-European, or France/Belux where it bears on the Sea Lion divestiture
+
+Include an article only if it plausibly moves wash volumes, wash pricing, or the
+value of a European car wash estate:
+
+- **Weather and water** — drought declarations and **hosepipe / water-use
+  restrictions**, which throttle or close sites outright, plus unusually wet or dry
+  spells. This is the most operationally relevant category; it is the same reason
+  the dashboard carries UK/DE weather on this row.
+- **Sector** — competitor openings, closures, site-portfolio deals and M&A (Waves,
+  Mr Wash, Clean Car), new-entrant expansion, subscription pricing moves.
+- **Cost base** — energy and water tariffs, UK and German minimum wage and labour
+  costs, business rates.
+- **Demand proxies** — European new and used car sales, car parc size, fuel prices,
+  UK/DE consumer discretionary spend.
+- **Regulation** — water discharge and recycling rules, environmental permits.
+
+Out of scope: US car wash news (Mister, Driven Brands, Zips — a different market),
+and generic European macro with no read-through to washing cars.
+
+### Feed D — Penske (`data/penske-news.json`)
+
+**Read this before searching.** FEP's Penske is the **SoCal Penske Dealer Group** —
+a privately held franchised new-car dealership group in Southern California (CFO
+Paul Bialy, City of Industry, CA; `socalpenske.com`). It is **not** Penske
+Automotive Group (PAG), **not** Penske Truck Leasing, and **not** Team Penske. A
+bare "Penske" search returns all three and almost none of it is the portco. The
+group is private, so it will rarely be in the news itself — this feed is mostly
+about the **sector it operates in**.
+
+Scopes — tag every item, drop anything that is none of these:
+
+- `SOCAL` — Southern California / West Coast dealership market
+- `US` — US franchised auto retail sector-wide
+- `OEM` — manufacturer actions that reach franchised dealers
+
+Include an article only if it moves the economics of a franchised dealer group:
+
+- **Retail demand** — new and used unit sales (SAAR), days' supply, incentives,
+  affordability, interest rates.
+- **Gross profit** — new and used GPU, F&I attachment and regulation, and
+  **reinsurance structures** (a live Penske workstream).
+- **Fixed ops** — parts and service demand, technician labour, and the ageing car
+  parc. Note the known headwind FEP is already tracking: the post-COVID volume
+  trough is rolling into the 4+ year old parc and slowing service growth.
+- **Franchise and regulatory** — OEM franchise policy, allocation and standards
+  programs, California-specific rules (CARB, EV mandates, dealer regulation),
+  tariffs on vehicles and parts.
+- **M&A** — dealership buy/sell activity, blue sky multiples, California group deals.
+
+**Public comps are read-through, not the portco.** PAG, AutoNation, Lithia, Sonic,
+Group 1 and Asbury results or guidance set the sector's terms and may be included —
+tag them `US` and make clear in the `summary` that it is a comp. Never write a PAG
+headline as though it were the portfolio company. Motorsport and trucking are always out.
 
 ### Feed A — Early education (`data/industry-news.json`)
 
@@ -143,10 +237,11 @@ The PLNT share price is fetched live by the dashboard — do not put it in this 
 }
 ```
 
-4. `git add data/industry-news.json` with the same commit as the sync.
+4. `git add` every news file you actually refreshed, in the same commit as the sync.
 
 If the searches fail or return nothing usable, leave the existing file untouched
-(a stale box beats an empty one) and mention it in the report.
+(a stale box beats an empty one) and mention it in the report. Same for a feed you
+skipped on the 8-hour throttle — untouched, and named in the report.
 
 ## Live progress file (required — the dashboard renders this as a progress bar)
 

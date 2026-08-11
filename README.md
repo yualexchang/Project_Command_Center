@@ -36,9 +36,22 @@ it's on the user PATH for new terminals.
 
 ## Syncing
 
-Open Claude Code and run `/command-center-sync`. When it finishes, hit
-**↻ Refresh** in the dashboard. Avoid editing tasks in the dashboard while a
-sync is running — last write wins.
+Three ways in, all running the same skill:
+
+- **Automatic** — a Task Scheduler entry runs a sync every 10 minutes, Mon-Fri
+  08:00-18:00. Register it once with
+  `powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install-sync-task.ps1`;
+  it logs one line per run to `logs/`. See `TODO.md` CC-9.
+- **On demand** — the **↻ Refresh** button in the dashboard.
+- **By hand** — `/command-center-sync` in Claude Code, optionally with a window.
+
+Per-task, the **🔍 Research** button on an expanded card runs
+`/command-center-research` for that task and rewrites its brief and game plan in
+place.
+
+Avoid editing tasks in the dashboard while a sync is running — last write wins.
+The scheduled runs take a lockfile so they can't overlap each other, but the
+dashboard's own Sync button doesn't (CC-4, CC-9).
 
 ## Ideas / not yet built
 

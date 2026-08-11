@@ -128,12 +128,41 @@ function stockApi() {
 // Bridges dashboard buttons to headless Claude Code runs (`claude -p`), which
 // inherit this machine's Claude session + MCP connectors (M365, Egnyte).
 const sync = { proc: null, running: false, exitCode: null, startedAt: null, log: "", activity: null };
+const research = { proc: null, running: false, taskId: null, title: null, exitCode: null, startedAt: null, log: "", activity: null };
+
+// CC-2. Every route below spawns `claude -p … --permission-mode bypassPermissions`,
+// so an unauthenticated POST here is remote code execution on this machine. They
+// are "simple" cross-origin POSTs, which fire NO CORS preflight — without this,
+// any page open in the browser can start a permission-bypassed Claude run.
+// The custom header is what actually closes it: a cross-origin caller cannot set
+// one without a preflight, and this server answers no preflight. The Origin check
+// is the second lock rather than the only one, since Origin is absent on some
+// same-origin requests and forgeable outside a browser.
+const BRIDGE_HEADER = "x-pcc-bridge";
+const ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
+function guarded(req, res) {
+  const origin = req.headers.origin;
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    res.statusCode = 403;
+    res.end(JSON.stringify({ error: `origin ${origin} not allowed` }));
+    return false;
+  }
+  if (req.headers[BRIDGE_HEADER] !== "1") {
+    res.statusCode = 403;
+    res.end(JSON.stringify({ error: "missing bridge header" }));
+    return false;
+  }
+  return true;
+}
 
 // Friendly label for each tool Claude invokes during a sync.
 function toolLabel(name, input) {
   const n = String(name || "");
   if (/email_search/i.test(n)) return "Searching the inbox";
   if (/read_resource/i.test(n)) return "Reading an email";
+  if (/calendar_search|meeting_availability|available_time/i.test(n)) return "Checking the calendar";
+  if (/chat_message_search|teams_list_chats/i.test(n)) return "Searching Teams";
+  if (/^ToolSearch$/i.test(n)) return "Loading tools";
   if (/WebSearch/i.test(n)) return "Scanning industry news";
   if (/WebFetch/i.test(n)) return "Reading an article";
   if (/^(Write|Edit|MultiEdit)$/i.test(n)) {
@@ -153,11 +182,12 @@ function toolLabel(name, input) {
   return n ? `Using ${n}` : "Working";
 }
 
-// Parse one NDJSON line from `claude --output-format stream-json`.
-function noteSyncEvent(line) {
+// Parse one NDJSON line from `claude --output-format stream-json` into `state`.
+// Shared by the sync and research runs — both surface the same live tool labels.
+function noteEvent(state, line) {
   let ev;
   try { ev = JSON.parse(line); } catch (e) { return; }
-  const a = sync.activity || (sync.activity = { tools: 0, tool: null, text: null, at: null });
+  const a = state.activity || (state.activity = { tools: 0, tool: null, text: null, at: null });
   if (ev.type === "assistant" && ev.message && Array.isArray(ev.message.content)) {
     for (const b of ev.message.content) {
       if (b.type === "tool_use") {
@@ -218,6 +248,7 @@ function claudeBridge() {
       // POST = kick off /command-center-sync headless; GET = poll status
       server.middlewares.use("/api/sync", (req, res) => {
         res.setHeader("Content-Type", "application/json");
+        if (!guarded(req, res)) return;
         if (req.method === "POST") {
           if (sync.running) {
             res.statusCode = 409;
@@ -242,7 +273,7 @@ function claudeBridge() {
               sync.proc = null;
             },
             15 * 60 * 1000,
-            noteSyncEvent
+            (line) => noteEvent(sync, line)
           );
           res.end(JSON.stringify({ started: true }));
         } else if (req.method === "GET") {
@@ -266,9 +297,75 @@ function claudeBridge() {
         }
       });
 
+      // CC-11. POST {id, title} = run /command-center-research for one task;
+      // GET = poll. The skill rewrites that task's blurb/context/steps in
+      // data/tasks.json in place and commits, so the dashboard just reloads the
+      // file when the run finishes. One at a time: two concurrent runs would each
+      // write the whole file and the loser's edits would vanish (CC-4).
+      server.middlewares.use("/api/research", async (req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        if (!guarded(req, res)) return;
+        if (req.method === "GET") {
+          res.end(JSON.stringify({
+            running: research.running,
+            taskId: research.taskId,
+            title: research.title,
+            exitCode: research.exitCode,
+            startedAt: research.startedAt,
+            tail: research.log.slice(-600),
+            activity: research.activity,
+          }));
+          return;
+        }
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end();
+          return;
+        }
+        if (research.running) {
+          res.statusCode = 409;
+          res.end(JSON.stringify({ error: `already researching "${research.title}"` }));
+          return;
+        }
+        let info = {};
+        try {
+          info = JSON.parse(await readBody(req));
+        } catch (e) {}
+        // The title is interpolated into a prompt, so strip the quote characters
+        // that would let it break out of the argument and append instructions.
+        const title = String(info.title || "").replace(/["`\r\n]/g, " ").trim().slice(0, 160);
+        if (!title) {
+          res.statusCode = 400;
+          res.end(JSON.stringify({ error: "no task title" }));
+          return;
+        }
+        research.running = true;
+        research.taskId = info.id || null;
+        research.title = title;
+        research.exitCode = null;
+        research.startedAt = Date.now();
+        research.log = "";
+        research.activity = { tools: 0, tool: null, text: null, at: Date.now() };
+        research.proc = runClaude(
+          ["-p", JSON.stringify(`/command-center-research ${title}`),
+           "--permission-mode", "bypassPermissions",
+           "--output-format", "stream-json", "--verbose"],
+          (code, out) => {
+            research.running = false;
+            research.exitCode = code;
+            research.log = (out || "").slice(-2000);
+            research.proc = null;
+          },
+          10 * 60 * 1000,
+          (line) => noteEvent(research, line)
+        );
+        res.end(JSON.stringify({ started: true, title }));
+      });
+
       // POST {title, project, blurb} -> ask Claude to find the likeliest Egnyte path
       server.middlewares.use("/api/find-path", async (req, res) => {
         res.setHeader("Content-Type", "application/json");
+        if (!guarded(req, res)) return;
         if (req.method !== "POST") {
           res.statusCode = 405;
           res.end();

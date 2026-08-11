@@ -20,4 +20,8 @@
   drift (CC-5).
 - Node is portable at `~\Tools\node`; this machine has no admin rights, so never
   suggest installers or `winget`.
+- Any new `/api/*` route that spawns `claude -p` must go behind `guarded()` in
+  `vite.config.js` — these routes run with `bypassPermissions` (CC-2).
+- A sync may fire on a schedule every 10 minutes during business hours (CC-9), so
+  never assume you are the only writer of `data/tasks.json`.
 - Push to `main` on `origin` (https://github.com/yualexchang/Project_Command_Center).
