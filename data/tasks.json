@@ -1,6 +1,36 @@
 {
   "tasks": [
     {
+      "id": "e4c8b1d9",
+      "title": "Work KEP board follow-ups: Primrose, analytics, benefits",
+      "project": "Kindling (KEP)",
+      "bucket": null,
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": true,
+      "emailBlurb": "David sent the Q2 KEP board meeting transcript and, with it, three items he wants you to carry: the development prototype with Primrose corporate, analytics API access via the Primrose marketing team, and a cheaper HR/benefits plan. The benefits thread may run wider than KEP, since he flags ICRA and checking RRH/VAC/7CE over the longer term.",
+      "steps": [
+        "Check transcript against your board to-do notes",
+        "Reach out to Primrose CEO and marketing team",
+        "Price a cheaper benefits plan; consider ICRA"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "RE: KEP Q2 Board Meeting Transcripts",
+      "src": "email",
+      "rank": 1786544600000,
+      "createdAt": "2026-08-12T14:21:37.686Z"
+    },
+    {
       "id": "a3f91c72",
       "title": "Switch AU MIP to cash-settled plan with DWT",
       "project": "Bravo Fit",
@@ -8,8 +38,8 @@
       "priority": "high",
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
-      "status": "todo",
-      "completedAt": null,
+      "status": "done",
+      "completedAt": "2026-08-12T14:09:07.171Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + Brayden Koslowsky (DWT)",
       "askType": "internal",
@@ -39,7 +69,7 @@
       "priority": "medium",
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
-      "status": "todo",
+      "status": "progress",
       "completedAt": null,
       "assignedBy": "Joe Brady",
       "addressedTo": "You",
@@ -101,8 +131,8 @@
       "priority": "medium",
       "deadline": "2026-08-12",
       "deadlineType": "implicit",
-      "status": "todo",
-      "completedAt": null,
+      "status": "done",
+      "completedAt": "2026-08-12T14:09:11.150Z",
       "assignedBy": "David O'Donnell",
       "addressedTo": "You + John Teza",
       "askType": "internal",
@@ -194,7 +224,7 @@
       "priority": "high",
       "deadline": "2026-08-12",
       "deadlineType": "explicit",
-      "status": "todo",
+      "status": "progress",
       "completedAt": null,
       "assignedBy": "Isaac Strulowitz",
       "addressedTo": "You + deal leads",
@@ -256,8 +286,8 @@
       "priority": "high",
       "deadline": "2026-08-12",
       "deadlineType": "explicit",
-      "status": "todo",
-      "completedAt": null,
+      "status": "done",
+      "completedAt": "2026-08-12T14:14:36.213Z",
       "assignedBy": "Myself",
       "addressedTo": "You",
       "askType": "internal",
@@ -1389,7 +1419,7 @@
       "project": "Hello Auto",
       "bucket": "Live Deals",
       "priority": "low",
-      "deadline": "2026-08-12",
+      "deadline": "2026-08-13",
       "deadlineType": "explicit",
       "status": "progress",
       "completedAt": null,
@@ -2503,5 +2533,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T13:40:49.322Z"
+  "lastSync": "2026-08-12T14:21:37.687Z"
 }
