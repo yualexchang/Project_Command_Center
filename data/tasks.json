@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "k7m2q9xa",
+      "title": "Send availability for SLC trade-area planning session",
+      "project": "KEP - SLC",
+      "priority": "medium",
+      "deadline": "2026-08-14",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Kathleen Cotter",
+      "addressedTo": "You + deal team",
+      "askType": "internal",
+      "needsCall": true,
+      "emailBlurb": "Joe Brady wants the SLC group to regroup next week to prioritize Salt Lake trade areas before market entry, and Kathleen is collecting availability. Andrea and Joe have already sent windows for 8/18, 8/20 and 8/21 — yours is outstanding.",
+      "steps": [
+        "Check calendar against 8/18, 8/20, 8/21 windows",
+        "Reply to Kathleen with your open times",
+        "Review SLC trade-area map before the call"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "kathleen.cotter@fep-us.com",
+      "subject": "Re: KEP Market Planning - SLC",
+      "src": "email",
+      "rank": 1786555175035,
+      "createdAt": "2026-08-12T17:19:35.035Z"
+    },
+    {
       "id": "bd9kc31x",
       "title": "Add Beth's Primrose report asks to Ken Caryl request",
       "project": "KEP - Ken Caryl",
@@ -2807,5 +2836,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T17:02:00Z"
+  "lastSync": "2026-08-12T17:19:35Z"
 }
