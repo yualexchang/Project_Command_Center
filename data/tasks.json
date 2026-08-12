@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kepcoa26",
+      "title": "Review KEP Sage Intacct chart of accounts",
+      "project": "Kindling (KEP)",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Ray Coppedge (CBIZ)",
+      "addressedTo": "You + Katie Haverty",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "CBIZ has drafted the proposed Sage Intacct chart of accounts for KEP and wants Alex and Katie to review the first two tabs and send feedback. The structure locks in four reporting dimensions - location, department, payment type and an EBITDA add-back flag - so getting it right now shapes how KEP reports for the long run.",
+      "steps": [
+        "Open the first two tabs of the attached workbook",
+        "Check add-back flag and payment-type dimensions fit reporting needs",
+        "Send consolidated feedback to Ray, copying Katie and Andrea"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "Raymond.Coppedge@CBIZ.com",
+      "subject": "KEP Chart of Accounts - Proposed Structure",
+      "src": "email",
+      "rank": 1786547000000,
+      "createdAt": "2026-08-12T15:02:00.000Z"
+    },
+    {
       "id": "b7d43f9a",
       "title": "Get Kabir's call on IMO management fee cadence",
       "project": "IMO / Sea Lion",
@@ -2563,5 +2592,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T14:32:12.030Z"
+  "lastSync": "2026-08-12T15:02:00.000Z"
 }
