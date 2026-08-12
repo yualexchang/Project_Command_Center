@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "wendypref1",
+      "title": "Review Wendy's pref deck, send call availability",
+      "project": "Wendy's",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Preston Nelson",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": true,
+      "emailBlurb": "Preston circulated a deck sizing the Wendy's preferred investment off Trian's model, with an FEP case and a downside case layered on top. He wants the QSR team to read it and come back with times for a discussion call, so the sizing and coverage assumptions can be pressure-tested.",
+      "steps": [
+        "Read deck, focus on coverage under downside case",
+        "Flag stale 2026E SSS assumption to Preston",
+        "Send available call times and confirm attendees"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "preston.nelson@fep-us.com",
+      "subject": "Wendy's Pref Deck",
+      "src": "email",
+      "rank": 1786547900000,
+      "createdAt": "2026-08-12T15:20:29Z"
+    },
+    {
       "id": "kepcoa26",
       "title": "Review KEP Sage Intacct chart of accounts",
       "project": "Kindling (KEP)",
@@ -2592,5 +2621,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T15:02:00.000Z"
+  "lastSync": "2026-08-12T15:20:29Z"
 }
