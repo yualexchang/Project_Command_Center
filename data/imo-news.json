@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-11T21:12:00.000Z",
+  "updatedAt": "2026-08-12T12:10:29.000Z",
   "items": [
+    {
+      "sentiment": "neutral",
+      "scope": "UK",
+      "short": "Drought hits 71% of England",
+      "headline": "EA declares four more areas in drought; 71.3% of England now affected after record dry July",
+      "summary": "Reservoirs sit at 69% and eight companies now restrict 27m customers, which routes home washers to forecourts but widens the ground for drought orders that would close commercial washing.",
+      "source": "GOV.UK (Environment Agency)",
+      "date": "2026-08-10",
+      "url": "https://www.gov.uk/government/news/more-areas-in-england-declared-in-drought-after-record-dry-july"
+    },
     {
       "sentiment": "neutral",
       "scope": "UK",
@@ -40,16 +50,6 @@
       "source": "CarwashPro",
       "date": "2026-07-27",
       "url": "https://www.carwashpro.com/inside-the-industry/2026/07/27/uk-car-washes-allowed-to-remain-open-during-water-restrictions/"
-    },
-    {
-      "sentiment": "positive",
-      "scope": "DE",
-      "short": "Munich home-wash ban",
-      "headline": "Munich decree bans washing cars at home, permits commercial washes, fines up to EUR 50,000",
-      "summary": "Drought rules across Munich and seven neighbouring municipalities route car washing to professional sites only — direct volume tailwind for German estates.",
-      "source": "The Local Germany",
-      "date": "2026-07-15",
-      "url": "https://www.thelocal.de/20260715/no-filling-pools-or-watering-lawns-munich-issues-decree-to-save-water"
     }
   ]
 }
