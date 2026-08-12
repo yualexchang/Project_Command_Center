@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kepdiraw26",
+      "title": "Prepare James pre/post comp package for KEP role change",
+      "project": "Kindling (KEP)",
+      "priority": "high",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You + Katie Haverty",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "David set out the KEP board changes - Heidi comes on as Chair at $150K with a 75bps MIP grant, while James steps back to Director and sees his MIP cut to 25bps. He asked for the Heidi agreements to be drafted and for a short package laying out James pre- and post-change economics before that conversation happens with him.",
+      "steps": [
+        "Confirm with Katie who owns the James economics package",
+        "Model James comp pre- and post-change, including MIP value",
+        "Send draft package to David and Katie for review"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "KEP Director/Award Agreement Updates",
+      "src": "email",
+      "rank": 1786548100000,
+      "createdAt": "2026-08-12T16:00:23Z"
+    },
+    {
       "id": "kcbethq26",
       "title": "Get Beth input on Ken Caryl question list",
       "project": "KEP - Ken Caryl",
@@ -2650,5 +2679,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T15:52:00Z"
+  "lastSync": "2026-08-12T16:00:23Z"
 }
