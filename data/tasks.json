@@ -1,6 +1,36 @@
 {
   "tasks": [
     {
+      "id": "b7d43f9a",
+      "title": "Get Kabir's call on IMO management fee cadence",
+      "project": "IMO / Sea Lion",
+      "bucket": null,
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Simon Quince (ICWG)",
+      "addressedTo": "You + Luke Stanford",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Simon confirms IMO is accruing the management fee at 3% of EBITDA in Euros but has paid nothing yet, on the earlier plan of clearing the RCF before any cash goes out. He says moving to quarterly payments is FEP's call to make with Malcolm and Kabir, and you already told him you would run it past Kabir.",
+      "steps": [
+        "Ask Kabir whether to start quarterly cash pay",
+        "Loop in Malcolm on the RCF-first sequencing",
+        "Report the decision back to Simon and Luke"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "simonquince@icwg.com",
+      "subject": "RE: [External] - 13 Week Management Fee",
+      "src": "email",
+      "rank": 1786544700000,
+      "createdAt": "2026-08-12T14:33:00.000Z"
+    },
+    {
       "id": "e4c8b1d9",
       "title": "Work KEP board follow-ups: Primrose, analytics, benefits",
       "project": "Kindling (KEP)",
@@ -2533,5 +2563,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T14:21:37.687Z"
+  "lastSync": "2026-08-12T14:32:12.030Z"
 }
