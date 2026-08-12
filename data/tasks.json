@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kepebit1",
+      "title": "Align KEP EBITDA definition with Andrea and CBIZ",
+      "project": "Kindling (KEP)",
+      "priority": "medium",
+      "deadline": "2026-08-14",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Andrea Vargas",
+      "addressedTo": "You + Katie Haverty",
+      "askType": "external",
+      "needsCall": true,
+      "emailBlurb": "Andrea replied to your chart-of-accounts questions and wants the group to settle one EBITDA definition up front - her view is development and pre-opening costs sit as site-level opex with a below-the-line addback to adjusted EBITDA. She flagged that her prior company ended up with unmanageable EBITDA variants, and that KEP uses EBITDA to set senior-team bonuses, so this needs to be locked before Sage goes live.",
+      "steps": [
+        "Confirm Andrea's opex-plus-below-line-addback treatment works",
+        "Check it against the lender's EBITDA definition",
+        "Set a short call with Andrea, Katie and Ray"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "avargas@kindlingep.com",
+      "subject": "Re: KEP Chart of Accounts - Proposed Structure",
+      "src": "email",
+      "rank": 1786556450000,
+      "createdAt": "2026-08-12T17:40:22.000Z"
+    },
+    {
       "id": "k7m2q9xa",
       "title": "Send availability for SLC trade-area planning session",
       "project": "KEP - SLC",
@@ -2836,5 +2865,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T17:19:35Z"
+  "lastSync": "2026-08-12T17:40:22Z"
 }
