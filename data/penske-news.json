@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-11T21:12:00.000Z",
+  "updatedAt": "2026-08-12T12:20:31.000Z",
   "items": [
     {
       "sentiment": "neutral",
@@ -40,6 +40,16 @@
       "source": "Cox Automotive",
       "date": "2026-07-27",
       "url": "https://www.coxautoinc.com/insights/cox-automotive-forecast-july-2026-us-auto-sales-forecast/"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "SOCAL",
+      "short": "CA registrations -7.7%",
+      "headline": "California new-vehicle registrations fall 7.7% in H1 2026; full year projected at 1.73M units",
+      "summary": "The home market shrank to 864,848 units on affordability and rate pressure, though hybrids hit a record 22.1% share and 75.7% of hybrid/EV volume still moves through franchised dealers.",
+      "source": "California New Car Dealers Association",
+      "date": "2026-07-20",
+      "url": "https://www.cncda.org/news/california-new-car-dealers-association-releases-q2-2026-auto-outlook/"
     }
   ]
 }
