@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-12T12:20:31.000Z",
+  "updatedAt": "2026-08-12T20:31:05.000Z",
   "items": [
+    {
+      "sentiment": "neutral",
+      "scope": "US",
+      "short": "ATP $49.9K, incentives fall",
+      "headline": "July new-vehicle ATP hits 2026 high of $49,855 as incentives drop to 6.4% of price",
+      "summary": "Thinner incentives support front-end margin, but sales fell 1.5% year over year and buyers kept trading down into cheaper segments.",
+      "source": "Cox Automotive / Kelley Blue Book",
+      "date": "2026-08-11",
+      "url": "https://www.coxautoinc.com/insights/july-2026-atp-report/"
+    },
     {
       "sentiment": "neutral",
       "scope": "US",
@@ -30,16 +40,6 @@
       "source": "Digital Dealer",
       "date": "2026-08-04",
       "url": "https://digitaldealer.com/news/average-dealership-profit-is-down-but-the-floor-may-be-in-sight/172689"
-    },
-    {
-      "sentiment": "neutral",
-      "scope": "US",
-      "short": "July SAAR 16.3M",
-      "headline": "July new-vehicle sales hit 16.3M SAAR, strongest of 2026 but below forecast",
-      "summary": "Volume is holding up on affluent buyers while missing forecast and slipping 1.8% year over year, so demand is stable but not improving.",
-      "source": "Cox Automotive",
-      "date": "2026-07-27",
-      "url": "https://www.coxautoinc.com/insights/cox-automotive-forecast-july-2026-us-auto-sales-forecast/"
     },
     {
       "sentiment": "negative",

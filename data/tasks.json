@@ -4,10 +4,12 @@
       "id": "bf9a3c72e1",
       "title": "Approve BravoFit Jan-May financials for Jake",
       "project": "Bravo Fit",
+      "bucket": null,
       "priority": "medium",
       "deadline": "2026-08-13",
       "deadlineType": "implicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "John Straley",
       "addressedTo": "You + Preston Nelson",
       "askType": "internal",
@@ -33,10 +35,12 @@
       "id": "9c48718d01",
       "title": "Decide whether KEP 8/20 check-in still needed",
       "project": "Kindling (KEP)",
+      "bucket": null,
       "priority": "medium",
       "deadline": "2026-08-13",
       "deadlineType": "implicit",
       "status": "todo",
+      "completedAt": null,
       "assignedBy": "Victoria Lada",
       "addressedTo": "You + Katie Haverty, Biddi Solomon, David O'Donnell",
       "askType": "internal",
@@ -2785,8 +2789,8 @@
       "priority": "medium",
       "deadline": "2026-08-12",
       "deadlineType": "explicit",
-      "status": "progress",
-      "completedAt": null,
+      "status": "done",
+      "completedAt": "2026-08-12T19:58:16.852Z",
       "assignedBy": "Kabir Mundkur",
       "addressedTo": "You + Luke + Justin",
       "askType": "internal",
@@ -2933,5 +2937,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T19:01:05Z"
+  "lastSync": "2026-08-12T20:31:05Z"
 }
