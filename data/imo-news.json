@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-12T12:10:29.000Z",
+  "updatedAt": "2026-08-12T21:14:00.000Z",
   "items": [
     {
       "sentiment": "neutral",
@@ -32,6 +32,16 @@
       "url": "https://www.thelocal.de/20260807/maps-where-water-scarcity-is-disrupting-life-in-germany"
     },
     {
+      "sentiment": "positive",
+      "scope": "UK",
+      "short": "Strongest July since 2019",
+      "headline": "UK new car registrations up 11.7% in July to 156,571, eighth straight month of growth",
+      "summary": "A growing UK car parc and healthier retail demand are the underlying volume driver for a wash estate, and the recovery is now eight months old.",
+      "source": "SMMT",
+      "date": "2026-08-05",
+      "url": "https://www.smmt.co.uk/huge-ev-boost-in-july-yet-mandate-gap-persists/"
+    },
+    {
       "sentiment": "negative",
       "scope": "UK",
       "short": "Business wash ban sought",
@@ -40,16 +50,6 @@
       "source": "ITV News Meridian",
       "date": "2026-08-03",
       "url": "https://www.itv.com/news/meridian/2026-08-03/further-water-restrictions-possible-as-southern-water-applies-for-drought-order"
-    },
-    {
-      "sentiment": "positive",
-      "scope": "UK",
-      "short": "Car washes stay open",
-      "headline": "UK car washes allowed to keep trading through hosepipe restrictions",
-      "summary": "Temporary use bans hit domestic washing but carve out commercial sites, which can push drivers from driveways onto forecourts.",
-      "source": "CarwashPro",
-      "date": "2026-07-27",
-      "url": "https://www.carwashpro.com/inside-the-industry/2026/07/27/uk-car-washes-allowed-to-remain-open-during-water-restrictions/"
     }
   ]
 }
