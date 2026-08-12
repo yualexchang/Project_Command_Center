@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "bf9a3c72e1",
+      "title": "Approve BravoFit Jan-May financials for Jake",
+      "project": "Bravo Fit",
+      "priority": "medium",
+      "deadline": "2026-08-13",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "John Straley",
+      "addressedTo": "You + Preston Nelson",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "John rebuilt the BravoFit January-May 2026 financials in two versions - a hardcoded Golub pack and a send version keyed off Jake’s own sheets - and needs you or Preston to bless them before they leave the firm. He is blocked until one of you signs off, and the Golub copy being fully hardcoded is worth a look before it goes to a lender.",
+      "steps": [
+        "Open both files; check vSend ties to Golub pack",
+        "Spot-check the hardcoded Golub numbers",
+        "Reply to John: approved or changes needed"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "john.straley@fep-us.com",
+      "subject": "BravoFit Financials",
+      "src": "email",
+      "rank": 1786561265311,
+      "createdAt": "2026-08-12T19:01:05Z"
+    },
+    {
       "id": "9c48718d01",
       "title": "Decide whether KEP 8/20 check-in still needed",
       "project": "Kindling (KEP)",
@@ -2904,5 +2933,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T18:21:03Z"
+  "lastSync": "2026-08-12T19:01:05Z"
 }
