@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kcbethq26",
+      "title": "Get Beth input on Ken Caryl question list",
+      "project": "KEP - Ken Caryl",
+      "priority": "high",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "David replied to the Ken Caryl follow-up question list Alex sent to Stacey, Jeneane and Brian asking whether Beth was asked for her input. He wants her perspective folded in before the seller responses come back, so the underwriting questions on FTE, attrition and costs are complete.",
+      "steps": [
+        "Reply to David confirming whether Beth was asked",
+        "Send Beth the question list for her additions",
+        "Fold her questions into the seller follow-up"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "RE: Ken Caryl Followup Question List",
+      "src": "email",
+      "rank": 1786548000000,
+      "createdAt": "2026-08-12T15:52:00.000Z"
+    },
+    {
       "id": "wendypref1",
       "title": "Review Wendy's pref deck, send call availability",
       "project": "Wendy's",
@@ -2621,5 +2650,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T15:20:29Z"
+  "lastSync": "2026-08-12T15:52:00Z"
 }
