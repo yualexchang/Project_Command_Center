@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "a811555bdc",
+      "title": "Hold KEP Q2 mark flat, plan Q3 step-up",
+      "project": "Quarterly Valuations",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Andrea Vargas",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Andrea Vargas picked option 2 for the KEP quarterly mark: no adjustment at Q2, then a full step-up in Q3 once CBIZ finishes the re-close. She does not want the mark built on RTW/Longmont figures she cannot stand behind.",
+      "steps": [
+        "Confirm option 2 back to Andrea and Biddi",
+        "Hold KEP Q2 mark flat to Q1 valuation",
+        "Diary Q3 true-up for Oct/Nov reporting"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "avargas@kindlingep.com",
+      "subject": "Re: KEP School Level Net Incomes",
+      "src": "email",
+      "rank": 1786551067534,
+      "createdAt": "2026-08-12T16:11:07Z"
+    },
+    {
       "id": "kepdiraw26",
       "title": "Prepare James pre/post comp package for KEP role change",
       "project": "Kindling (KEP)",
@@ -2679,5 +2708,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T16:00:23Z"
+  "lastSync": "2026-08-12T16:11:07Z"
 }
