@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-11T17:40:00.000Z",
+  "updatedAt": "2026-08-12T13:42:05.375Z",
   "items": [
+    {
+      "sentiment": "negative",
+      "scope": "PLNT",
+      "short": "Franchisee margins compress",
+      "headline": "Planet Fitness franchisee EBITDA margin falls to 67.6% from 72.3%",
+      "summary": "Franchisee-level EBITDA margin dropped ~470bps on higher advertising and equipment costs, a direct read on the unit economics Bravo Fit inherits.",
+      "source": "Simply Wall St",
+      "date": "2026-08-07",
+      "url": "https://simplywall.st/stocks/us/consumer-services/nyse-plnt/planet-fitness/news/planet-fitness-plnt-stock-price-reflects-margin-strain-and-d"
+    },
     {
       "sentiment": "neutral",
       "scope": "PLNT",
@@ -20,16 +30,6 @@
       "source": "Yahoo Finance",
       "date": "2026-08-06",
       "url": "https://finance.yahoo.com/markets/stocks/articles/planet-fitness-stock-drops-6-195930627.html"
-    },
-    {
-      "sentiment": "positive",
-      "scope": "PLNT",
-      "short": "Q2 sales beat",
-      "headline": "Planet Fitness Q2 CY2026 revenue $365.2M, up 7.1%, tops estimates; adj EPS $0.88 beats by 3.7%",
-      "summary": "Brand momentum holds, but system-wide same-club sales grew only 1.7% and adjusted net income fell 5.7% â€” watch the comp line.",
-      "source": "StockStory / FinancialContent",
-      "date": "2026-08-06",
-      "url": "https://markets.financialcontent.com/stocks/article/stockstory-2026-8-6-planet-fitnesss-nyseplnt-q2-cy2026-sales-top-estimates"
     },
     {
       "sentiment": "neutral",
