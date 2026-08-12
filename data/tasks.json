@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "bd9kc31x",
+      "title": "Add Beth's Primrose report asks to Ken Caryl request",
+      "project": "KEP - Ken Caryl",
+      "priority": "high",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Beth Deasy",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Beth answered your Ken Caryl diligence note with a second list of things to pull from Primrose — a monthly FTE chart running Aug-Jul across 2023-2026, a full Lead Center report back to June 2025, plus questions on back-to-school marketing, UPK utilization and match acceptance, staffing model, and expected school-age and camp drops. These go beyond the PFP and BILLINGRPT ask and need to be folded into what you send the seller.",
+      "steps": [
+        "Fold Beth items into seller request list",
+        "Flag Kathy Soppe as the Primrose source",
+        "Send combined list to Stacey and Jeneane"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "beth@rtwllc.com",
+      "subject": "Re: Ken Caryl Diligence Thoughts",
+      "src": "email",
+      "rank": 1786552314562,
+      "createdAt": "2026-08-12T17:02:00.000Z"
+    },
+    {
       "id": "mk7qz3v9",
       "title": "Review Rhea's revised Mark Motors deck; give next steps",
       "project": "Marks Auto Group",
@@ -2778,5 +2807,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-12T16:31:54Z"
+  "lastSync": "2026-08-12T17:02:00Z"
 }
