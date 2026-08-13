@@ -50,6 +50,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-31 | Completed pipeline bar under the due pipeline | done | medium | Shipped: `completedAt` added to the model, 51 done tasks backfilled from git history |
 | CC-32 | `ageOf` reads the UTC date, so FIFO/LIFO groups skew after ~20:00 | open | medium | Same class as CC-26; a task ingested late evening groups a day early |
 | CC-33 | Only `sync-tick.ps1` takes the sync lock — the bridge routes don't | done | high | Shipped: `/api/sync` and `/api/research` now take the same lockfile, so a tick and a button press can no longer interleave |
+| CC-34 | Run the dashboard on Hex (hex.tech) instead of `npm run dev` | dropped | low | Evaluated 2026-08-13: Hex runs Python/SQL notebooks — no Node host, and no path to this session's M365 connector auth. CC-6's tunnel does more for less |
 
 ---
 
@@ -545,3 +546,50 @@ third copy of it:
 
 Related: CC-4 (whole-file `writeFileSync`), CC-9 (the schedule), and the CC-9
 prose above, which needs its lock claim corrected in the same commit.
+
+## CC-34 — Run the dashboard on Hex — DROPPED
+
+Asked 2026-08-13: could this run via Hex (hex.tech)? Written up so the next session
+doesn't re-derive it. **No — not this app, and the partial version costs more than
+CC-6's tunnel and delivers less.**
+
+Hex is a Python/SQL/R notebook that publishes selected cells as an app. Three
+mismatches, in order of how fatal they are:
+
+1. **No Node runtime, no way to host this frontend.** The dashboard is a React SPA
+   served by Vite, and all six routes (`/api/tasks`, `/api/news`, `/api/stock`,
+   `/api/sync`, `/api/research`, `/api/find-path`) live in `configureServer` — i.e.
+   the dev server *is* the backend (CC-3). Hex has no place to put either half. A Hex
+   version means reimplementing ~2000 lines of `App.jsx` as Python cells and charts,
+   which then drifts from the real UI on every change.
+2. **The sync can never run there.** `/api/sync` and `/api/research` spawn
+   `claude -p --permission-mode bypassPermissions` and the skills call
+   `mcp__claude_ai_Microsoft_365__*` — Alex's mailbox via *this logged-on session's*
+   connector. Hex cloud compute has no such session. Reaching Outlook from Hex means
+   an Entra app registration plus an Anthropic API key, which is precisely the full
+   cloud rebuild CC-6 says was already abandoned. (And per CC-12/13/15, the M365
+   grant is still read-only pending IT anyway.)
+3. **The storage model doesn't survive the trip.** `data/tasks.json` plus git history
+   *is* the archive. Hex persists local files written in a notebook session but
+   **not** in published-app or scheduled runs — those must write to an external
+   store. So every read and write would have to go through the GitHub contents API
+   with a PAT in Hex Secrets, which is CC-6 option B's storage layer with a worse
+   frontend bolted on.
+
+**What Hex could actually do:** a read-only mirror — one project that pulls
+`tasks.json` from GitHub on a schedule and renders the dials, the pipeline bars and a
+task table, published as an app reachable from the phone. That is CC-6's motivation
+(get it away from the desk) at maybe half a day, with no editing, no ↻ Refresh, no
+🔍 Research, and a second UI to maintain.
+
+**Why the tunnel still wins:** `cloudflared` (~30 min, CC-6) serves the *whole* real
+app, including both buttons, because compute stays on the laptop where the connectors
+already work. Cost is that the laptop must be awake.
+
+**Also unresolved, and it applies to any SaaS:** `tasks.json` carries live FEP deal
+names, portcos and colleagues' addresses, so a Hex workspace is the same data-policy
+conversation flagged in CC-8 — FEP devops (Brandon Emmerich) is the sanctioned path.
+Whether FEP even licenses Hex was not checked; it doesn't change the verdict.
+
+Revisit only if FEP standardises on Hex *and* someone wants a read-only mobile view
+badly enough to maintain a second UI.
