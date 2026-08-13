@@ -52,7 +52,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-33 | Only `sync-tick.ps1` takes the sync lock — the bridge routes don't | done | high | Shipped: `/api/sync` and `/api/research` now take the same lockfile, so a tick and a button press can no longer interleave |
 | CC-34 | Named tunnel behind Cloudflare Access, instead of a quick tunnel + our own token | open | medium | Today's URL changes every run and our gate is homegrown auth on a box that can spawn Claude |
 | CC-35 | Touch has no right-click — two actions are unreachable on the phone | open | medium | Recategorize and "back to to-do" are right-click only (CC-6) |
-| CC-36 | The HMR websocket bypasses the remote token gate | open | low | Connect middleware never sees an upgrade request; no task data on it, but it is a hole |
+| CC-36 | The HMR websocket bypasses the remote token gate | done | low | Shipped with CC-6: an `upgrade` listener ahead of Vite's checks the same cookie, and HMR is off remotely |
 | CC-37 | Read-only mirror for when the laptop is asleep | open | low | CC-6 option B, still unbuilt: the tunnel needs this machine awake |
 
 ---
@@ -626,21 +626,31 @@ Two actions on the task list are right-click only, so neither exists on the phon
 Both want a long-press (`pointerdown` + ~500ms timer, cancelled on move/up) firing
 the same handler, which also stays out of the way of the desk's right-click.
 
-## CC-36 — The HMR websocket bypasses the remote token gate
+## CC-36 — The HMR websocket bypasses the remote token gate — DONE
 
-`remoteAuth()` in [vite.config.js](vite.config.js) is connect middleware, and an
-HTTP *upgrade* request never passes through connect — Vite's websocket server
-handles it directly. So with a tunnel open, anyone who knows the hostname can
-connect to the HMR socket without the token.
+Filed and closed 2026-08-13, in the same sitting as CC-6 — an unauthenticated
+socket into a process that spawns permission-bypassed Claude runs was not going
+onto the internet as a follow-up row.
 
-What that gets them today is small: HMR traffic carries module updates, not task
-data, and it cannot reach `/api/*`. But it is an unauthenticated socket into this
-process, and the quick tunnel's hostname is not a secret.
+`remoteAuth()` is connect middleware, and an HTTP *upgrade* never passes through
+connect: Vite's websocket server handles it directly. So the gate that fronts
+every route did not front this one, and with a tunnel open anyone who knew the
+hostname could connect.
 
-Options, cheapest first: `server.hmr: false` in remote mode (the phone does not
-need hot reload, and this is one line); or check the token in `server.httpServer`'s
-`upgrade` event before Vite's handler; or let CC-34 put Access in front of the
-whole tunnel, which closes it without any code.
+Two things went in, and the order matters:
+
+- **`server.hmr: false` in remote mode.** Carrying the desk on a phone doesn't
+  need hot reload. Cost: while `npm run remote` is up, code edits need a page
+  refresh.
+- **An `upgrade` listener that checks the same session cookie**, added with
+  `prependListener` so it runs *before* Vite's own handler, writing 401 and
+  destroying the socket when the cookie is missing. `hmr: false` alone was not
+  enough — measured, not assumed: the websocket server still answered a
+  `vite-hmr` upgrade with `101 Switching Protocols`.
+
+Destroying the socket underneath Vite is safe because `ws` bails out on a socket
+that is no longer writable. Verified: 401 without the cookie, 101 with it, and the
+dev server still serving normally afterwards.
 
 ## CC-37 — Read-only mirror for when the laptop is asleep
 

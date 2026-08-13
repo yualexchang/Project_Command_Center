@@ -72,9 +72,8 @@ const LOGIN_PAGE = `<!doctype html>
 // (?k=<token>) is the only way in; it trades itself for an HttpOnly cookie and
 // redirects, so the secret leaves the URL bar on the first load.
 //
-// Not covered: the HMR websocket, which never reaches connect middleware (TODO CC-36).
-// It carries no task data and can't reach /api/*, but it is a hole, and a real
-// front door (Cloudflare Access, CC-34) is the fix rather than more of this.
+// The websocket needs its own guard (CC-36): an HTTP upgrade never passes through
+// connect middleware, so the check below would never see it.
 function remoteAuth() {
   const token = REMOTE ? readToken() : "";
   // Refuse to start rather than serve the bridge routes to the internet unguarded.
@@ -89,6 +88,20 @@ function remoteAuth() {
     name: "pcc-remote-auth",
     configureServer(server) {
       if (!REMOTE) return;
+      // CC-36. Vite's websocket server answers an upgrade whether or not HMR is
+      // enabled, so remotely it would be the one unauthenticated way into this
+      // process. prependListener puts this ahead of Vite's own upgrade handler,
+      // and ws drops a socket that is no longer writable, so destroying it here
+      // ends the exchange. Verified: 401 without the cookie, 101 with it, and
+      // the server still serving afterwards.
+      if (server.httpServer) {
+        server.httpServer.prependListener("upgrade", (req, socket) => {
+          const have = cookieValue(req.headers.cookie, SESSION_COOKIE);
+          if (have && sameSecret(have, session)) return;
+          socket.write("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n");
+          socket.destroy();
+        });
+      }
       server.middlewares.use((req, res, next) => {
         const url = new URL(req.url, "http://x");
         const key = url.searchParams.get("k");
@@ -586,6 +599,11 @@ const serverConfig = REMOTE
         ".trycloudflare.com",
         ...String(process.env.PCC_ALLOWED_HOSTS || "").split(",").map((h) => h.trim()).filter(Boolean),
       ],
+      // Nothing about carrying the desk on a phone needs hot reload, and the
+      // socket it rides on is the one thing connect middleware can't gate
+      // (CC-36, guarded separately above). Cost: while `npm run remote` is up,
+      // code edits need a page refresh rather than reloading themselves.
+      hmr: false,
     }
   : undefined;
 

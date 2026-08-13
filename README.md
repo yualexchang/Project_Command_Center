@@ -58,6 +58,8 @@ network.
   Delete that file and restart to revoke every phone at once.
 - `npm run dev` is unchanged: localhost only, no gate. The gate only exists when
   `PCC_REMOTE` is set, which only `npm run remote` does.
+- **Hot reload is off in remote mode** (`TODO.md` CC-36), so a code edit while the
+  tunnel is up needs a page refresh to show up.
 - **This puts live deal names and colleagues' addresses on the public internet**
   for as long as the tunnel is up. Worth a word with whoever owns FEP data policy
   before it becomes a daily habit.
