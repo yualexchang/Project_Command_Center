@@ -29,10 +29,38 @@ Claude Code (terminal)                          Browser
 cd project-command-center
 npm install     # first time only
 npm run dev     # dashboard at http://localhost:5173
+npm run remote  # same dashboard, reachable from the phone (see below)
 ```
 
 Node is installed portably at `~\Tools\node` (no admin rights on this machine);
 it's on the user PATH for new terminals.
+
+## On the go (phone)
+
+```powershell
+npm install       # once, for the QR-code dependency
+npm run remote    # opens a Cloudflare tunnel and prints a link + QR code
+```
+
+Scan the QR with the phone. The link carries a one-time access key which the
+first page load swaps for a cookie good for 30 days, so the key never sits in
+the address bar afterwards. `npm run remote:lan` does the same over the local
+wifi instead of a tunnel — no Cloudflare, but the phone has to be on the same
+network.
+
+- **The laptop has to be awake and this window open.** Compute stays here, which
+  is exactly why ↻ Refresh and 🔍 Research still work from the phone.
+- **The quick tunnel's hostname is random and changes every run**, so the QR is
+  the way in; a bookmark won't survive a restart. A named tunnel behind
+  Cloudflare Access fixes that — `TODO.md` CC-34.
+- **Everything is behind the token**, including the app itself, `/api/*` and
+  Vite's own module graph. The token lives in `data/.remote-token` (gitignored).
+  Delete that file and restart to revoke every phone at once.
+- `npm run dev` is unchanged: localhost only, no gate. The gate only exists when
+  `PCC_REMOTE` is set, which only `npm run remote` does.
+- **This puts live deal names and colleagues' addresses on the public internet**
+  for as long as the tunnel is up. Worth a word with whoever owns FEP data policy
+  before it becomes a daily habit.
 
 ## Syncing
 
