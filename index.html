@@ -2,11 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#16202B" />
+    <!-- added to the home screen it opens chromeless, like an app (CC-6) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Command Center" />
     <title>Project Command Center</title>
     <style>
-      body { margin: 0; }
+      body { margin: 0; -webkit-text-size-adjust: 100%; }
       @keyframes pccPulse { 0% { opacity: 1; } 50% { opacity: 0.55; } 100% { opacity: 1; } }
+      /* iOS zooms the whole page when a control with text under 16px takes
+         focus, and never zooms back out. The desk's controls are 10-12px by
+         design, so on touch screens only they get bumped to the threshold.
+         !important because those sizes are set inline in App.jsx. */
+      @media (pointer: coarse) and (max-width: 860px) {
+        input, select, textarea { font-size: 16px !important; }
+      }
     </style>
   </head>
   <body>

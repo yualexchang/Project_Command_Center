@@ -2,12 +2,124 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { spawn } from "child_process";
 import { fileURLToPath } from "url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const DATA = path.join(here, "data", "tasks.json");
 const PROGRESS = path.join(here, "data", "sync-progress.json"); // written by the sync skill, read by the dashboard
+
+// ---------- remote access (CC-6 / CC-7) ----------
+// Off unless PCC_REMOTE is set, so `npm run dev` keeps behaving exactly as it did:
+// localhost only, no token, no gate. `npm run remote` (scripts/remote.mjs) sets it.
+//   tunnel — still binds loopback; cloudflared connects to it from this machine
+//   lan    — binds every interface, for a phone on the same wifi
+const REMOTE = (process.env.PCC_REMOTE || "").toLowerCase();
+const TOKEN_FILE = path.join(here, "data", ".remote-token");
+const SESSION_COOKIE = "pcc_session";
+
+function readToken() {
+  const fromEnv = (process.env.PCC_TOKEN || "").trim();
+  if (fromEnv) return fromEnv;
+  try {
+    return fs.readFileSync(TOKEN_FILE, "utf-8").trim();
+  } catch (e) {
+    return "";
+  }
+}
+
+// The cookie carries a hash of the token, not the token, so a cookie read off the
+// phone can't be pasted back as a fresh magic link.
+const sessionValue = (token) => crypto.createHash("sha256").update(`pcc:${token}`).digest("hex");
+
+function sameSecret(a, b) {
+  const ba = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
+}
+
+function cookieValue(header, name) {
+  for (const part of String(header || "").split(";")) {
+    const i = part.indexOf("=");
+    if (i < 0) continue;
+    if (part.slice(0, i).trim() === name) return decodeURIComponent(part.slice(i + 1).trim());
+  }
+  return "";
+}
+
+const LOGIN_PAGE = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Command Center — locked</title></head>
+<body style="margin:0;background:#F4F6F8;color:#16202B;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh">
+  <form style="background:#fff;border:1px solid #DCE3EA;border-radius:8px;padding:22px;width:min(360px,90vw)"
+        onsubmit="event.preventDefault();location='/?k='+encodeURIComponent(this.k.value.trim())">
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:2px;color:#5C6B7A">PROJECT COMMAND CENTER</div>
+    <div style="font-size:18px;font-weight:700;margin:8px 0 4px">This desk is locked</div>
+    <div style="font-size:13px;color:#5C6B7A;margin-bottom:14px">Open the link from the terminal that started the tunnel, or paste the access key.</div>
+    <input name="k" type="password" autocomplete="current-password" placeholder="Access key"
+           style="width:100%;box-sizing:border-box;font-size:16px;padding:10px;border:1px solid #DCE3EA;border-radius:4px" />
+    <button type="submit" style="margin-top:10px;width:100%;font-size:15px;font-weight:600;padding:11px;border-radius:4px;border:1px solid #16202B;background:#16202B;color:#fff">Unlock</button>
+  </form>
+</body></html>
+`;
+
+// Fronts EVERYTHING — the app, /api/*, and Vite's own module graph — with one
+// shared secret, because remote mode puts a machine that can spawn
+// permission-bypassed Claude runs on the public internet. The magic link
+// (?k=<token>) is the only way in; it trades itself for an HttpOnly cookie and
+// redirects, so the secret leaves the URL bar on the first load.
+//
+// Not covered: the HMR websocket, which never reaches connect middleware (TODO CC-36).
+// It carries no task data and can't reach /api/*, but it is a hole, and a real
+// front door (Cloudflare Access, CC-34) is the fix rather than more of this.
+function remoteAuth() {
+  const token = REMOTE ? readToken() : "";
+  // Refuse to start rather than serve the bridge routes to the internet unguarded.
+  if (REMOTE && token.length < 20) {
+    throw new Error(
+      "PCC_REMOTE is set but no access token was found. Run `npm run remote`, which " +
+      "generates data/.remote-token, or set PCC_TOKEN to a secret of 20+ characters."
+    );
+  }
+  const session = token ? sessionValue(token) : "";
+  return {
+    name: "pcc-remote-auth",
+    configureServer(server) {
+      if (!REMOTE) return;
+      server.middlewares.use((req, res, next) => {
+        const url = new URL(req.url, "http://x");
+        const key = url.searchParams.get("k");
+        if (key && sameSecret(key, token)) {
+          const https = req.headers["x-forwarded-proto"] === "https";
+          url.searchParams.delete("k");
+          res.statusCode = 302;
+          res.setHeader("Set-Cookie",
+            `${SESSION_COOKIE}=${session}; Path=/; Max-Age=${60 * 60 * 24 * 30}; HttpOnly; SameSite=Lax${https ? "; Secure" : ""}`);
+          res.setHeader("Location", url.pathname + (url.search || ""));
+          res.end();
+          return;
+        }
+        const have = cookieValue(req.headers.cookie, SESSION_COOKIE);
+        if (have && sameSecret(have, session)) {
+          next();
+          return;
+        }
+        res.statusCode = 401;
+        res.setHeader("Cache-Control", "no-store");
+        if (req.url.startsWith("/api/")) {
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "unauthorized — reopen the dashboard link" }));
+        } else {
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(LOGIN_PAGE);
+        }
+      });
+    },
+  };
+}
 
 // Serves data/tasks.json as GET/PUT /api/tasks. Local-only: the dev server
 // binds to localhost and holds no secrets — Claude Code and the dashboard
@@ -164,9 +276,18 @@ function releaseLock() {
 
 const BRIDGE_HEADER = "x-pcc-bridge";
 const ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
+// Remotely the origin is whatever host the phone reached us on — the tunnel's
+// hostname, or a LAN address — so it can't be a fixed list. Matching it against
+// this request's own Host header keeps the check meaningful: a page served from
+// somewhere else still sends its own origin, and still fails.
+function allowedOrigin(req, origin) {
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  const host = req.headers.host;
+  return !!(REMOTE && host && (origin === `https://${host}` || origin === `http://${host}`));
+}
 function guarded(req, res) {
   const origin = req.headers.origin;
-  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+  if (origin && !allowedOrigin(req, origin)) {
     res.statusCode = 403;
     res.end(JSON.stringify({ error: `origin ${origin} not allowed` }));
     return false;
@@ -450,6 +571,27 @@ function claudeBridge() {
   };
 }
 
+// CC-7. Default (no PCC_REMOTE) leaves Vite's own binding alone: loopback, as
+// before. Tunnel mode stays on loopback too — cloudflared dials it from this
+// machine, so nothing needs to listen on the network for the phone to work.
+// Only `lan` mode actually opens a port to the wifi.
+const serverConfig = REMOTE
+  ? {
+      host: REMOTE === "lan" ? true : "127.0.0.1",
+      // Vite rejects unknown Host headers (DNS-rebinding protection); the quick
+      // tunnel hands out a fresh *.trycloudflare.com name on every run, so the
+      // wildcard is the only workable form. PCC_ALLOWED_HOSTS adds a named
+      // tunnel's own hostname when one exists (CC-34).
+      allowedHosts: [
+        ".trycloudflare.com",
+        ...String(process.env.PCC_ALLOWED_HOSTS || "").split(",").map((h) => h.trim()).filter(Boolean),
+      ],
+    }
+  : undefined;
+
 export default defineConfig({
-  plugins: [react(), tasksApi(), newsApi(), stockApi(), claudeBridge()],
+  // remoteAuth() first: its middleware must run before anything that serves a
+  // file or spawns a Claude run.
+  plugins: [remoteAuth(), react(), tasksApi(), newsApi(), stockApi(), claudeBridge()],
+  ...(serverConfig ? { server: serverConfig } : {}),
 });
