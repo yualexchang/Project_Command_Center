@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-12T21:14:00.000Z",
+  "updatedAt": "2026-08-18T14:30:00.000Z",
   "items": [
+    {
+      "sentiment": "neutral",
+      "scope": "UK",
+      "short": "Wessex ban, first since 1976",
+      "headline": "Wessex Water imposes first hosepipe ban in 50 years across Bath, Somerset, Dorset, Wiltshire",
+      "summary": "Home car washing is banned for 1.4m customers from 18 August while commercial washes stay exempt, so near-term volume should route to sites even as a ninth restricted region widens the path to business-level drought orders.",
+      "source": "ITV News West Country",
+      "date": "2026-08-17",
+      "url": "https://www.itv.com/news/westcountry/2026-08-17/wessex-water-issues-hosepipe-ban-across-our-region"
+    },
     {
       "sentiment": "neutral",
       "scope": "UK",
@@ -30,16 +40,6 @@
       "source": "The Local Germany",
       "date": "2026-08-07",
       "url": "https://www.thelocal.de/20260807/maps-where-water-scarcity-is-disrupting-life-in-germany"
-    },
-    {
-      "sentiment": "positive",
-      "scope": "UK",
-      "short": "Strongest July since 2019",
-      "headline": "UK new car registrations up 11.7% in July to 156,571, eighth straight month of growth",
-      "summary": "A growing UK car parc and healthier retail demand are the underlying volume driver for a wash estate, and the recovery is now eight months old.",
-      "source": "SMMT",
-      "date": "2026-08-05",
-      "url": "https://www.smmt.co.uk/huge-ev-boost-in-july-yet-mandate-gap-persists/"
     },
     {
       "sentiment": "negative",
