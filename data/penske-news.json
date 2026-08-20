@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-12T20:31:05.000Z",
+  "updatedAt": "2026-08-20T12:35:00.000Z",
   "items": [
+    {
+      "sentiment": "positive",
+      "scope": "US",
+      "short": "No broad incentive war",
+      "headline": "Cox: OEMs will target incentives by model rather than discount across the board",
+      "summary": "Incentive spend fell to 6.4% of ATP in July, so franchised dealers keep more pricing power on new units than a broad discount war would allow.",
+      "source": "Dealership Guy",
+      "date": "2026-08-19",
+      "url": "https://news.dealershipguy.com/p/an-oem-incentive-war-is-not-coming-but-here-s-what-dealers-can-expect"
+    },
     {
       "sentiment": "neutral",
       "scope": "US",
@@ -40,16 +50,6 @@
       "source": "Digital Dealer",
       "date": "2026-08-04",
       "url": "https://digitaldealer.com/news/average-dealership-profit-is-down-but-the-floor-may-be-in-sight/172689"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "SOCAL",
-      "short": "CA registrations -7.7%",
-      "headline": "California new-vehicle registrations fall 7.7% in H1 2026; full year projected at 1.73M units",
-      "summary": "The home market shrank to 864,848 units on affordability and rate pressure, though hybrids hit a record 22.1% share and 75.7% of hybrid/EV volume still moves through franchised dealers.",
-      "source": "California New Car Dealers Association",
-      "date": "2026-07-20",
-      "url": "https://www.cncda.org/news/california-new-car-dealers-association-releases-q2-2026-auto-outlook/"
     }
   ]
 }

@@ -1,6 +1,122 @@
 {
   "tasks": [
     {
+      "id": "a7f3k9q2",
+      "title": "Send David lender deck PPT for Atlas FIRB responses",
+      "project": "Bravo Fit",
+      "priority": "high",
+      "deadline": "2026-08-20",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You + Preston",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Mallesons came back with PwC's draft answers to FIRB's tax questions and needs FEP to sign off plus close out the leftovers, including whether the lender deck can be handed over. David wants the deck in PowerPoint so the team can rework it before anything goes to FIRB.",
+      "steps": [
+        "Pull latest lender deck PPT, send to David and Preston",
+        "Flag any commercially sensitive slides to strip",
+        "Answer Mallesons on debt terms and Golub/Bain queries"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "RE: Atlas - FIRB exemption certificate [MALLESONS-DOCUMENTS.FID12397830]",
+      "src": "email",
+      "rank": 1787261400004,
+      "createdAt": "2026-08-20T12:30:00Z"
+    },
+    {
+      "id": "m2x8w5rt",
+      "title": "Confirm Atlas MIP conversion call with DWT and PwC AU",
+      "project": "Bravo Fit",
+      "priority": "high",
+      "deadline": "2026-08-20",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "Brayden Koslowsky",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": true,
+      "emailBlurb": "DWT and PwC Australia have worked through the MIP conversion calculation and hit points they need Alex on to settle. Brayden is asking him to take a call tonight between 7:30 and 9:30pm ET to walk the details.",
+      "steps": [
+        "Pick a slot in the 7:30-9:30pm ET window",
+        "Ask Brayden for the open items in advance",
+        "Re-read the cash-settled MIP mechanics before the call"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "BraydenKoslowsky@dwt.com",
+      "subject": "Atlas - MIP Conversion Calculation",
+      "src": "email",
+      "rank": 1787261400003,
+      "createdAt": "2026-08-20T12:30:00Z"
+    },
+    {
+      "id": "p9v4h1zc",
+      "title": "Build Sea Lion counter on deposits, bonds, VAT and tax",
+      "project": "IMO / Sea Lion",
+      "priority": "high",
+      "deadline": "2026-08-20",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Simon Quince",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": true,
+      "emailBlurb": "Simon came back with the ICWG local finance team's answers on landlord deposits, operator bonds, corporation tax and VAT, plus site-level schedules. Alex needs to turn those into FEP's counter to the buyer's locked-box mark-up before today's 9:30am ET call.",
+      "steps": [
+        "Read the deposit and operator bond schedules by site",
+        "Draft counter position on each debt-like item",
+        "Test cash sweep in place of the ticker"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "simonquince@icwg.com",
+      "subject": "RE: Sea Lion - locked box etc. [SIMS-L_LIVE_EMEA1.151495.151495-00001.FID3726343]",
+      "src": "email",
+      "rank": 1787261400002,
+      "createdAt": "2026-08-20T12:30:00Z"
+    },
+    {
+      "id": "b6n3d8ky",
+      "title": "Answer Rob Coombe on Bravo Fit DA and $1m Pilates capex",
+      "project": "Bravo Fit",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Rob Coombe reported back on his first weeks with Dani and Luke and flagged that management is unclear on delegated authorities under FEP ownership. He also gave notice that a $1m out-of-budget capex request for more Pilates machines is coming, plus asks on the monthly check-in format and the NZ workstream.",
+      "steps": [
+        "Draft a delegated authority position for David",
+        "Frame the $1m Pilates capex approval path",
+        "Reset monthly check-in agenda to financials only"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "Fw: Bravo Fitness",
+      "src": "email",
+      "rank": 1787261400001,
+      "createdAt": "2026-08-20T12:30:00Z"
+    },
+    {
       "id": "fu8byryd5zc1",
       "status": "todo",
       "completedAt": null,
@@ -3799,5 +3915,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T01:18:23Z"
+  "lastSync": "2026-08-20T12:30:00Z"
 }

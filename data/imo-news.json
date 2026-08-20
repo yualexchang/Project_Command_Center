@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-18T14:30:00.000Z",
+  "updatedAt": "2026-08-20T12:35:00.000Z",
   "items": [
+    {
+      "sentiment": "negative",
+      "scope": "UK",
+      "short": "Bans may run to year-end",
+      "headline": "Thames Water says hosepipe restrictions could stay in place until late 2026",
+      "summary": "A multi-month restriction window keeps wash volumes suppressed across the UK estate far beyond the usual summer dip.",
+      "source": "HuffPost UK",
+      "date": "2026-08-20",
+      "url": "https://www.huffingtonpost.co.uk/entry/hosepipe-bans-may-stay-end-of-year_uk_6a86b6b5e4b0e9f1dd2782a8"
+    },
     {
       "sentiment": "neutral",
       "scope": "UK",
@@ -10,6 +20,16 @@
       "source": "ITV News West Country",
       "date": "2026-08-17",
       "url": "https://www.itv.com/news/westcountry/2026-08-17/wessex-water-issues-hosepipe-ban-across-our-region"
+    },
+    {
+      "sentiment": "negative",
+      "scope": "DE",
+      "short": "German bans widen to Nov",
+      "headline": "Water extraction bans extended across German districts, some into November",
+      "summary": "Extraction bans now cover roughly half of German districts, with Ruhr-area limits running to 30 November and directly constraining site water use.",
+      "source": "t-online",
+      "date": "2026-08-14",
+      "url": "https://www.t-online.de/heim-garten/aktuelles/id_101387108/wasserentnahme-verbot-ausgeweitet-welche-landkreise-betroffen-sind.html"
     },
     {
       "sentiment": "neutral",
@@ -30,26 +50,6 @@
       "source": "Water Industry Hub",
       "date": "2026-08-08",
       "url": "https://www.waterindustryhub.com/intelligence-uk-hosepipe-bans-water-conservation-summer-2026.html"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "DE",
-      "short": "German water curbs spread",
-      "headline": "More than 100 German cities and districts impose water-use restrictions in drought",
-      "summary": "Restrictions are now widespread across a core IMO market, raising the odds German sites face throttled or suspended washing.",
-      "source": "The Local Germany",
-      "date": "2026-08-07",
-      "url": "https://www.thelocal.de/20260807/maps-where-water-scarcity-is-disrupting-life-in-germany"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "UK",
-      "short": "Business wash ban sought",
-      "headline": "Southern Water applies for drought order that would ban mechanical vehicle washing",
-      "summary": "A non-essential use ban would close commercial car washes outright in Hampshire and the Isle of Wight, not merely restrict hosepipes.",
-      "source": "ITV News Meridian",
-      "date": "2026-08-03",
-      "url": "https://www.itv.com/news/meridian/2026-08-03/further-water-restrictions-possible-as-southern-water-applies-for-drought-order"
     }
   ]
 }
