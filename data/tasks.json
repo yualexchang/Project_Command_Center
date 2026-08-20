@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "sl26dilapbx1",
+      "title": "Book Belux dilaps provision into Sea Lion locked box",
+      "project": "IMO / Sea Lion",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Kabir Mundkur",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Kabir forwarded Naz's Belux dilapidations provision tagged for the locked box, but the numbers do not agree: Naz quotes EUR 260k while Franky's underlying file totals EUR 283.6k. Franky also flags the figures are only recalculated at year-end, so these are stale end-2025 values that need a view taken before they go into the box.",
+      "steps": [
+        "Reconcile 260k versus 283.6k in Franky's file",
+        "Confirm treatment of stale end-2025 values",
+        "Reflect agreed Belux number in locked box"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "kabir.mundkur@fep-us.com",
+      "subject": "FW: Dilapidations",
+      "src": "email",
+      "rank": 1787261402007,
+      "createdAt": "2026-08-20T16:09:37.000Z"
+    },
+    {
       "id": "sp7k2m9q",
       "title": "Send Kabir LTM view with Simon's schedules for SPA",
       "project": "IMO / Sea Lion",
@@ -4190,5 +4219,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T15:52:00Z"
+  "lastSync": "2026-08-20T16:09:37Z"
 }
