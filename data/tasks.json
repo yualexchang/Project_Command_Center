@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "slcpre821",
+      "title": "Review SLC market entry pre-reads before Friday session",
+      "project": "KEP - SLC",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "Joe Brady",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Joe circulated two pre-reads for tomorrow's 10am ET SLC planning session: a re-sequenced executive summary deck and a market entry write-up digging into Denver vs. SLC differences and the LDS acceptance/premium-pricing concern. He asked the team to read the deck beforehand so the meeting can settle prioritization on in-flight deals like Farmington.",
+      "steps": [
+        "Read market entry doc and re-sequenced exec summary",
+        "Pressure-test LDS pricing and Farmington prioritization",
+        "Bring questions to Friday 10am ET session"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "joe.brady@fep-us.com",
+      "subject": "RE: 8AM MT/ 10AM ET: KEP Market Planning Meeting (Salt Lake City)",
+      "src": "email",
+      "rank": 1787261700004,
+      "createdAt": "2026-08-20T19:46:00.000Z"
+    },
+    {
       "id": "37adbb7a16",
       "title": "Send Danielle Atlas invoices and cost basis split",
       "project": "Bravo Fit",
@@ -1430,7 +1459,7 @@
       "status": "done",
       "completedAt": "2026-08-19T20:54:37.937Z",
       "assignedBy": "Phil Strauss",
-      "addressedTo": "You + David O’Donnell",
+      "addressedTo": "You + David Oâ€™Donnell",
       "askType": "external",
       "needsCall": false,
       "emailBlurb": "Phil is drafting responses to FIRB tax questions on the Bravo Fit passive exemption certificate, due to Mallesons by 19 August. He wants your call on whether to put a standing PwC Australia tax consulting engagement letter in place for future matters or keep running through the PwC US structuring letter, so independence checks stop slowing things down.",
@@ -1588,7 +1617,7 @@
       "addressedTo": "You + Preston Nelson",
       "askType": "internal",
       "needsCall": false,
-      "emailBlurb": "John rebuilt the BravoFit January-May 2026 financials in two versions - a hardcoded Golub pack and a send version keyed off Jake’s own sheets - and needs you or Preston to bless them before they leave the firm. He is blocked until one of you signs off, and the Golub copy being fully hardcoded is worth a look before it goes to a lender.",
+      "emailBlurb": "John rebuilt the BravoFit January-May 2026 financials in two versions - a hardcoded Golub pack and a send version keyed off Jakeâ€™s own sheets - and needs you or Preston to bless them before they leave the firm. He is blocked until one of you signs off, and the Golub copy being fully hardcoded is worth a look before it goes to a lender.",
       "steps": [
         "Open both files; check vSend ties to Golub pack",
         "Spot-check the hardcoded Golub numbers",
@@ -1681,7 +1710,7 @@
       "addressedTo": "You + deal team",
       "askType": "internal",
       "needsCall": true,
-      "emailBlurb": "Joe Brady wants the SLC group to regroup next week to prioritize Salt Lake trade areas before market entry, and Kathleen is collecting availability. Andrea and Joe have already sent windows for 8/18, 8/20 and 8/21 — yours is outstanding.",
+      "emailBlurb": "Joe Brady wants the SLC group to regroup next week to prioritize Salt Lake trade areas before market entry, and Kathleen is collecting availability. Andrea and Joe have already sent windows for 8/18, 8/20 and 8/21 â€” yours is outstanding.",
       "steps": [
         "Check calendar against 8/18, 8/20, 8/21 windows",
         "Reply to Kathleen with your open times",
@@ -1712,7 +1741,7 @@
       "addressedTo": "You",
       "askType": "external",
       "needsCall": false,
-      "emailBlurb": "Beth answered your Ken Caryl diligence note with a second list of things to pull from Primrose — a monthly FTE chart running Aug-Jul across 2023-2026, a full Lead Center report back to June 2025, plus questions on back-to-school marketing, UPK utilization and match acceptance, staffing model, and expected school-age and camp drops. These go beyond the PFP and BILLINGRPT ask and need to be folded into what you send the seller.",
+      "emailBlurb": "Beth answered your Ken Caryl diligence note with a second list of things to pull from Primrose â€” a monthly FTE chart running Aug-Jul across 2023-2026, a full Lead Center report back to June 2025, plus questions on back-to-school marketing, UPK utilization and match acceptance, staffing model, and expected school-age and camp drops. These go beyond the PFP and BILLINGRPT ask and need to be folded into what you send the seller.",
       "steps": [
         "Fold Beth items into seller request list",
         "Flag Kathy Soppe as the Primrose source",
@@ -1743,7 +1772,7 @@
       "addressedTo": "You",
       "askType": "internal",
       "needsCall": false,
-      "emailBlurb": "Rhea turned the Mark Motors deck to v7 with the Excel backup, covering the six changes you asked for — 2026 implied run-rate, red-boxed P&L lines, a cleaner blue sky analysis, a real estate appraisal table, the Nissan midpoint footnote, and zeroing out negative EBITDA. She is blocked until you review it and tell her what to pick up next.",
+      "emailBlurb": "Rhea turned the Mark Motors deck to v7 with the Excel backup, covering the six changes you asked for â€” 2026 implied run-rate, red-boxed P&L lines, a cleaner blue sky analysis, a real estate appraisal table, the Nissan midpoint footnote, and zeroing out negative EBITDA. She is blocked until you review it and tell her what to pick up next.",
       "steps": [
         "Open v7 deck and OP model backup",
         "Check blue sky and implied RR math",
@@ -1774,7 +1803,7 @@
       "addressedTo": "You",
       "askType": "external",
       "needsCall": false,
-      "emailBlurb": "Andrea pointed you at two Primrose reports worth pulling to prove out Ken Caryl's Aug-Dec enrollment forecast — monthly PFP packages and monthly BILLINGRPTs going back to 2023, the latter being student-level so month-to-month exits are visible. She sent it separately from Beth, so the request has to come from you to the seller.",
+      "emailBlurb": "Andrea pointed you at two Primrose reports worth pulling to prove out Ken Caryl's Aug-Dec enrollment forecast â€” monthly PFP packages and monthly BILLINGRPTs going back to 2023, the latter being student-level so month-to-month exits are visible. She sent it separately from Beth, so the request has to come from you to the seller.",
       "steps": [
         "Add PFP and BILLINGRPT to seller request",
         "Send to Stacey and Jeneane",
@@ -2177,7 +2206,7 @@
       "addressedTo": "You + Katie Haverty",
       "askType": "external",
       "needsCall": true,
-      "emailBlurb": "Seller's counsel has told DWT to stop all work on Ken Caryl until his client speaks with KEP directly, and DWT wants to know whether you already knew and whether to convene a call. Everything downstream — payoff letters, lien releases, the SBA loan documentation still missing — is frozen until someone reopens the seller channel.",
+      "emailBlurb": "Seller's counsel has told DWT to stop all work on Ken Caryl until his client speaks with KEP directly, and DWT wants to know whether you already knew and whether to convene a call. Everything downstream â€” payoff letters, lien releases, the SBA loan documentation still missing â€” is frozen until someone reopens the seller channel.",
       "steps": [
         "Confirm with Katie who owns the seller call",
         "Reply to Ellie with status and call preference",
@@ -3787,7 +3816,7 @@
       "addressedTo": "You",
       "askType": "internal",
       "needsCall": false,
-      "emailBlurb": "THE ASK Â· Alex needs comprehensive EBITDA analysis for Belux/France covering 2025 monthly actuals, 2026 monthly budget and actuals with weather adjustments. Kabir, Scott Romanoff, and Mike Esposito are collaborating on tax treatment of cash distributions, requiring LTM calculations (Dec 2025 rolling to July 2026) and distributable cash modeling at constant leverage to validate the 1.2-2M Euro valuation under the competing indicative offers.\nCONTEXT Â· This flows from the July IMO France divestiture process where AMAVI submitted a 1.2-2M Euro EBITDA indicative offer for Belux & France. Lock box discussions with bidders occurred late July (July 30-31), with Kabir and Alex leading buyer engagement. The EBITDA definition in the offers now requires validation against actual monthly operating performance and proper tax structuring for distributions.\nSUGGESTED PLAN\n1. Compile monthly actual EBITDA for Belux and France for all 2025 and 2026 YTD (through July 2026)\n2. Obtain and apply 2026 monthly budget EBITDA to calculate actuals-versus-budget variance\n3. Determine weather normalization adjustments with operations and apply to monthly EBITDA figures\n4. Calculate Dec 2025 LTM EBITDA (12 months ended Dec 31, 2025)\n5. Roll forward to July 2026 LTM EBITDA (12 months ended July 31, 2026)\n6. Confirm target leverage ratio and debt covenant requirements with Kabir and Scott\n7. Calculate distributable cash at constant leverage using the LTM metrics, incorporating Mike Esposito's tax treatment guidance\n1. finalize france locked box 2. france purchae price and mutiplle, and ebitda monthly, post tax include F&E, 3. do same for Belux, lookinto pay down tax and earnings 4. look into cash distribution to HPS and debt paydown",
+      "emailBlurb": "THE ASK Ã‚Â· Alex needs comprehensive EBITDA analysis for Belux/France covering 2025 monthly actuals, 2026 monthly budget and actuals with weather adjustments. Kabir, Scott Romanoff, and Mike Esposito are collaborating on tax treatment of cash distributions, requiring LTM calculations (Dec 2025 rolling to July 2026) and distributable cash modeling at constant leverage to validate the 1.2-2M Euro valuation under the competing indicative offers.\nCONTEXT Ã‚Â· This flows from the July IMO France divestiture process where AMAVI submitted a 1.2-2M Euro EBITDA indicative offer for Belux & France. Lock box discussions with bidders occurred late July (July 30-31), with Kabir and Alex leading buyer engagement. The EBITDA definition in the offers now requires validation against actual monthly operating performance and proper tax structuring for distributions.\nSUGGESTED PLAN\n1. Compile monthly actual EBITDA for Belux and France for all 2025 and 2026 YTD (through July 2026)\n2. Obtain and apply 2026 monthly budget EBITDA to calculate actuals-versus-budget variance\n3. Determine weather normalization adjustments with operations and apply to monthly EBITDA figures\n4. Calculate Dec 2025 LTM EBITDA (12 months ended Dec 31, 2025)\n5. Roll forward to July 2026 LTM EBITDA (12 months ended July 31, 2026)\n6. Confirm target leverage ratio and debt covenant requirements with Kabir and Scott\n7. Calculate distributable cash at constant leverage using the LTM metrics, incorporating Mike Esposito's tax treatment guidance\n1. finalize france locked box 2. france purchae price and mutiplle, and ebitda monthly, post tax include F&E, 3. do same for Belux, lookinto pay down tax and earnings 4. look into cash distribution to HPS and debt paydown",
       "steps": [],
       "context": "",
       "reassignedTo": null,
@@ -4387,7 +4416,7 @@
       "addressedTo": "You + Luke + Justin",
       "askType": "internal",
       "needsCall": false,
-      "emailBlurb": "Kabir circulated the entity-by-entity steps plan for distributing intercompany receivables and cash through Brossecar, MBMP, CPS, and IMO France ahead of the transaction, with a workbook attached. Several balances can't be distributed (retained-earnings limits) and must be settled in the transaction mechanics â€” worth validating before steps are executed. You flagged this email in Outlook.",
+      "emailBlurb": "Kabir circulated the entity-by-entity steps plan for distributing intercompany receivables and cash through Brossecar, MBMP, CPS, and IMO France ahead of the transaction, with a workbook attached. Several balances can't be distributed (retained-earnings limits) and must be settled in the transaction mechanics Ã¢â‚¬â€ worth validating before steps are executed. You flagged this email in Outlook.",
       "steps": [
         "Work through the attached steps-plan workbook",
         "Check the retained-earnings blocked balances",
@@ -4449,7 +4478,7 @@
       "addressedTo": "You",
       "askType": "external",
       "needsCall": false,
-      "emailBlurb": "PwC finished its high-level review of the Dec 2025 Bravo Fit tax return and is broadly comfortable â€” ~A$10m of tax losses utilized and ~A$2m of denied interest carried forward. Phil is reverting to Nick at William Buck, who needs the green light to collate the return for signing.",
+      "emailBlurb": "PwC finished its high-level review of the Dec 2025 Bravo Fit tax return and is broadly comfortable Ã¢â‚¬â€ ~A$10m of tax losses utilized and ~A$2m of denied interest carried forward. Phil is reverting to Nick at William Buck, who needs the green light to collate the return for signing.",
       "steps": [
         "Confirm no open questions on PwC's outcomes",
         "Verify Nick got the go-ahead to collate for signing",
@@ -4529,5 +4558,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T19:21:01Z"
+  "lastSync": "2026-08-20T19:46:00Z"
 }
