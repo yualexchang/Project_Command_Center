@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-20T12:35:00.000Z",
+  "updatedAt": "2026-08-20T20:51:46.000Z",
   "items": [
     {
       "sentiment": "negative",
@@ -10,6 +10,16 @@
       "source": "HuffPost UK",
       "date": "2026-08-20",
       "url": "https://www.huffingtonpost.co.uk/entry/hosepipe-bans-may-stay-end-of-year_uk_6a86b6b5e4b0e9f1dd2782a8"
+    },
+    {
+      "sentiment": "neutral",
+      "scope": "UK",
+      "short": "Unmanned entrant opens",
+      "headline": "Washpod opens first UK site in Grantham, plans regional Midlands network",
+      "summary": "A new unmanned self-serve entrant with app pricing and planned subscriptions is testing the format in the Midlands, small today but worth watching near UK sites.",
+      "source": "CarwashPro",
+      "date": "2026-08-20",
+      "url": "https://www.carwashpro.com/inside-the-industry/2026/08/20/washpod-opens-first-uk-site-as-expansion-plans-take-shape/"
     },
     {
       "sentiment": "neutral",
@@ -40,16 +50,6 @@
       "source": "GOV.UK (Environment Agency)",
       "date": "2026-08-10",
       "url": "https://www.gov.uk/government/news/more-areas-in-england-declared-in-drought-after-record-dry-july"
-    },
-    {
-      "sentiment": "neutral",
-      "scope": "UK",
-      "short": "Nine hosepipe bans",
-      "headline": "Nine UK hosepipe bans in force; Southern Water consults on wider non-essential use ban",
-      "summary": "Home-washing bans push volume to commercial sites, but a Southern Water non-essential use ban could restrict business vehicle washing outright.",
-      "source": "Water Industry Hub",
-      "date": "2026-08-08",
-      "url": "https://www.waterindustryhub.com/intelligence-uk-hosepipe-bans-water-conservation-summer-2026.html"
     }
   ]
 }
