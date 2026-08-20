@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kc8fq2zr",
+      "title": "Book Ken Caryl update call with Stacey and Jeneane",
+      "project": "KEP - Ken Caryl",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "Brian Zales",
+      "addressedTo": "You + Kelsey",
+      "askType": "external",
+      "needsCall": true,
+      "emailBlurb": "Brian Zales came back with his open windows tomorrow after you proposed a Friday update call with the sellers. You need to lock a slot against Kelsey's availability and be ready to walk Stacey and Jeneane through the updated proposal, which they are expecting by end of week.",
+      "steps": [
+        "Get Kelsey availability for Friday windows",
+        "Send invite matching Brian 10:00-11:30 MST",
+        "Prep updated proposal talking points"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "brian.zales@gmail.com",
+      "subject": "Re: Ken Caryl Followup Question List",
+      "src": "email",
+      "rank": 1787229660000,
+      "createdAt": "2026-08-20T12:41:00.000Z"
+    },
+    {
       "id": "a7f3k9q2",
       "title": "Send David lender deck PPT for Atlas FIRB responses",
       "project": "Bravo Fit",
@@ -3915,5 +3944,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T12:30:00Z"
+  "lastSync": "2026-08-20T12:41:00Z"
 }
