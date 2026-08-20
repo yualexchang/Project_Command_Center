@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "sl9dilap42",
+      "title": "Pull dilapidation provision backup for Sea Lion",
+      "project": "IMO (Project Sea Lion)",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Kabir Mundkur",
+      "addressedTo": "You + Simon",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Kabir is asking whether you or Simon already have the workings behind the dilapidation provision, and to chase the underlying detail if not. The buyer wants the calculation supporting the EUR 1.294m accounting provision reconciled to the site schedule, and it is one of the last open economic points on the locked box.",
+      "steps": [
+        "Check if Simon already holds the dilapidations workpaper",
+        "Ask ICWG finance for site-level reconciliation",
+        "Send Kabir the backup with discount rate noted"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "kabir.mundkur@fep-us.com",
+      "subject": "RE: Sea Lion - locked box etc. [SIMS-L_LIVE_EMEA1.151495.151495-00001.FID3726343] - dilapidations",
+      "src": "email",
+      "rank": 1787261400005,
+      "createdAt": "2026-08-20T14:41:00.000Z"
+    },
+    {
       "id": "sa4nz6ilmt1kfyn8",
       "title": "KEP Development Remodel",
       "project": "Kindling (KEP)",
@@ -4074,5 +4103,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T14:05:00Z"
+  "lastSync": "2026-08-20T14:41:00.000Z"
 }
