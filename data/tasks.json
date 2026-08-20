@@ -1,6 +1,93 @@
 {
   "tasks": [
     {
+      "id": "a814becb47",
+      "status": "todo",
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "src": "email",
+      "createdAt": "2026-08-20T17:11:12Z",
+      "title": "Roll DevCo model forward to 2026 for John Teza",
+      "project": "FEP DevCo",
+      "priority": "high",
+      "deadline": null,
+      "deadlineType": null,
+      "assignedBy": "Matt Crowe",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": true,
+      "emailBlurb": "John Teza at Janus Brands wants the DevCo investment model rebased to start in 2026 rather than 2025, because he needs it to support insurance applications. Matt flagged that Alex built the original model and offered a call to scope what Teza actually needs.",
+      "steps": [
+        "Pull original DevCo model and vExternal deck",
+        "Confirm scope and 2026 basis with Matt",
+        "Roll forward and send Teza updated version"
+      ],
+      "sender": "matt.crowe@fep-us.com",
+      "subject": "RE: FEP DevCo Discussion",
+      "rank": 1787245872004
+    },
+    {
+      "id": "82728f8837",
+      "status": "todo",
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "src": "email",
+      "createdAt": "2026-08-20T17:11:12Z",
+      "title": "Update weekly workflow file 8.21 tab",
+      "project": "Admin",
+      "priority": "medium",
+      "deadline": "2026-08-21",
+      "deadlineType": "explicit",
+      "assignedBy": "Kelsey Rearden",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Kelsey asked the deal team to fill in their sections of the shared weekly workflow file before tomorrow morning, using the new 8.21 tab rather than last week's. She also wants each person to reply on the thread confirming they have done it.",
+      "steps": [
+        "Open workflow file and select 8.21 tab",
+        "Update own workstreams and priorities",
+        "Reply to Kelsey confirming completion"
+      ],
+      "sender": "kelsey.rearden@fep-us.com",
+      "subject": "Re: Reminder: Update Weekly Workflow file 8.21",
+      "rank": 1787245872003
+    },
+    {
+      "id": "df1347ddad",
+      "status": "todo",
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "src": "email",
+      "createdAt": "2026-08-20T17:11:12Z",
+      "title": "Get Kindling C-team comp detail for G&A tracking",
+      "project": "Kindling (KEP)",
+      "priority": "medium",
+      "deadline": null,
+      "deadlineType": null,
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Responding to Alex's request to Andrea for executed employment agreements, David said the senior leadership packages matter most since board-level comp and bonus targets are set against company performance. He wants as much comp detail as possible early so FEP can track the G&A build against projections.",
+      "steps": [
+        "Prioritize C-suite agreements in Andrea request",
+        "Extract comp and bonus terms into schedule",
+        "Compare G&A build vs model projections"
+      ],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "RE: Employment Contracts",
+      "rank": 1787245872002
+    },
+    {
       "id": "pnskbrdg1",
       "title": "Compile Penske response to AHM bridge amendment request",
       "project": "Penske",
@@ -4277,5 +4364,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T17:00:12Z"
+  "lastSync": "2026-08-20T17:11:12Z"
 }
