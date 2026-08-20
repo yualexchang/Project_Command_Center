@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "pnskbrdg1",
+      "title": "Compile Penske response to AHM bridge amendment request",
+      "project": "Penske",
+      "priority": "high",
+      "deadline": "2026-08-24",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "American Honda wants the bridge agreement amended to reflect the new ownership before it will finish the Region-level ownership package, and David has asked the Penske team to put together FEP's response. Honda's Kariem Hasnain has to sign off, so the reply also needs to be coordinated with him.",
+      "steps": [
+        "Read AHM's Aug 20 letter and the July 28 attorney letter",
+        "Align with Isaac, Guzman and H&K on amendment position",
+        "Send agreed response to Kariem and Troy"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "FW: Request for Bridge Agreement Amendment for Entity Change",
+      "src": "email",
+      "rank": 1787261700000,
+      "createdAt": "2026-08-20T17:00:00Z"
+    },
+    {
       "id": "hm270r94uo",
       "title": "Close out Sea Lion SPA open items for Simmons",
       "project": "IMO / Sea Lion",
@@ -4248,5 +4277,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T16:31:00Z"
+  "lastSync": "2026-08-20T17:00:12Z"
 }
