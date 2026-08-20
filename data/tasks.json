@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "sp7k2m9q",
+      "title": "Send Kabir LTM view with Simon's schedules for SPA",
+      "project": "IMO / Sea Lion",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Kabir Mundkur",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Kabir wants the LTM view of the locked box sent over with Simon's schedules folded in, plus a check on the responses he drafted to Rachael Hewitt's mark-up. Her points cover dilapidations, landlord deposits, operator bonds, corporation tax, VAT and the ticker, so the numbers and the answers need to line up before this goes back to the buyer.",
+      "steps": [
+        "Rebuild locked box on LTM average NWC basis",
+        "Fold in the schedules Simon Quince provided",
+        "Review Kabir's draft responses, edit, return package"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "kabir.mundkur@fep-us.com",
+      "subject": "FW: SPA",
+      "src": "email",
+      "rank": 1787241047770,
+      "createdAt": "2026-08-20T15:52:00Z"
+    },
+    {
       "id": "sl26dilapfr1",
       "title": "Send France dilapidation provision detail to Kabir",
       "project": "IMO / Sea Lion",
@@ -4161,5 +4190,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T15:32:20Z"
+  "lastSync": "2026-08-20T15:52:00Z"
 }
