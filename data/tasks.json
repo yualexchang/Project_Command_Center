@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "37adbb7a16",
+      "title": "Send Danielle Atlas invoices and cost basis split",
+      "project": "Bravo Fit",
+      "priority": "high",
+      "deadline": "2026-08-20",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "Danielle Schaefer",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Danielle laid out the order of operations to clear the remaining Atlas Bidco payables and asked the group to send her the actual invoices. PwC is meant to be paid tonight US time, and every invoice still has to be split across FEP Series 2 and FEP CoInvest 2 as cost basis.",
+      "steps": [
+        "Pull Mallesons, PwC and Aon invoice PDFs from the deal files",
+        "Send them to Danielle before tonight's PwC payment run",
+        "Confirm the Series 2 vs CoInvest 2 basis allocation"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "danielle.schaefer@fep-us.com",
+      "subject": "Re: Atlas Bidco Payables",
+      "src": "email",
+      "rank": 1787261700003,
+      "createdAt": "2026-08-20T19:21:01Z"
+    },
+    {
       "id": "sbacash7q2",
       "title": "Send CBIZ SBA loan cash payment detail",
       "project": "Kindling (KEP)",
@@ -4500,5 +4529,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T19:10:40Z"
+  "lastSync": "2026-08-20T19:21:01Z"
 }
