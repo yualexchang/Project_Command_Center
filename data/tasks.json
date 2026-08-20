@@ -1,6 +1,37 @@
 {
   "tasks": [
     {
+      "id": "kcav91qd",
+      "title": "Clarify Stacey's walk posture for Andrea Vargas",
+      "project": "KEP - Ken Caryl",
+      "bucket": null,
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "completedAt": null,
+      "assignedBy": "Andrea Vargas",
+      "addressedTo": "You + David",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "Andrea wants the retrade line drawn precisely before she reviews the holdback deck: does Brian mean Stacey tolerates a structure change but walks only if headline value falls below the LOI price? Getting this right sets how hard the $600k holdback can be pitched at tomorrow's live walkthrough.",
+      "steps": [
+        "Re-read Brian's exact retrade wording",
+        "Reply separating structure change from value cut",
+        "Flag any ambiguity to David before the call"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "avargas@kindlingep.com",
+      "subject": "Re: Time Sensitive: Ken Caryl Holdback Proposal (External)",
+      "src": "email",
+      "rank": 1787262659000,
+      "createdAt": "2026-08-20T19:50:00Z"
+    },
+    {
       "id": "slcpre821",
       "title": "Review SLC market entry pre-reads before Friday session",
       "project": "KEP - SLC",
@@ -4558,5 +4589,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T19:46:00Z"
+  "lastSync": "2026-08-20T19:50:00Z"
 }
