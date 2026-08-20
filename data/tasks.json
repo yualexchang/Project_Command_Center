@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kepcomp26",
+      "title": "Set 2026 KEP comp plan targets for Andrea and team",
+      "project": "Kindling (KEP)",
+      "priority": "high",
+      "deadline": "2026-08-30",
+      "deadlineType": "explicit",
+      "status": "todo",
+      "assignedBy": "Mike Esposito",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": true,
+      "emailBlurb": "Mike asked whether a formal 2026 comp plan with defined EBITDA targets exists for Andrea and her key team, and wants it finalized within ten days. David flagged that no target is set yet because financials stay murky until CBIZ closes the books, so the team must pick between agreeing revenue/occupancy metrics now or waiting for clean EBITDA.",
+      "steps": [
+        "Draft 70-80% EBITDA / 20-30% KPI split per Mike",
+        "Confirm CBIZ books timing with David",
+        "Run targets by Heidi and Andrea"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "mike.esposito@fep-us.com",
+      "subject": "Comp plan",
+      "src": "email",
+      "rank": 1787232079154,
+      "createdAt": "2026-08-20T13:21:19.154Z"
+    },
+    {
       "id": "kc8fq2zr",
       "title": "Book Ken Caryl update call with Stacey and Jeneane",
       "project": "KEP - Ken Caryl",
@@ -3944,5 +3973,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T12:41:00Z"
+  "lastSync": "2026-08-20T13:21:19Z"
 }
