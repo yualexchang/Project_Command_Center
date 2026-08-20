@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "sbacash7q2",
+      "title": "Send CBIZ SBA loan cash payment detail",
+      "project": "Kindling (KEP)",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "Stephanie Das (CBIZ)",
+      "addressedTo": "You",
+      "askType": "external",
+      "needsCall": false,
+      "emailBlurb": "CBIZ reviewed KEP's bank activity and can only see the small residual SBA balances, not the roughly $500K paid on each of the Thornton and Stapleton loans, so Stephanie is chasing for the second time. She needs the actual cash payment detail to book the right accruals on the closing balance sheet.",
+      "steps": [
+        "Chase KEP team for post-close SBA payment proof",
+        "Tie payments to funds flow $513K estimate vs $500,008 actual",
+        "Send CBIZ the payment detail and reconciliation"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "stephanie.das@CBIZ.com",
+      "subject": "RE: SBA Loan Payoff",
+      "src": "email",
+      "rank": 1787261700002,
+      "createdAt": "2026-08-20T19:10:40Z"
+    },
+    {
       "id": "v2mwyn881",
       "title": "Confirm or move AlphaSense demo call today",
       "project": "Admin",
@@ -4471,5 +4500,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T18:50:29Z"
+  "lastSync": "2026-08-20T19:10:40Z"
 }
