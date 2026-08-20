@@ -22,8 +22,8 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-3 | Make `npm run build` produce a working app | open | medium | Blocks every hosting option; API is dev-server-only |
 | CC-4 | Stop the dashboard clobbering hand edits to `tasks.json` | open | medium | Silent data loss when editing the file while the server is up |
 | CC-5 | Single home for the skills (stop the double copy) | open | medium | Two copies drift; edit one, the other silently wins |
-| CC-6 | Get the dashboard onto Alex's phone | open | medium | Wants it away from the desk |
-| CC-7 | Bind Vite beyond `::1` | open | low | One-line prerequisite for CC-6 |
+| CC-6 | Get the dashboard onto Alex's phone | done | medium | Shipped: `npm run remote` — Cloudflare quick tunnel + token gate + QR. Proven end to end over the public internet |
+| CC-7 | Bind Vite beyond `::1` | done | low | Shipped with CC-6: `host`/`allowedHosts` in remote mode only; tunnel mode deliberately stays on loopback |
 | CC-8 | Find what resets `tasks.json` to the empty default | open | high | All 30 tasks silently wiped on 2026-08-06; recovered only because git had them |
 | CC-9 | Scheduled sync every 10 min, Mon-Fri business hours | done | high | Registered and proven live: exit=0 in 407s, committed `d81fb5c`, and the M365 connector works from a scheduled session |
 | CC-10 | Done-detection — sync scans Sent Items, flags tasks whose thread Alex replied to | open | high | Tasks only close by hand today; the mailbox already knows |
@@ -40,7 +40,7 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-21 | Verify Penske bucket regex when the first Penske task lands | open | low | Silent misbucketing risk; `/penske/i` is unproven against real naming |
 | CC-22 | Pin per-deal Egnyte folders in `data/egnyte-roots.json` as deals spin up | open | low | Recurring upkeep; keeps path lookups fast as deal count grows |
 | CC-23 | Keyboard shortcuts (j/k move, space advance, u undo) | open | low | Speed for a daily-driver tool |
-| CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | open | low | Pairs with CC-6 (phone access) |
+| CC-24 | Responsive layout pass — dials wrap awkwardly below ~700px | done | low | Shipped with CC-6: one 760px breakpoint; verified in a browser at 390x844 |
 | CC-25 | Due pipeline on calendar weeks, not a rolling 7/14-day window | done | medium | Shipped: buckets now cut off at the coming Sunday; also fixed the off-by-one in `daysUntil` |
 | CC-26 | `setDueIn` lands a day late when used after ~20:00 local | open | medium | The +1/+3/+7 buttons silently set the wrong date in the evening |
 | CC-27 | Group every sort under headers; split Ingested into FIFO/LIFO | done | medium | Shipped: deadline/priority/FIFO/LIFO all group; due pipeline gained a "this month" bucket |
@@ -50,6 +50,10 @@ Same philosophy as `data/tasks.json`: one file, git history is the archive.
 | CC-31 | Completed pipeline bar under the due pipeline | done | medium | Shipped: `completedAt` added to the model, 51 done tasks backfilled from git history |
 | CC-32 | `ageOf` reads the UTC date, so FIFO/LIFO groups skew after ~20:00 | open | medium | Same class as CC-26; a task ingested late evening groups a day early |
 | CC-33 | Only `sync-tick.ps1` takes the sync lock — the bridge routes don't | done | high | Shipped: `/api/sync` and `/api/research` now take the same lockfile, so a tick and a button press can no longer interleave |
+| CC-34 | Named tunnel behind Cloudflare Access, instead of a quick tunnel + our own token | open | medium | Today's URL changes every run and our gate is homegrown auth on a box that can spawn Claude |
+| CC-35 | Touch has no right-click — two actions are unreachable on the phone | open | medium | Recategorize and "back to to-do" are right-click only (CC-6) |
+| CC-36 | The HMR websocket bypasses the remote token gate | done | low | Shipped with CC-6: an `upgrade` listener ahead of Vite's checks the same cookie, and HMR is off remotely |
+| CC-37 | Read-only mirror for when the laptop is asleep | open | low | CC-6 option B, still unbuilt: the tunnel needs this machine awake |
 
 ---
 
@@ -137,19 +141,50 @@ depends on how Claude Code was invoked. Pick the repo copy as canonical and repl
 the home-directory copy with a symlink (`New-Item -ItemType SymbolicLink` — may need
 Developer Mode, no admin), or delete the home copy and always run from the repo.
 
-## CC-6 — Get the dashboard onto Alex's phone
+## CC-6 — Get the dashboard onto Alex's phone — DONE
 
-Two viable paths (full comparison in the 2026-08-06 session):
+Shipped 2026-08-13, option A (tunnel). One command:
 
-- **Tunnel (~30 min, laptop must be awake):** `cloudflared tunnel --url
-  http://localhost:5173` — portable exe, no admin, same pattern as `~\Tools\node`.
-  Gives the *whole* app including the Sync button, because compute stays local.
-  **Must** be gated by Cloudflare Access (free) and needs CC-2 and CC-7 first.
-- **Static UI + GitHub as the store (~half day, laptop can be closed):** UI to
-  Cloudflare Pages/Vercel; read and write `tasks.json` through the GitHub API with a
-  fine-grained PAT — keeps git-history-as-archive. Sync stays local on a schedule and
-  pushes; the phone reads the last push. Needs CC-3. Loses the on-demand Sync button
-  and the Egnyte path-finder.
+```powershell
+npm run remote        # Cloudflare quick tunnel — works on any network
+npm run remote:lan    # same thing over the wifi, no Cloudflare
+```
+
+`scripts/remote.mjs` mints a token, starts the dev server with `PCC_REMOTE` set,
+downloads a portable `cloudflared` to `~\Tools\cloudflared` (same no-admin pattern
+as `~\Tools\node`), opens the tunnel, and prints the link as a QR code. Ctrl-C
+stops both halves.
+
+**Option A was the right half of the fork** precisely because compute stays on the
+laptop: ↻ Refresh and 🔍 Research still work from the phone, which is what option B
+gives up. The cost is that the laptop must be awake — now its own row, CC-37.
+
+**The gate is the interesting part, and it is not CC-2.** CC-2's constant header
+stops a drive-by page in *this* browser; it is worthless once the port is on the
+internet, exactly as that row said. So remote mode adds a real shared secret in
+`data/.remote-token` (gitignored, 24 random bytes) in front of **everything** —
+the app, `/api/*`, and Vite's own module graph — because these routes spawn
+`claude -p --permission-mode bypassPermissions`. `?k=<token>` is traded for an
+HttpOnly SameSite=Lax cookie and redirected away, so the secret leaves the URL bar
+on the first load. `guarded()`'s origin check now also accepts the request's own
+Host, since the tunnel hostname can't be a fixed list.
+
+**It fails closed:** `PCC_REMOTE` set with no token is a startup error, not an
+unguarded server. And `npm run dev` is untouched — no gate, loopback, exactly as
+before — so the desk workflow can't regress from this.
+
+Verified end to end over the public internet, not just locally: 401 without the
+key, magic link → cookie → app and `/api/tasks`, the bridge routes still 403 for a
+foreign `Origin`, and Vite's own host check rejecting a spoofed Host.
+
+**Still true, and still not addressed:** `tasks.json` holds live FEP deal names,
+portfolio companies and colleagues' addresses, and a tunnel puts all of it on the
+public internet behind one secret for as long as the window is open. Worth a word
+with whoever owns FEP data policy before this becomes a daily habit. Brandon
+Emmerich's offer of FEP devops infra is the sanctioned path if it does.
+
+Follow-ups: CC-34 (named tunnel + Cloudflare Access), CC-35 (touch has no
+right-click), CC-36 (HMR websocket), CC-37 (laptop asleep).
 
 A full cloud rebuild (Anthropic API key + Entra app for Graph mail + Egnyte API) is
 the plan already abandoned for this project — don't revisit without a reason.
@@ -172,12 +207,25 @@ colleagues' addresses. Hosting it moves that data off the laptop — worth a wor
 whoever owns FEP data policy. Brandon Emmerich offered FEP devops infra if hosting is
 ever needed; that's the sanctioned path.
 
-## CC-7 — Bind Vite beyond `::1`
+## CC-7 — Bind Vite beyond `::1` — DONE
 
-The dev server currently listens on `::1:5173` (IPv6 localhost only), so nothing else
-can reach it. Add `server: { host: true }` to `vite.config.js`. If Vite then rejects
-the tunnel's hostname, also set `server.allowedHosts`. Only do this alongside CC-2 —
-it is what makes the unauthenticated endpoints reachable.
+Shipped 2026-08-13 with CC-6, but narrower than this row asked for, and
+deliberately:
+
+- **`npm run dev` still binds loopback.** Unconditional `host: true` would have
+  put the bridge routes on the wifi for every future session, including the ones
+  that never wanted remote access.
+- **Tunnel mode also binds loopback.** `cloudflared` dials `127.0.0.1` from this
+  machine, so nothing has to listen on the network for the phone to work. Only
+  `npm run remote:lan` sets `host: true`.
+- `allowedHosts` was needed, as this row guessed: Vite's DNS-rebinding check
+  rejects the tunnel's hostname. It is set to `.trycloudflare.com` (wildcard —
+  the quick tunnel's name is different every run) plus anything in
+  `PCC_ALLOWED_HOSTS`, which is where a named tunnel's hostname goes (CC-34).
+
+The row's last line was right and is worth keeping: binding wider is what makes
+the endpoints reachable, so it only went in alongside a real secret. CC-2's header
+was not enough for this — see CC-6.
 
 ## CC-9 … CC-24 — batch captured 2026-08-06 (improvement brainstorm)
 
@@ -545,3 +593,75 @@ third copy of it:
 
 Related: CC-4 (whole-file `writeFileSync`), CC-9 (the schedule), and the CC-9
 prose above, which needs its lock claim corrected in the same commit.
+
+## CC-34 — Named tunnel behind Cloudflare Access
+
+CC-6 ships a *quick* tunnel: no Cloudflare account, no config, and a random
+`*.trycloudflare.com` hostname that is different on every run. Two consequences
+worth fixing once this is a daily habit rather than a trial:
+
+- **No bookmark, no home-screen icon that survives a restart.** The QR is the only
+  way in, which means the laptop must be in front of you to get onto the phone.
+- **The front door is homegrown.** One shared secret, written by us, in front of
+  routes that spawn `claude -p --permission-mode bypassPermissions`. Cloudflare
+  Access (free tier) puts a real identity check in front of the tunnel instead —
+  which is what the original CC-6 row asked for and this shipped without.
+
+Shape of the work: `cloudflared tunnel login` once, create a named tunnel with a
+stable hostname, add an Access application with a one-person policy, then point
+`scripts/remote.mjs` at the named tunnel and set `PCC_ALLOWED_HOSTS` to that
+hostname (the plumbing for that env var already exists). Keep the token gate as a
+second lock — Access in front, secret behind.
+
+## CC-35 — Touch has no right-click
+
+Two actions on the task list are right-click only, so neither exists on the phone:
+
+- **"Back to to-do"** — `onContextMenu` on the status circle. Left-click only
+  advances, so a task ticked done by mistake on the phone can only be cycled
+  forward through the whole loop.
+- **Recategorize** — `onContextMenu` on the project chip opens the dial-category
+  menu. On touch there is no way to reach it at all.
+
+Both want a long-press (`pointerdown` + ~500ms timer, cancelled on move/up) firing
+the same handler, which also stays out of the way of the desk's right-click.
+
+## CC-36 — The HMR websocket bypasses the remote token gate — DONE
+
+Filed and closed 2026-08-13, in the same sitting as CC-6 — an unauthenticated
+socket into a process that spawns permission-bypassed Claude runs was not going
+onto the internet as a follow-up row.
+
+`remoteAuth()` is connect middleware, and an HTTP *upgrade* never passes through
+connect: Vite's websocket server handles it directly. So the gate that fronts
+every route did not front this one, and with a tunnel open anyone who knew the
+hostname could connect.
+
+Two things went in, and the order matters:
+
+- **`server.hmr: false` in remote mode.** Carrying the desk on a phone doesn't
+  need hot reload. Cost: while `npm run remote` is up, code edits need a page
+  refresh.
+- **An `upgrade` listener that checks the same session cookie**, added with
+  `prependListener` so it runs *before* Vite's own handler, writing 401 and
+  destroying the socket when the cookie is missing. `hmr: false` alone was not
+  enough — measured, not assumed: the websocket server still answered a
+  `vite-hmr` upgrade with `101 Switching Protocols`.
+
+Destroying the socket underneath Vite is safe because `ws` bails out on a socket
+that is no longer writable. Verified: 401 without the cookie, 101 with it, and the
+dev server still serving normally afterwards.
+
+## CC-37 — Read-only mirror for when the laptop is asleep
+
+CC-6 shipped option A, so the desk is only on the phone while this machine is
+awake with `npm run remote` running. Option B from that row is still unbuilt and is
+the answer to "check the desk from the train with the laptop in a bag":
+
+Static UI hosted somewhere, reading `data/tasks.json` from GitHub — the scheduled
+sync (CC-9) already commits and pushes every 10 minutes, so the file in git is
+never more than that stale. Read-only is the honest scope: no ↻ Refresh, no
+🔍 Research, no Egnyte path-finder, since all three are `claude -p` on this laptop.
+Needs CC-3 first (the build has no `/api/*` at all). Writing back through the
+GitHub API with a fine-grained PAT is a second step, and would collide with the
+sync's own writes (CC-4) — worth its own row when it comes to that.

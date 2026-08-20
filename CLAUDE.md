@@ -13,7 +13,12 @@
 ## Gotchas
 
 - `npm run dev` is the only working way to run this — all `/api/*` routes live in
-  Vite's `configureServer`, so `npm run build` output has no API (see `TODO.md` CC-3).
+ Vite's `configureServer`, so `npm run build` output has no API (see `TODO.md` CC-3).
+ `npm run remote` is the same dev server with `PCC_REMOTE` set: a token gate in
+ front of every route plus a Cloudflare tunnel, for phone access (CC-6).
+- Anything reachable off this laptop must stay behind that token. `PCC_REMOTE`
+ with no `data/.remote-token` is a deliberate startup error — don't "fix" it by
+ relaxing the check, and never commit the token file.
 - The dev server rewrites all of `data/tasks.json` on every dashboard change. Don't
   hand-edit that file while it's running (CC-4).
 - Skills exist in both `.claude/skills/` and `~\.claude\skills\` — edit both or they

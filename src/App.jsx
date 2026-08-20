@@ -34,6 +34,33 @@ const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(
 // the server never answers (CC-2, guarded() in vite.config.js).
 const BRIDGE = { "x-pcc-bridge": "1" };
 
+// ---------- layout ----------
+// CC-24 / CC-6. One breakpoint, because this desk has exactly two shapes to
+// serve: the 1080px column on the laptop, and a phone held upright. Everything
+// narrower than a small tablet gets the stacked layout.
+// matchMedia rather than a resize listener — a rotation fires it once instead of
+// once per animation frame — and every window access is guarded, because the
+// only test harness this repo has is renderToStaticMarkup with no DOM.
+const NARROW_Q = "(max-width: 760px)";
+function useNarrow() {
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== "undefined" && !!window.matchMedia && window.matchMedia(NARROW_Q).matches
+  );
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia(NARROW_Q);
+    const on = (e) => setNarrow(e.matches);
+    setNarrow(mq.matches);
+    if (mq.addEventListener) mq.addEventListener("change", on);
+    else mq.addListener(on);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", on);
+      else mq.removeListener(on);
+    };
+  }, []);
+  return narrow;
+}
+
 // ---------- date helpers ----------
 // whole calendar days from today to dstr: 0 = today, 1 = tomorrow, -1 = yesterday.
 // Both sides are pinned to local midnight so the answer never depends on the time
@@ -337,6 +364,7 @@ const PORTCO_RAIL = [
 ];
 
 function DialRow({ tasks, nonce }) {
+  const narrow = useNarrow();
   const cat = (t) =>
     t.status === "done" ? "done" : t.reassignedTo ? "delegated" : t.status === "progress" ? "inProgress" : "open";
   const tally = (list) => {
@@ -377,15 +405,21 @@ function DialRow({ tasks, nonce }) {
           Both columns are flex items so the layout stacks instead of crushing
           when the window gets narrow. (Stacked, the divider is left hanging on
           the left block's right edge — cosmetic, and only below ~800px.) */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 18, marginTop: 4, alignItems: "stretch" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: narrow ? 10 : 18, marginTop: 4, alignItems: "stretch" }}>
         <div style={{
           // narrow: the four mini dials sit four-across in one line rather than
           // a 2x2, which is where most of the section's height was going
-          flex: "0 1 312px", minWidth: 280, maxWidth: 312, display: "flex", flexDirection: "column",
+          flex: narrow ? "1 1 100%" : "0 1 312px",
+          minWidth: narrow ? 0 : 280, maxWidth: narrow ? "none" : 312,
+          display: "flex", flexDirection: "column",
           // the left stack is shorter than the four-row rail; centre it so the
           // slack splits above and below instead of pooling under the minis
           justifyContent: "center",
-          borderRight: `2px solid ${LINE}`, paddingRight: 14, boxSizing: "content-box",
+          // on a phone the columns are stacked, so the divider turns to face the
+          // other way rather than hanging off the left block's right edge
+          ...(narrow
+            ? { borderBottom: `2px solid ${LINE}`, paddingBottom: 10 }
+            : { borderRight: `2px solid ${LINE}`, paddingRight: 14, boxSizing: "content-box" }),
         }}>
           {/* the book total reads as a summary panel, not a fifth peer dial */}
           <div style={{
@@ -395,22 +429,30 @@ function DialRow({ tasks, nonce }) {
             <Gauge label="All Projects" variant="hero" {...tally(tasks)} />
           </div>
           <div style={{
+            // four-across needs ~320px; below that they wrap to a 2x2 rather
+            // than squeezing the labels into two ragged lines each
             display: "flex", justifyContent: "space-between", gap: 2, marginTop: 8,
+            flexWrap: narrow ? "wrap" : "nowrap",
           }}>
             {["Live Deals", "AI Projects", "Admin", "Miscellaneous"].map((k) => (
-              <div key={k} style={{ display: "flex", justifyContent: "center" }}>{dial(k, "mini")}</div>
+              <div key={k} style={{ display: "flex", justifyContent: "center", flex: narrow ? "1 1 70px" : "0 0 auto" }}>{dial(k, "mini")}</div>
             ))}
           </div>
         </div>
 
-        <div style={{ flex: "2 1 430px", minWidth: 330, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: narrow ? "1 1 100%" : "2 1 430px", minWidth: narrow ? 0 : 330, display: "flex", flexDirection: "column" }}>
           {PORTCO_RAIL.map((p, i) => (
             <div key={p.key} style={{
               // left to right: clock, dial, then the context slot. Every row is
               // the same height whatever its context holds, so the four dials
               // sit on an even pitch down the rail.
               display: "flex", alignItems: "center", gap: 8,
-              minHeight: PORTCO_ROW_H,
+              // On a phone the row wraps: clock + dial on one line, that portco's
+              // context under it. The fixed pitch is what keeps the dials aligned
+              // on the desk, and it is exactly what a wrapped row must not have.
+              flexWrap: narrow ? "wrap" : "nowrap",
+              minHeight: narrow ? 0 : PORTCO_ROW_H,
+              padding: narrow ? "8px 0" : 0,
               borderTop: i ? `1px solid ${LINE}` : "none",
             }}>
               <ClockCard portco={p.key} />
@@ -419,7 +461,7 @@ function DialRow({ tasks, nonce }) {
               </div>
               {/* one flex:1 context slot per row, so all four end flush right;
                   IMO's weather takes a fixed bite out of its news box */}
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flex: narrow ? "1 1 100%" : 1, minWidth: 0 }}>
                 {p.weather && (
                   <div style={{ width: WEATHER_W, flexShrink: 0, display: "flex" }}>
                     <WeatherStrip />
@@ -863,6 +905,7 @@ function CompletedBar({ tasks }) {
 
 // ---------- component ----------
 export default function CommandCenter() {
+  const narrow = useNarrow(); // phone layout (CC-6/CC-24)
   const [tasks, setTasks] = useState([]);
   const [lastSync, setLastSync] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -1561,21 +1604,21 @@ export default function CommandCenter() {
 
       {/* widened from 920 so the IMO row (clock + two weather cards + news) fits
           on one line instead of wrapping and making that row taller than its peers */}
-      <div style={{ maxWidth: 1080, margin: "0 auto", padding: "28px 20px 80px" }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto", padding: narrow ? "16px 10px 60px" : "28px 20px 80px" }}>
 
         {/* masthead */}
-        <div style={{ borderBottom: `2px solid ${INK}`, paddingBottom: 14, marginBottom: 6 }}>
+        <div style={{ borderBottom: `2px solid ${INK}`, paddingBottom: narrow ? 10 : 14, marginBottom: 6 }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <Logo />
+            <div style={{ display: "flex", alignItems: "center", gap: narrow ? 10 : 16 }}>
+              <Logo size={narrow ? 56 : 92} />
               <div>
-                <div style={{ fontFamily: MONO, fontSize: 13, letterSpacing: 2.5, color: INK, fontWeight: 700 }}>
+                <div style={{ fontFamily: MONO, fontSize: narrow ? 11 : 13, letterSpacing: narrow ? 1.5 : 2.5, color: INK, fontWeight: 700 }}>
                   PROJECT COMMAND CENTER
                 </div>
                 <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, color: SOFT, marginTop: 3 }}>
                   {new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }).toUpperCase()}
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, marginTop: 6 }}>
+                <div style={{ fontSize: narrow ? 16 : 20, fontWeight: 700, letterSpacing: -0.5, marginTop: 6 }}>
                   {openCount} on you · {delegatedCount} delegated · {dueSoon} due ≤3d
                 </div>
                 <div style={{ fontSize: 12, color: FAINT, fontFamily: MONO, marginTop: 4 }}>
@@ -1806,7 +1849,7 @@ export default function CommandCenter() {
                   borderRadius: 6, marginBottom: 8, opacity: done ? 0.55 : 1,
                 }}>
                   {/* ---- overview row ---- */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: narrow ? 8 : 12, padding: narrow ? "10px 8px" : "10px 14px" }}>
                     <button onClick={() => setStatus(t, STATUS_NEXT[t.status])}
                       onContextMenu={(e) => { e.preventDefault(); if (t.status !== "todo") setStatus(t, "todo"); }}
                       title={t.status === "todo" ? "Click: start (in progress)" : t.status === "progress" ? "Click: complete · Right-click: back to to-do" : "Click or right-click: reopen"}
@@ -1819,13 +1862,17 @@ export default function CommandCenter() {
                       {done ? "✓" : ""}
                     </button>
 
-                    <div style={{ flex: 1, minWidth: 0, cursor: "pointer", display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", columnGap: 10, rowGap: 5, alignItems: "start" }} onClick={() => toggleExpand(t.id)}>
+                    {/* Two columns on the desk — title with labels beside it, dates
+                        with the project chip beside them. On a phone there is no
+                        room for a second column, so the four cells stack into one
+                        and everything reads left-aligned down the card. */}
+                    <div style={{ flex: 1, minWidth: 0, cursor: "pointer", display: "grid", gridTemplateColumns: narrow ? "minmax(0, 1fr)" : "minmax(0, 1fr) auto", columnGap: 10, rowGap: 5, alignItems: "start" }} onClick={() => toggleExpand(t.id)}>
                       {/* top left: title */}
                       <div style={{ fontSize: 15, fontWeight: 600, textDecoration: done ? "line-through" : "none", minWidth: 0 }}>
                         {t.title}
                       </div>
                       {/* top right: labels */}
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end", alignItems: "center" }}>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: narrow ? "flex-start" : "flex-end", alignItems: "center" }}>
                         <span style={tag(t.askType === "external" ? "#7A4A1F" : SOFT, false)}>
                           {t.askType === "external" ? "EXT" : "INT"}
                         </span>
@@ -1875,7 +1922,7 @@ export default function CommandCenter() {
                         )}
                       </div>
                       {/* bottom right: project category (right-click to recategorize) */}
-                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <div style={{ display: "flex", justifyContent: narrow ? "flex-start" : "flex-end" }}>
                         <span
                           onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setBucketMenu({ id: t.id, x: e.clientX, y: e.clientY }); }}
                           title={`${bucket.key}${t.bucket ? " (set manually)" : " (auto from project name)"} — right-click to change category`}
@@ -1902,7 +1949,7 @@ export default function CommandCenter() {
 
                   {/* ---- expanded detail ---- */}
                   {isOpen && (
-                    <div style={{ borderTop: `1px solid ${LINE}`, padding: "12px 14px 14px 48px", fontSize: 13 }}>
+                    <div style={{ borderTop: `1px solid ${LINE}`, padding: narrow ? "12px 10px 14px" : "12px 14px 14px 48px", fontSize: 13 }}>
                       {t.emailBlurb && (
                         <div style={{ color: INK, marginBottom: 8 }}>
                           <span style={{ fontFamily: MONO, fontSize: 10, color: FAINT, letterSpacing: 1 }}>THE ASK · </span>
