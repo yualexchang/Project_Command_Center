@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "tymx7q3k",
+      "title": "Respond to David on Taymax follow-up capacity",
+      "project": "Taymax",
+      "priority": "high",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "David ODonnell",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "David asked the associate and analyst groups who has bandwidth to work the Taymax follow-up with him, attaching a large follow-up package. Whoever answers first likely owns the workstream, so a quick reply decides whether this lands on your plate.",
+      "steps": [
+        "Open the Taymax Follow Up attachment",
+        "Gauge scope against current KEP workload",
+        "Reply to David with your capacity"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "Taymax",
+      "src": "email",
+      "rank": 1787323185000,
+      "createdAt": "2026-08-20T15:00:00.000Z"
+    },
+    {
       "id": "0138c99547",
       "title": "Confirm whether Heidi joins SLC planning session",
       "project": "KEP - SLC",
@@ -4132,5 +4161,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T14:52:00.000Z"
+  "lastSync": "2026-08-20T15:00:00.000Z"
 }
