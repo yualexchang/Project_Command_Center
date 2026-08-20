@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "kc7h2b9x",
+      "title": "Discuss Ken Caryl holdback proposal with David",
+      "project": "KEP - Ken Caryl",
+      "priority": "high",
+      "deadline": "2026-08-21",
+      "deadlineType": "implicit",
+      "status": "todo",
+      "assignedBy": "David O'Donnell",
+      "addressedTo": "You",
+      "askType": "internal",
+      "needsCall": true,
+      "emailBlurb": "David wants to talk in person before the holdback deck goes to Stacey, rather than reply on email. The live walkthrough with Stacey, Jeneane and Brian is tomorrow, and Brian has already flagged that Stacey will walk if this reads as a retrade.",
+      "steps": [
+        "Grab David in person today",
+        "Confirm the $600k / 10% miss threshold",
+        "Update deck before tomorrow's Stacey walkthrough"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "david.odonnell@fep-us.com",
+      "subject": "RE: Time Sensitive: Ken Caryl Holdback Proposal (External)",
+      "src": "email",
+      "rank": 1787261700001,
+      "createdAt": "2026-08-20T17:50:00Z"
+    },
+    {
       "id": "a814becb47",
       "status": "todo",
       "context": "",
@@ -4364,5 +4393,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T17:11:12Z"
+  "lastSync": "2026-08-20T17:50:00Z"
 }
