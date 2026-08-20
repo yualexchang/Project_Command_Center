@@ -1,6 +1,16 @@
 {
-  "updatedAt": "2026-08-20T12:35:00.000Z",
+  "updatedAt": "2026-08-20T20:45:00.000Z",
   "items": [
+    {
+      "sentiment": "negative",
+      "scope": "US",
+      "short": "Used affordability erodes",
+      "headline": "Used-car affordability erodes as new-vehicle days' supply tightens to 75 days",
+      "summary": "Sub-$20K used inventory keeps getting scarcer while new supply tightens, squeezing the used gross a franchised group leans on when front-end margin compresses.",
+      "source": "CBT News",
+      "date": "2026-08-19",
+      "url": "https://www.cbtnews.com/cbt-automotive-newscast-august-19-2026"
+    },
     {
       "sentiment": "positive",
       "scope": "US",
@@ -30,16 +40,6 @@
       "source": "Digital Dealer",
       "date": "2026-08-10",
       "url": "https://digitaldealer.com/news/the-post-gross-era-why-dealership-profit-now-runs-through-the-finance-office/172683"
-    },
-    {
-      "sentiment": "negative",
-      "scope": "US",
-      "short": "Lithia new GPU -11%",
-      "headline": "Lithia posts record Q2 revenue but new-vehicle gross profit per unit falls 11.1%",
-      "summary": "A public comp, not the portco: record top line masking front-end margin compression is the same squeeze a SoCal franchised group faces.",
-      "source": "WardsAuto",
-      "date": "2026-08-04",
-      "url": "https://www.wardsauto.com/news/despite-record-revenues-lithia-works-behind-the-scenes-on-customer-afforda/826861/"
     },
     {
       "sentiment": "negative",
