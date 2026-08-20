@@ -1,6 +1,35 @@
 {
   "tasks": [
     {
+      "id": "hm270r94uo",
+      "title": "Close out Sea Lion SPA open items for Simmons",
+      "project": "IMO / Sea Lion",
+      "priority": "high",
+      "deadline": null,
+      "deadlineType": null,
+      "status": "todo",
+      "assignedBy": "Kabir Mundkur",
+      "addressedTo": "Deal team",
+      "askType": "internal",
+      "needsCall": false,
+      "emailBlurb": "Simmons is still waiting on the IMO team for the last SPA and diligence inputs: management accounts, the IMOF/CPS value split, shareholder debt and receivables, IPIC/TOMAN/AUTOP accounts, and the permitted leakage numbers for the schedule. Kabir bumped the thread and has already called the IMOF value at the Colliers figure, so the remaining gaps sit with you before the buyer returns the next SPA turn.",
+      "steps": [
+        "List which open items you own vs ICWG",
+        "Pull permitted leakage numbers for SPA schedule",
+        "Confirm IMOF/CPS split at Colliers 244K"
+      ],
+      "context": "",
+      "reassignedTo": null,
+      "followUpDate": null,
+      "notes": [],
+      "links": [],
+      "sender": "kabir.mundkur@fep-us.com",
+      "subject": "RE: [External] - Sea Lion - outstanding SPA / DD items [SIMS-L_LIVE_EMEA1.151495.151495-00001.FID3726343]",
+      "src": "email",
+      "rank": 1787261402008,
+      "createdAt": "2026-08-20T16:31:00Z"
+    },
+    {
       "id": "sl26dilapbx1",
       "title": "Book Belux dilaps provision into Sea Lion locked box",
       "project": "IMO / Sea Lion",
@@ -4219,5 +4248,5 @@
       "createdAt": "2026-08-05T20:50:00.000Z"
     }
   ],
-  "lastSync": "2026-08-20T16:09:37Z"
+  "lastSync": "2026-08-20T16:31:00Z"
 }
